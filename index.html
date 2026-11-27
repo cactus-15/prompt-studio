@@ -224,7 +224,7 @@
 
     .tree-items { margin-top: 1px; }
     .tree-item {
-      display: flex; align-items: center; gap: 7px; padding: 6px 8px 6px 26px; border-radius: 7px;
+      display: flex; align-items: center; gap: 7px; padding: 6px 8px 6px 38px; border-radius: 7px;
       color: var(--text-secondary); font-size: 13px; cursor: pointer; user-select: none; margin-top: 1px;
       border-top: 2px solid transparent; border-bottom: 2px solid transparent;
       transition: background 0.12s ease;
@@ -391,15 +391,29 @@
 
     /* Editor & Split Preview */
     .editor-stage { flex: 1; min-height: 0; display: flex; overflow: hidden; }
-    .editor-pane { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+    .editor-stage.is-resizing { user-select: none; cursor: col-resize; }
+    .editor-stage.is-resizing .preview-iframe { pointer-events: none; }
+    .editor-pane { flex: 1; min-width: 200px; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+    .split-resizer {
+      width: 6px; flex-shrink: 0; cursor: col-resize; position: relative; z-index: 5;
+      background: var(--border); background-clip: content-box; padding: 0 2.5px;
+      touch-action: none; transition: background 0.14s ease, padding 0.14s ease;
+    }
+    .split-resizer:hover, .editor-stage.is-resizing .split-resizer { background: var(--accent); padding: 0 1.5px; }
     .preview-pane {
-      width: 46%; min-width: 300px; border-left: 1px solid var(--border);
+      width: var(--preview-w, 46%); min-width: 220px; max-width: 78%; flex-shrink: 0;
       display: flex; flex-direction: column; background: var(--bg-subtle);
     }
     .preview-head {
-      height: 36px; padding: 0 12px; border-bottom: 1px solid var(--border); background: var(--bg-sidebar);
-      display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 500; color: var(--text-muted);
+      height: 36px; padding: 0 10px 0 12px; border-bottom: 1px solid var(--border); background: var(--bg-sidebar);
+      display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; font-weight: 500; color: var(--text-muted);
     }
+    .preview-props-input {
+      flex: 1; min-width: 80px; max-width: 240px; height: 24px; padding: 0 7px;
+      border: 1px solid var(--border); border-radius: 5px; background: var(--bg-app); color: var(--text-main);
+      font-family: var(--font-mono); font-size: 11.5px; outline: none;
+    }
+    .preview-props-input:focus { border-color: var(--accent); }
     .preview-iframe { flex: 1; width: 100%; border: none; background: var(--bg-app); }
 
     /* CodeMirror Custom Prompt-Markdown Styling */
@@ -419,7 +433,7 @@
     .cm-pm-h1 { font-size: 1.42em; font-weight: 800; color: var(--text-main); line-height: 1.45; }
     .cm-pm-h2 { font-size: 1.22em; font-weight: 700; color: var(--text-main); line-height: 1.5; }
     .cm-pm-h3 { font-size: 1.08em; font-weight: 700; color: var(--text-main); line-height: 1.55; }
-    .cm-pm-syntax, .md-syn { color: var(--text-muted); font-weight: 500; }
+    .cm-pm-syntax, .md-syn { color: var(--text-faint); font-weight: 400; opacity: 0.65; }
     .cm-pm-bold, .md-bold { font-weight: 700; color: var(--text-main); }
     .cm-pm-italic, .md-italic { font-style: italic; color: var(--text-secondary); }
     .cm-pm-list, .md-list { color: var(--accent); font-weight: 600; }
@@ -430,6 +444,12 @@
     .cm-pm-code, .md-code { background: var(--bg-subtle); color: var(--text-main); font-family: var(--font-mono); font-size: 0.92em; padding: 1px 5px; border-radius: 4px; }
     .cm-pm-tag, .md-tag { background: var(--bg-subtle); color: var(--text-secondary); font-family: var(--font-mono); font-size: 0.92em; padding: 1px 4px; border-radius: 4px; }
     .cm-pm-bracket, .md-bracket { background: var(--bg-subtle); color: var(--text-main); font-weight: 600; padding: 1px 4px; border-radius: 4px; }
+    :is(.cm-pm-var, .cm-pm-code, .cm-pm-tag, .cm-pm-bracket).cm-pm-h1 { font-size: 1.42em; font-weight: 800; line-height: 1.45; }
+    :is(.cm-pm-var, .cm-pm-code, .cm-pm-tag, .cm-pm-bracket).cm-pm-h2 { font-size: 1.22em; font-weight: 700; line-height: 1.5; }
+    :is(.cm-pm-var, .cm-pm-code, .cm-pm-tag, .cm-pm-bracket).cm-pm-h3 { font-size: 1.08em; font-weight: 700; line-height: 1.55; }
+    :is(.cm-pm-var, .cm-pm-code, .cm-pm-tag).cm-pm-bold { font-weight: 700; }
+    .md-h1 .md-var { font-weight: 800; }
+    :is(.md-h2, .md-h3, .md-bold) .md-var { font-weight: 700; }
     .cm-pm-hr { color: var(--text-muted); display: inline-block; width: 100%; border-bottom: 1px solid var(--border-strong); line-height: 1; }
 
     .fallback-textarea {
@@ -474,14 +494,14 @@
 
     /* Card Views */
     .cards-scroll { flex: 1; overflow-y: auto; padding: 16px 20px 40px; background: var(--bg-sidebar); }
-    .lore-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; align-items: start; }
+    .lore-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; align-items: stretch; }
     .text-stack { display: flex; flex-direction: column; gap: 14px; max-width: 1040px; margin: 0 auto; }
     .item-card {
       background: var(--bg-app); border: 1px solid var(--border); border-radius: 10px;
       display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm); transition: border-color 0.14s ease;
     }
     .item-card:hover { border-color: var(--border-strong); }
-    .card-head { padding: 10px 12px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
+    .card-head { padding: 10px 12px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
     .card-head-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .card-title { font-weight: 700; font-size: 14px; color: var(--text-main); }
     .card-actions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
@@ -492,7 +512,10 @@
     }
     .kw-pill.empty { background: var(--bg-subtle); color: var(--text-muted); border-color: var(--border); }
     .card-body { padding: 12px 14px; font-size: 13.5px; line-height: 1.68; color: var(--text-main); word-break: break-word; }
-    .lore-grid .card-body { max-height: 360px; overflow-y: auto; }
+    .text-stack .card-body { max-height: 340px; overflow-y: auto; }
+    .lore-grid .item-card { height: 320px; }
+    .lore-grid .item-card:has(.card-edit-box) { height: auto; min-height: 320px; }
+    .lore-grid .card-body { flex: 1; min-height: 0; overflow-y: auto; }
     .card-edit-box { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; background: var(--bg-sidebar); }
     .card-edit-textarea {
       width: 100%; min-height: 180px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 7px;
@@ -644,7 +667,11 @@
       .sidebar.collapsed { width: min(84vw, 310px); min-width: min(84vw, 310px); border-right-width: 1px; transform: translateX(-100%); }
       .sidebar:not(.collapsed):not(.hidden) + .sidebar-backdrop { display: block; opacity: 1; }
       .editor-stage { flex-direction: column; }
-      .preview-pane { width: 100%; min-width: 0; height: 45%; border-left: none; border-top: 1px solid var(--border); }
+      .editor-stage.is-resizing { cursor: row-resize; }
+      .editor-pane { min-width: 0; min-height: 140px; }
+      .split-resizer { width: 100%; height: 8px; cursor: row-resize; padding: 3.5px 0; }
+      .split-resizer:hover, .editor-stage.is-resizing .split-resizer { padding: 2.5px 0; }
+      .preview-pane { width: 100%; min-width: 0; max-width: 100%; height: var(--preview-h, 45%); min-height: 140px; max-height: 75%; }
       .history-layout { grid-template-columns: 1fr; }
     }
     @media (max-width: 680px) {
@@ -974,10 +1001,19 @@
   const isGhReady = () => !!(state.config.owner && state.config.repo && state.config.token);
   const ghBranch = () => state.config.branch || 'main';
 
+  let ghWriteChain = Promise.resolve();
+  const enqueueGhWrite = (fn) => {
+    const p = ghWriteChain.then(fn, fn);
+    ghWriteChain = p.catch(() => {});
+    return p;
+  };
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
   async function ghRequest(path, options = {}) {
     if (!isGhReady()) throw new Error('GitHub 연동 설정을 먼저 입력해주세요.');
     const { owner, repo, token } = state.config;
     const res = await fetch(`https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${path}`, {
+      cache: 'no-store',
       ...options,
       headers: {
         Authorization: `Bearer ${token}`,
@@ -995,30 +1031,50 @@
   }
 
   async function ghGetFile(filePath, ref) {
-    try { return await ghRequest(`contents/${filePath}${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`); }
+    const qs = ref ? `?ref=${encodeURIComponent(ref)}&_t=${Date.now()}` : `?_t=${Date.now()}`;
+    try { return await ghRequest(`contents/${filePath}${qs}`); }
     catch (e) { if (String(e.message).includes('(404)')) return null; throw e; }
   }
 
-  async function ghPutFile(filePath, content, message) {
-    const branch = ghBranch();
-    const existing = await ghGetFile(filePath, branch);
-    return ghRequest(`contents/${filePath}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, content, branch, ...(existing?.sha ? { sha: existing.sha } : {}) })
+  function ghPutFile(filePath, content, message) {
+    return enqueueGhWrite(async () => {
+      const branch = ghBranch();
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const existing = await ghGetFile(filePath, branch);
+        try {
+          return await ghRequest(`contents/${filePath}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message, content, branch, ...(existing?.sha ? { sha: existing.sha } : {}) })
+          });
+        } catch (e) {
+          if (attempt === 0 && String(e.message).includes('(409)')) { await sleep(350); continue; }
+          throw e;
+        }
+      }
     });
   }
 
-  async function ghDeleteFile(filePath, message) {
-    const branch = ghBranch();
-    const existing = await ghGetFile(filePath, branch);
-    if (!existing?.sha) return false;
-    await ghRequest(`contents/${filePath}`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, sha: existing.sha, branch })
+  function ghDeleteFile(filePath, message) {
+    return enqueueGhWrite(async () => {
+      const branch = ghBranch();
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const existing = await ghGetFile(filePath, branch);
+        if (!existing?.sha) return false;
+        try {
+          await ghRequest(`contents/${filePath}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message, sha: existing.sha, branch })
+          });
+          return true;
+        } catch (e) {
+          if (String(e.message).includes('(404)')) return false;
+          if (attempt === 0 && String(e.message).includes('(409)')) { await sleep(350); continue; }
+          throw e;
+        }
+      }
     });
-    return true;
   }
 
   /* ================= DEFAULT & CUSTOM TEMPLATES ================= */
@@ -1027,8 +1083,7 @@
 
   function createDefaultFolders(sample = false) {
     return [
-      mkFolder('시작 상황', 'text', true, [mkItem('첫 메시지', 'text', sample ? `*폴더 우측 + 옆의 버튼으로 카드뷰 모아보기가 가능합니다.*` : '')]), 
-      mkFolder('메인 프롬프트', 'text', false, [
+      mkFolder('공용 프롬프트', 'text', false, [
         mkItem('시스템 지침', 'text', sample ? `# 역할 및 응답 지침` : ''),
         mkItem('세계관', 'text', sample ? `# 세계관` : ''),
         mkItem('기본 정보', 'text', sample ? `` : ''),
@@ -1042,7 +1097,8 @@
       ]),
       mkFolder('HTML', 'code', true, [
         mkItem('상태창 UI (HTML)', 'html', sample ? `<div style="font-family:Pretendard,sans-serif;border:1px solid #e5e7eb;border-radius:10px;padding:12px;max-width:300px;background:#ffffff;color:#1f2937;">\n  <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">DAY 1 · 오전</div>\n  <div style="font-weight:700;font-size:15px;">프롬프트 스튜디오</div>\n</div>` : '')
-      ])
+      ]),
+      mkFolder('시작 상황', 'text', true, [mkItem('첫 메시지')])
     ];
   }
 
@@ -1098,12 +1154,14 @@
     activeFolderId: null, activeItemId: null,
     searchQuery: '', searchScope: 'current',
     homeQuery: '', homeFilter: 'all', homeTag: '', homeSort: 'updated',
-    sidebarCollapsed: isMobile(), showPreview: true, showTokenPopover: false,
+    sidebarCollapsed: isMobile(), showPreview: true, showTokenPopover: false, isSyncing: false,
+    previewWidth: Math.min(78, Math.max(20, Number(localStorage.getItem('ps_preview_w')) || 46)),
+    previewHeight: Math.min(75, Math.max(20, Number(localStorage.getItem('ps_preview_h')) || 45)),
     tokenBudget: Math.max(500, Number(localStorage.getItem('ps_token_budget')) || 10000),
     templates: readJsonLS('ps_templates', []),
     defaultTemplateId: localStorage.getItem('ps_default_tpl_id') || '',
     selectedTemplateId: '',
-    editingCardIds: new Set(), assetCache: new Map(),
+    editingCardIds: new Set(), assetCache: new Map(), jsxPropsMap: new Map(),
     deletedQueue: readJsonLS('ps_deleted_queue', []),
     config: { owner: '', repo: '', branch: 'main', token: '', rememberPass: true },
     masterPass: '',
@@ -1215,15 +1273,24 @@
   async function flushDeletedToGitHub() {
     if (!state.deletedQueue.length) return 0;
     let removed = 0;
-    while (state.deletedQueue.length) {
-      const item = state.deletedQueue[0];
-      const ok = await ghDeleteFile(`works/${item.id}.json`, `Delete ${item.title || item.id}`);
-      if (item.assetPath) await ghDeleteFile(item.assetPath, `Delete asset ${item.assetPath}`);
-      if (ok) removed++;
-      state.deletedQueue.shift();
-      saveDeletedQueue();
+    try {
+      while (state.deletedQueue.length) {
+        const item = state.deletedQueue[0];
+        if (!item.jsonDeleted) {
+          const ok = await ghDeleteFile(`works/${item.id}.json`, `Delete ${item.title || item.id}`);
+          if (ok) removed++;
+          item.jsonDeleted = true;
+          saveDeletedQueue();
+        }
+        if (item.assetPath) {
+          try { await ghDeleteFile(item.assetPath, `Delete asset ${item.assetPath}`); } catch {}
+        }
+        state.deletedQueue.shift();
+        saveDeletedQueue();
+      }
+    } finally {
+      updateTopbarStatusDot();
     }
-    updateTopbarStatusDot();
     return removed;
   }
 
@@ -1308,9 +1375,9 @@
         const hCls = st.header ? ` pm-h${st.header}` : '';
         const base = `${hCls}${st.bold ? ' pm-bold' : ''}${st.italic ? ' pm-italic' : ''}`.trim();
 
-        if (stream.match(/^\{\{[^}\n]+\}\}/)) return ('pm-var ' + hCls).trim();
-        if (stream.match(/^`[^`\n]+`/)) return ('pm-code ' + hCls).trim();
-        if (stream.match(/^<\/?[A-Za-z][^>\n]*>/)) return ('pm-tag ' + hCls).trim();
+        if (stream.match(/^\{\{[^}\n]+\}\}/)) return ('pm-var ' + base).trim();
+        if (stream.match(/^`[^`\n]+`/)) return ('pm-code ' + base).trim();
+        if (stream.match(/^<\/?[A-Za-z][^>\n]*>/)) return ('pm-tag ' + base).trim();
         if (stream.match(/^\[[^\]\n]+\]/)) return ('pm-bracket ' + base).trim();
         if (stream.peek() === '*' && stream.match(/^\*\*/)) {
           if (st.bold) { st.bold = false; return ('pm-syntax ' + hCls).trim(); }
@@ -1416,7 +1483,7 @@
       btnGoHome: ICONS.home,
       btnHistory: `${ICONS.history}<span class="hide-xs">이전 작업내역</span>`,
       btnAccentPicker: '<span class="accent-dot-preview"></span>',
-      btnGitSave: `${ICONS.save}<span class="hide-xs">GitHub 저장</span>`,
+      btnGitSave: `${ICONS.save}<span class="hide-xs">저장</span>`,
       searchIconSlot: ICONS.search,
       btnClearSearch: ICONS.close,
       btnQuickCharInfo: ICONS.edit,
@@ -1601,6 +1668,7 @@
   }
 
   function renderHomeGallery(main) {
+    const prevScroll = main.querySelector('.home-scroll')?.scrollTop || 0;
     const statsMap = new Map();
     const tagMap = new Map();
     let syncedCount = 0, totalTokensAll = 0;
@@ -1713,12 +1781,14 @@
     $('homeSortSelect').onchange = (e) => { state.homeSort = e.target.value; renderGrid(); };
     if ($('btnHomeSyncDel')) {
       $('btnHomeSyncDel').onclick = async () => {
+        if (state.isSyncing) return;
+        state.isSyncing = true;
         try {
           toast('GitHub 원격 삭제 반영 중...');
           const cnt = await flushDeletedToGitHub();
-          renderMain();
           toast(cnt ? `GitHub에서 ${cnt}개 작품을 삭제했습니다.` : '원격 삭제 대기열을 정리했습니다.');
         } catch (e) { toast(e.message); }
+        finally { state.isSyncing = false; renderMain(); }
       };
     }
     $('homeSearchInput').oninput = (e) => { state.homeQuery = e.target.value; renderGrid(); };
@@ -1752,6 +1822,8 @@
     };
 
     renderGrid();
+    const hs = main.querySelector('.home-scroll');
+    if (hs && prevScroll) hs.scrollTop = prevScroll;
   }
 
   function openGalleryQuickMenu(anchor, workId) {
@@ -2108,12 +2180,14 @@
           <input class="lore-input" id="loreKeywordsInput" value="${escHtml(item.keywords || '')}" placeholder="예: 학원, 친구, 룸메이트" />
           <span class="lore-count" id="loreKwCount">${splitCsv(item.keywords).length}개</span>
         </div>` : ''}
-      <div class="editor-stage">
+      <div class="editor-stage" id="editorStage">
         <div class="editor-pane" id="editorMount"></div>
         ${isCode && state.showPreview ? `
-          <div class="preview-pane">
+          <div class="split-resizer" id="splitResizer" title="드래그하여 크기 조절 (더블클릭 초기화)"></div>
+          <div class="preview-pane" id="previewPane" style="--preview-w:${state.previewWidth}%;--preview-h:${state.previewHeight}%;">
             <div class="preview-head">
-              <span style="display:inline-flex;align-items:center;gap:6px;">${ICONS.eye}<span>${item.type.toUpperCase()} 실시간 렌더링</span></span>
+              <span style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap;">${ICONS.eye}<span>${item.type.toUpperCase()} 실시간 렌더링</span></span>
+              ${item.type === 'jsx' ? `<input type="text" class="preview-props-input" id="jsxPropsInput" value="${escHtml(state.jsxPropsMap.get(item.id) || '')}" placeholder='props 예: ms="test"' title='테스트 props (예: ms="test" 또는 {"ms":"test"})' />` : ''}
               <button class="tree-mini-btn" id="btnRefreshPreview" title="새로고침">${ICONS.refresh}</button>
             </div>
             <iframe class="preview-iframe" id="codePreviewFrame" sandbox="allow-scripts"></iframe>
@@ -2135,6 +2209,40 @@
     if (isCode) {
       $('btnTogglePreview').onclick = () => { state.showPreview = !state.showPreview; renderMain(); };
       if ($('btnRefreshPreview')) $('btnRefreshPreview').onclick = () => updateCodePreview(item);
+      if ($('jsxPropsInput')) {
+        $('jsxPropsInput').oninput = (e) => {
+          state.jsxPropsMap.set(item.id, e.target.value);
+          clearTimeout(previewTimer);
+          previewTimer = setTimeout(() => updateCodePreview(item), 260);
+        };
+      }
+      const resizer = $('splitResizer'), stage = $('editorStage'), pane = $('previewPane');
+      if (resizer && stage && pane) {
+        const applySize = (pct, vertical) => {
+          const v = Math.round(Math.min(vertical ? 75 : 78, Math.max(20, pct)) * 10) / 10;
+          if (vertical) { state.previewHeight = v; pane.style.setProperty('--preview-h', `${v}%`); localStorage.setItem('ps_preview_h', String(v)); }
+          else { state.previewWidth = v; pane.style.setProperty('--preview-w', `${v}%`); localStorage.setItem('ps_preview_w', String(v)); }
+        };
+        resizer.onpointerdown = (e) => {
+          e.preventDefault();
+          const vertical = isMobile();
+          stage.classList.add('is-resizing');
+          resizer.setPointerCapture(e.pointerId);
+          const onMove = (ev) => {
+            const r = stage.getBoundingClientRect();
+            const pct = vertical ? ((r.bottom - ev.clientY) / r.height) * 100 : ((r.right - ev.clientX) / r.width) * 100;
+            applySize(pct, vertical);
+          };
+          const onUp = () => {
+            stage.classList.remove('is-resizing');
+            resizer.onpointermove = resizer.onpointerup = resizer.onpointercancel = null;
+            cmEditor?.refresh();
+          };
+          resizer.onpointermove = onMove;
+          resizer.onpointerup = resizer.onpointercancel = onUp;
+        };
+        resizer.ondblclick = () => { applySize(isMobile() ? 45 : 46, isMobile()); cmEditor?.refresh(); };
+      }
     }
 
     const onContentChange = (val) => {
@@ -2162,6 +2270,121 @@
     if (isCode && state.showPreview) updateCodePreview(item);
   }
 
+  function runJsxInIframe(rawCode, rawProps) {
+    const showErr = (e) => {
+      const root = document.getElementById('root');
+      root.textContent = '';
+      const box = document.createElement('div');
+      box.className = 'err';
+      box.textContent = String((e && e.message) || e || 'Unknown error');
+      root.appendChild(box);
+    };
+    window.onerror = (m, _s, _l, _c, e) => showErr(e || m);
+    window.onunhandledrejection = (ev) => showErr(ev.reason);
+    try {
+      if (!window.React || !window.ReactDOM || !window.Babel) throw new Error('React/Babel CDN을 불러오지 못했습니다.');
+      let src = String(rawCode || '').trim();
+      if (!src) throw new Error('JSX 코드를 입력해 주세요.');
+
+      const stubNames = [];
+      src = src.replace(/^\s*import\s+([\s\S]*?)\s+from\s+['"]([^'"]+)['"];?/gm, (_, clause, mod) => {
+        if (!/^react(-dom)?(\/|$)/.test(mod)) {
+          const named = clause.match(/\{([\s\S]*?)\}/);
+          if (named) {
+            named[1].split(',').forEach(part => {
+              const seg = part.trim().split(/\s+as\s+/);
+              const id = (seg[1] || seg[0] || '').trim();
+              if (/^[A-Za-z_$][\w$]*$/.test(id)) stubNames.push(id);
+            });
+          }
+          const defId = clause.replace(/\{[\s\S]*?\}/, '').replace(/,/g, '').trim();
+          if (/^[A-Za-z_$][\w$]*$/.test(defId)) stubNames.push(defId);
+        }
+        return '';
+      });
+      src = src.replace(/^\s*import\s+['"][^'"]+['"];?/gm, '');
+
+      let target = '';
+      if (/export\s+default\s+function\s+([A-Za-z_$][\w$]*)/.test(src)) {
+        src = src.replace(/export\s+default\s+function\s+([A-Za-z_$][\w$]*)/, (_, n) => { target = n; return 'function ' + n; });
+      } else if (/export\s+default\s+class\s+([A-Za-z_$][\w$]*)/.test(src)) {
+        src = src.replace(/export\s+default\s+class\s+([A-Za-z_$][\w$]*)/, (_, n) => { target = n; return 'class ' + n; });
+      } else if (/export\s+default\s+/.test(src)) {
+        src = src.replace(/export\s+default\s+/, 'const __DefaultExport__ = ');
+        target = '__DefaultExport__';
+      }
+      src = src.replace(/^\s*export\s*\{([^}]*)\}\s*;?/gm, (_, body) => {
+        const dm = body.match(/([A-Za-z_$][\w$]*)\s+as\s+default\b/);
+        if (dm && !target) target = dm[1];
+        return '';
+      });
+      src = src.replace(/^\s*export\s+(?=(?:const|let|var|function|class|async\s+function)\b)/gm, '');
+
+      const cleanStart = src.replace(/^(?:\s*(?:\/\/[^\n]*\n|\/\*[\s\S]*?\*\/))+/, '').trim();
+      let candNames = [];
+      if (!target) {
+        if (cleanStart.startsWith('<')) {
+          src = 'const __DefaultExport__ = () => (' + src.replace(/;\s*$/, '') + ');';
+          target = '__DefaultExport__';
+        } else if (/^(?:async\s*)?\([^)]*\)\s*=>/.test(cleanStart)) {
+          src = 'const __DefaultExport__ = (' + src.replace(/;\s*$/, '') + ');';
+          target = '__DefaultExport__';
+        } else {
+          candNames = [...new Set([...src.matchAll(/(?:^|\n)[ \t]*(?:async\s+)?(?:function|class|const|let|var)\s+([A-Za-z_$][\w$]*)/g)].map(m => m[1]))];
+          if (!candNames.length && /\breturn\s*\(?\s*\x3c/.test(src)) {
+            src = 'function __DefaultExport__() {\n' + src + '\n}';
+            target = '__DefaultExport__';
+          }
+        }
+      }
+
+      const resolveCode = target
+        ? ('const __T__ = ' + target + ';')
+        : ('const __CANDS__ = [' + candNames.map(n => '(()=>{try{return [' + JSON.stringify(n) + ',' + n + '];}catch{return null;}})()').join(',') + ']'
+            + '.filter(x => x && (typeof x[1] === "function" || (typeof x[1] === "object" && x[1].$$typeof)));'
+            + '\nconst __PASCAL__ = __CANDS__.filter(x => /^[A-Z]/.test(x[0]));'
+            + '\nconst __POOL__ = __PASCAL__.length ? __PASCAL__ : __CANDS__;'
+            + '\nconst __APP__ = __POOL__.find(x => x[0] === "App");'
+            + '\nconst __ROOTS__ = __POOL__.filter(x => !new RegExp("<" + x[0] + "[\\\\s/>]").test(__SRC__));'
+            + '\nconst __PICK__ = __APP__ || __ROOTS__[__ROOTS__.length - 1] || __POOL__[__POOL__.length - 1];'
+            + '\nif (!__PICK__) throw new Error("렌더링할 React 컴포넌트를 찾지 못했습니다.");'
+            + '\nconst __T__ = __PICK__[1];');
+
+      const pStr = String(rawProps || '').trim();
+      const elExpr = !pStr
+        ? 'React.isValidElement(__T__) ? __T__ : <__T__ />'
+        : pStr.startsWith('<')
+          ? '(' + pStr + ')'
+          : (pStr.startsWith('{') && pStr.endsWith('}'))
+            ? 'React.isValidElement(__T__) ? __T__ : <__T__ {...(' + pStr + ')} />'
+            : 'React.isValidElement(__T__) ? __T__ : <__T__ ' + pStr + ' />';
+
+      const mountCode = '\nclass __EB__ extends React.Component { constructor(p){super(p);this.state={err:null};} static getDerivedStateFromError(err){return {err};} render(){ return this.state.err ? React.createElement("div",{className:"err"}, String(this.state.err.message||this.state.err)) : this.props.children; } }'
+        + '\n' + resolveCode
+        + '\nconst __EL__ = ' + elExpr + ';'
+        + '\nReactDOM.createRoot(document.getElementById("root")).render(React.createElement(__EB__, null, __EL__));';
+
+      let compiled;
+      try {
+        compiled = Babel.transform(src + mountCode, { filename: 'preview.tsx', presets: ['typescript', 'react'] }).code;
+      } catch (tsErr) {
+        compiled = Babel.transform(src + mountCode, { presets: ['react'] }).code;
+      }
+
+      const hooks = ['useState', 'useEffect', 'useLayoutEffect', 'useRef', 'useMemo', 'useCallback', 'useReducer', 'useContext', 'createContext', 'Fragment', 'memo', 'forwardRef', 'startTransition', 'useId'];
+      const reserved = new Set(['React', 'ReactDOM', '__SRC__', ...hooks]);
+      const extraNames = [...new Set(stubNames)].filter(n => !reserved.has(n));
+      const stubComp = ({ size = 16, className = '', style = {} } = {}) =>
+        React.createElement('span', {
+          className,
+          style: { display: 'inline-block', width: size, height: size, border: '1.5px solid currentColor', borderRadius: 4, opacity: 0.55, verticalAlign: 'middle', ...style }
+        });
+      new Function('React', 'ReactDOM', '__SRC__', ...hooks, ...extraNames, 'return (() => {\n' + compiled + '\n})();')(
+        React, ReactDOM, src, ...hooks.map(k => React[k]), ...extraNames.map(() => stubComp)
+      );
+    } catch (err) { showErr(err); }
+  }
+
   function updateCodePreview(item) {
     const iframe = $('codePreviewFrame');
     if (!iframe) return;
@@ -2173,35 +2396,18 @@
       return;
     }
     const errStyle = `.err{color:${isDark ? '#fca5a5' : '#991b1b'};background:${isDark ? '#31191a' : '#fef2f2'};border:1px solid ${isDark ? '#7f1d1d' : '#fecaca'};padding:10px;border-radius:8px;font-family:monospace;font-size:12px;white-space:pre-wrap;}`;
+    const safeCode = JSON.stringify(code).replace(/<\//g, '<\\/');
+    const safeProps = JSON.stringify(state.jsxPropsMap.get(item.id) || '').replace(/<\//g, '<\\/');
+    const runner = runJsxInIframe.toString();
+    const twTag = /\bclassName\s*=/.test(code) ? '<script src="https://cdn.tailwindcss.com"><\/script>' : '';
 
     iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8">
       <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"><\/script>
       <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"><\/script>
       <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7/babel.min.js"><\/script>
+      ${twTag}
       <style>${baseStyle}${errStyle}</style>
-    </head><body><div id="root"></div><script>
-      try {
-        let src = ${JSON.stringify(code)}.trim();
-        const hasDef = /export\\s+default\\s+/.test(src);
-        src = src.replace(/import\\s+.*?from\\s+['"][^'"]+['"];?/g, '');
-        if (hasDef) {
-          src = src.replace(/export\\s+default\\s+function\\s+([A-Za-z0-9_]+)/, 'function $1');
-          const m = src.match(/function\\s+([A-Za-z0-9_]+)/);
-          if (src.includes('export default')) {
-            src = src.replace(/export\\s+default\\s+/, 'const __DefaultExport__ = ') + '\\nReactDOM.createRoot(document.getElementById("root")).render(React.createElement(__DefaultExport__));';
-          } else if (m) {
-            src += '\\nReactDOM.createRoot(document.getElementById("root")).render(React.createElement(' + m[1] + '));';
-          }
-        } else if (src.startsWith('<')) {
-          src = 'ReactDOM.createRoot(document.getElementById("root")).render(' + src + ');';
-        } else {
-          src += '\\nif(typeof App!=="undefined") ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));';
-        }
-        new Function('React', 'ReactDOM', Babel.transform(src, { presets: ['react'] }).code)(React, ReactDOM);
-      } catch (err) {
-        document.getElementById('root').innerHTML = '<div class="err">' + String(err.message || err).replace(/</g, '&lt;') + '</div>';
-      }
-    <\/script></body></html>`;
+    </head><body><div id="root"></div><script>(${runner})(${safeCode}, ${safeProps});<\/script></body></html>`;
   }
 
   /* ================= TOKEN MINI-BAR STATUSBAR & POPOVER ================= */
@@ -2629,7 +2835,9 @@
     return obj.__encrypted ? decryptObj(obj, await ensureMasterPass()) : obj;
   }
 
-  async function pushWorkToGitHub(work) {
+  async function pushWorkToGitHub(work, { skipRender = false } = {}) {
+    clearTimeout(saveTimers.get(work.id));
+    saveTimers.delete(work.id);
     if (work.profile?.assetPath) {
       const rec = await idb('assets', 'get', work.profile.assetPath);
       if (rec?.dirty && rec.dataUrl) {
@@ -2646,7 +2854,7 @@
     await idb('works', 'put', work);
     await saveLocalSnapshot(work, 'GitHub 저장 시점');
     updateTopbarStatusDot();
-    if (isHome()) renderMain(); else renderStatusbar();
+    if (!skipRender) { if (isHome()) renderMain(); else renderStatusbar(); }
   }
 
   async function pullAllFromGitHub() {
@@ -2791,22 +2999,36 @@
 
     $('btnGitSave').onclick = async () => {
       const w = getActiveWork();
-      if (!w) return;
+      if (!w || state.isSyncing) return;
+      const btn = $('btnGitSave');
+      state.isSyncing = true;
+      btn.disabled = true;
       try {
         toast('GitHub에 저장 중...');
         await pushWorkToGitHub(w);
         const delCnt = await flushDeletedToGitHub();
         toast(delCnt ? `GitHub 저장 완료! (원격 삭제 ${delCnt}건 반영)` : 'GitHub 저장 완료!');
       } catch (e) { toast(e.message); }
+      finally { state.isSyncing = false; btn.disabled = false; updateTopbarStatusDot(); }
     };
 
     $('btnPushAll').onclick = async () => {
+      if (state.isSyncing) return;
+      const btn = $('btnPushAll');
+      state.isSyncing = true;
+      btn.disabled = true;
       try {
         toast('GitHub 동기화 중...');
-        for (const w of state.works) await pushWorkToGitHub(w);
+        for (const w of state.works) await pushWorkToGitHub(w, { skipRender: true });
         const delCnt = await flushDeletedToGitHub();
         toast(`총 ${state.works.length}개 업로드${delCnt ? ` · 원격 삭제 ${delCnt}건` : ''} 완료!`);
       } catch (e) { toast(e.message); }
+      finally {
+        state.isSyncing = false;
+        btn.disabled = false;
+        updateTopbarStatusDot();
+        if (isHome()) renderMain(); else renderStatusbar();
+      }
     };
 
     $('btnPullAll').onclick = async () => {
@@ -2924,7 +3146,7 @@
     if (works.length) {
       state.works = works.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
     } else {
-      const sample = createWorkObject({ title: '기본 템플릿', summary: '예시 작품입니다.', tags: ['테스트', '태그'], withSample: true });
+      const sample = createWorkObject({ title: '예시 작품', summary: '눌러보세요!', tags: ['테스트', '태그'], withSample: true });
       state.works = [sample];
       await idb('works', 'put', sample);
     }
