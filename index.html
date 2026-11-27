@@ -413,7 +413,8 @@
       height: 36px; padding: 0 12px; border-bottom: 1px solid var(--border); background: var(--bg-sidebar);
       display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 500; color: var(--text-muted);
     }
-    .preview-iframe { flex: 1; width: 100%; border: none; background: #ffffff; }
+
+    .preview-iframe { flex: 1; width: 100%; border: none; background: var(--bg-app); }
 
     /* CodeMirror Custom Prompt-Markdown Styling */
     .CodeMirror {
@@ -1003,6 +1004,18 @@
     });
   }
 
+  async function ghDeleteFile(filePath, message) {
+  const branch = state.config.branch || 'main';
+  const existing = await ghGetFile(filePath, branch);
+  if (!existing?.sha) return false; // 원격에 애초에 없던 파일이면 패스
+  await ghRequest(`contents/${filePath}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message, sha: existing.sha, branch })
+  });
+  return true;
+}
+
   /* ================= DEFAULT TEMPLATES ================= */
   const mkItem = (title, type = 'text', content = '', keywords = '') => ({ id: uid('itm'), title, type, keywords, content });
   const mkFolder = (name, kind, collapsed, items) => ({ id: uid('fld'), name, kind, collapsed, items });
@@ -1052,6 +1065,7 @@
     showTokenPopover: false,
     tokenBudget: Math.max(500, Number(localStorage.getItem('ps_token_budget')) || 10000),
     editingCardIds: new Set(), assetCache: new Map(),
+    deletedQueue: (() => { try { return JSON.parse(localStorage.getItem('ps_deleted_queue') || '[]'); } catch { return []; } })(),
     config: { owner: '', repo: '', branch: 'main', token: '', rememberPass: true },
     masterPass: '',
     theme: localStorage.getItem('ps_theme') || 'light',
@@ -1160,17 +1174,37 @@
     toast(`'${copy.title}' 작품이 복제되었습니다.`);
   }
 
+  const saveDeletedQueue = () => localStorage.setItem('ps_deleted_queue', JSON.stringify(state.deletedQueue));
+
+  async function flushDeletedToGitHub() {
+    if (!state.deletedQueue.length) return 0;
+    let removed = 0;
+    while (state.deletedQueue.length) {
+      const item = state.deletedQueue[0];
+      const ok = await ghDeleteFile(`works/${item.id}.json`, `Delete ${item.title || item.id}`);
+      if (item.assetPath) await ghDeleteFile(item.assetPath, `Delete asset ${item.assetPath}`);
+      if (ok) removed++;
+      state.deletedQueue.shift();
+      saveDeletedQueue();
+    }
+    updateTopbarStatusDot();
+    return removed;
+  }
+
   async function deleteWorkById(workId) {
     const w = state.works.find(x => x.id === workId);
-    if (!w || !confirm(`'${w.title || '제목 없음'}' 작품을 로컬에서 삭제할까요?`)) return;
+    if (!w || !confirm(`'${w.title || '제목 없음'}' 작품을 로컬에서 삭제할까요?\n(다음 GitHub 저장/푸시 시 원격에서도 함께 삭제됩니다.)`)) return;
+    if (!state.deletedQueue.some(d => d.id === w.id)) {
+      state.deletedQueue.push({ id: w.id, title: w.title || w.id, assetPath: w.profile?.assetPath || '' });
+      saveDeletedQueue();
+    }
     await idb('works', 'delete', w.id);
     if (w.profile?.assetPath) { state.assetCache.delete(w.profile.assetPath); await idb('assets', 'delete', w.profile.assetPath); }
     state.works = state.works.filter(x => x.id !== w.id);
     if (state.activeWorkId === w.id) state.activeWorkId = state.works[0]?.id || null;
-    if (!state.works.length) state.viewMode = 'home';
-    else if (!isHome() && !state.activeWorkId) state.viewMode = 'home';
+    if (!state.works.length || (!isHome() && !state.activeWorkId)) state.viewMode = 'home';
     renderAll();
-    toast('작품을 삭제했습니다.');
+    toast('로컬에서 삭제했습니다. GitHub 저장 시 원격에도 반영됩니다.');
   }
 
   function enterWork(workId, mode = 'charInfo') {
@@ -1364,7 +1398,8 @@
   function updateTopbarStatusDot() {
     const work = getActiveWork();
     const connected = !!(state.config.owner && state.config.repo && state.config.token);
-    const anyDirty = isHome() ? state.works.some(w => w.dirty) : !!work?.dirty;
+    const hasDel = state.deletedQueue.length > 0;
+    const anyDirty = hasDel || (isHome() ? state.works.some(w => w.dirty) : !!work?.dirty);
     const dotCls = anyDirty ? 'dirty' : (connected ? 'connected' : '');
     $('btnSettings').innerHTML = `<span class="pill-dot ${dotCls}"></span>${ICONS.cloud}<span class="hide-xs">${escHtml(connected ? state.config.repo : '연동 설정')}</span>`;
   }
@@ -1539,6 +1574,7 @@
 
     list.sort((a, b) => {
       if (!!a.work.pinned !== !!b.work.pinned) return a.work.pinned ? -1 : 1;
+      if (state.homeSort === 'oldest') return (a.work.updatedAt || 0) - (b.work.updatedAt || 0);
       if (state.homeSort === 'title') return (a.work.title || '').localeCompare(b.work.title || '', 'ko');
       if (state.homeSort === 'tokens') return b.stats.tokens - a.stats.tokens;
       if (state.homeSort === 'branches') return (b.work.branches?.length || 0) - (a.work.branches?.length || 0);
@@ -1573,8 +1609,10 @@
             </div>
             <div class="home-controls">
               <select class="home-sort-select" id="homeSortSelect" aria-label="정렬">
-                ${[['updated', '최신순'], ['title', '제목순'], ['tokens', '토큰순'], ['branches', '분기순']].map(([v, l]) =>
+                ${[['updated', '최신순'], ['oldest', '오래된 순'], ['title', '제목순'], ['tokens', '토큰순'], ['branches', '분기순']].map(([v, l]) =>
                   `<option value="${v}" ${state.homeSort === v ? 'selected' : ''}>${l}</option>`).join('')}
+                <!-- .home-controls 내부 <select> 바로 위 -->
+                ${state.deletedQueue.length ? `<button class="btn btn-sm" id="btnHomeSyncDel" style="color:var(--danger);border-color:var(--danger-soft);background:var(--danger-soft);">${ICONS.cloud}<span>삭제 반영 (${state.deletedQueue.length})</span></button>` : ''}
               </select>
               <button class="btn btn-primary" id="btnHomeNewWork">${ICONS.plus}<span>새 작품</span></button>
             </div>
@@ -1650,6 +1688,16 @@
     // Bind gallery controls
     $('btnHomeNewWork').onclick = createAndOpenNewWork;
     $('homeSortSelect').onchange = (e) => { state.homeSort = e.target.value; renderHomeGallery(main); };
+    if ($('btnHomeSyncDel')) {
+      $('btnHomeSyncDel').onclick = async () => {
+        try {
+          toast('GitHub 원격 삭제 반영 중...');
+          const cnt = await flushDeletedToGitHub();
+          renderMain();
+          toast(cnt ? `GitHub에서 ${cnt}개 작품을 삭제했습니다.` : '원격 삭제 대기열을 정리했습니다.');
+        } catch (e) { toast(e.message); }
+      };
+    }
     $('homeSearchInput').oninput = (e) => {
       state.homeQuery = e.target.value;
       const pos = e.target.selectionStart;
@@ -1994,15 +2042,22 @@
     const iframe = $('codePreviewFrame');
     if (!iframe) return;
     const code = item.content || '';
+    const isDark = state.theme === 'dark';
+    const baseStyle = `html{color-scheme:${isDark ? 'dark' : 'light'};}body{margin:14px;font-family:Pretendard,-apple-system,BlinkMacSystemFont,sans-serif;background:${isDark ? '#131518' : '#ffffff'};color:${isDark ? '#e5e7eb' : '#1f2937'};}`;
+
     if (item.type === 'html') {
-      iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:14px;font-family:Pretendard,-apple-system,BlinkMacSystemFont,sans-serif;color:#1f2937;}</style></head><body>${code}</body></html>`;
+      iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${baseStyle}</style></head><body>${code}</body></html>`;
       return;
     }
+    const errStyle = isDark
+      ? '.err{color:#fca5a5;background:#31191a;border:1px solid #7f1d1d;padding:10px;border-radius:8px;font-family:monospace;font-size:12px;white-space:pre-wrap;}'
+      : '.err{color:#991b1b;background:#fef2f2;border:1px solid #fecaca;padding:10px;border-radius:8px;font-family:monospace;font-size:12px;white-space:pre-wrap;}';
+
     iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8">
       <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"><\/script>
       <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"><\/script>
       <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7/babel.min.js"><\/script>
-      <style>body{margin:14px;font-family:Pretendard,-apple-system,BlinkMacSystemFont,sans-serif;color:#1f2937;}.err{color:#991b1b;background:#fef2f2;border:1px solid #fecaca;padding:10px;border-radius:8px;font-family:monospace;font-size:12px;white-space:pre-wrap;}</style>
+      <style>${baseStyle}${errStyle}</style>
     </head><body><div id="root"></div><script>
       try {
         let src = ${JSON.stringify(code)}.trim();
@@ -2501,6 +2556,8 @@
       if (!file?.content) continue;
       const obj = await decodeRemoteWork(file.content);
       obj.dirty = false;
+      state.deletedQueue = state.deletedQueue.filter(d => d.id !== obj.id);
+      saveDeletedQueue();
       await idb('works', 'put', obj);
       const idx = state.works.findIndex(w => w.id === obj.id);
       if (idx >= 0) state.works[idx] = obj; else state.works.push(obj);
@@ -2624,6 +2681,10 @@
       localStorage.setItem('ps_theme', state.theme);
       applyTheme();
       renderTopbar();
+      if (state.viewMode === 'editor' && state.showPreview) {
+        const { item } = findFolderAndItem(getActiveBranch(), state.activeItemId);
+        if (item && (item.type === 'html' || item.type === 'jsx')) updateCodePreview(item);
+      }
     };
 
     $('btnSettings').onclick = () => {
@@ -2654,15 +2715,20 @@
     $('btnGitSave').onclick = async () => {
       const w = getActiveWork();
       if (!w) return;
-      try { toast('GitHub에 저장 중...'); await pushWorkToGitHub(w); toast('GitHub 저장 완료!'); }
-      catch (e) { toast(e.message); }
+      try {
+        toast('GitHub에 저장 중...');
+        await pushWorkToGitHub(w);
+        const delCnt = await flushDeletedToGitHub();
+        toast(delCnt ? `GitHub 저장 완료! (원격 삭제 ${delCnt}건 반영)` : 'GitHub 저장 완료!');
+      } catch (e) { toast(e.message); }
     };
 
     $('btnPushAll').onclick = async () => {
       try {
-        toast('모든 작품을 GitHub에 올리는 중...');
+        toast('GitHub 동기화 중...');
         for (const w of state.works) await pushWorkToGitHub(w);
-        toast(`총 ${state.works.length}개 작품 업로드 완료!`);
+        const delCnt = await flushDeletedToGitHub();
+        toast(`총 ${state.works.length}개 업로드${delCnt ? ` · 원격 삭제 ${delCnt}건` : ''} 완료!`);
       } catch (e) { toast(e.message); }
     };
 
