@@ -34,19 +34,22 @@
       --accent-ring: rgba(37, 99, 235, 0.16);
       --amber: #d97706;
       --amber-soft: #fef3c7;
+      --emerald: #10b981;
       --danger: #dc2626;
       --danger-soft: #fee2e2;
+      --nsfw-red: #e53935;
       --diff-add-bg: #ecfdf5;
       --diff-add-text: #065f46;
       --diff-del-bg: #fef2f2;
       --diff-del-text: #991b1b;
+      --seg-0: #2b303a;
       --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
       --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.1);
       --font-sans: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", "Malgun Gothic", sans-serif;
       --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       --sidebar-w: 276px;
       --topbar-h: 48px;
-      --statusbar-h: 30px;
+      --statusbar-h: 32px;
     }
 
     [data-theme="dark"] {
@@ -68,6 +71,7 @@
       --diff-add-text: #86efac;
       --diff-del-bg: #2e1618;
       --diff-del-text: #fca5a5;
+      --seg-0: #cbd5e1;
       --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
       --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.45);
     }
@@ -82,6 +86,7 @@
 
     button, input, textarea, select { font-family: inherit; font-size: inherit; color: inherit; }
     button { background: none; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .hidden { display: none !important; }
 
     ::-webkit-scrollbar { width: 7px; height: 7px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -106,6 +111,10 @@
     .topbar-left, .topbar-right { display: flex; align-items: center; gap: 6px; min-width: 0; }
     .topbar-left { flex: 1; overflow-x: auto; scrollbar-width: none; }
     .topbar-left::-webkit-scrollbar { display: none; }
+    .brand-title {
+      display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14.5px;
+      color: var(--text-main); padding: 0 6px; white-space: nowrap;
+    }
 
     /* Buttons & Controls */
     .btn {
@@ -122,13 +131,13 @@
     .btn-icon { width: 34px; height: 34px; padding: 0; }
     .btn-primary { background: var(--accent); border-color: var(--accent); color: #ffffff; }
     .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: #ffffff; }
-    .btn-encrypt-on { background: var(--amber-soft); border-color: rgba(217, 119, 6, 0.35); color: var(--amber); }
-    .btn-encrypt-on:hover { background: var(--amber-soft); border-color: var(--amber); }
+    .btn-encrypt-on { background: rgba(229, 57, 53, 0.12); border-color: rgba(229, 57, 53, 0.35); color: var(--nsfw-red); }
+    .btn-encrypt-on:hover { background: rgba(229, 57, 53, 0.18); border-color: var(--nsfw-red); }
     .btn-sm { height: 28px; padding: 0 8px; font-size: 12px; border-radius: 6px; }
     .btn-xs { height: 24px; padding: 0 6px; font-size: 11.5px; border-radius: 5px; }
 
     .pill-dot { width: 6px; height: 6px; border-radius: 999px; background: var(--text-faint); display: inline-block; flex-shrink: 0; }
-    .pill-dot.connected { background: var(--accent); }
+    .pill-dot.connected { background: var(--emerald); }
     .pill-dot.dirty { background: var(--amber); }
 
     .work-thumb-mini {
@@ -165,7 +174,6 @@
       position: absolute; right: 4px; width: 22px; height: 22px; border-radius: 5px; color: var(--text-muted);
     }
     .search-clear-btn:hover { background: var(--bg-hover); color: var(--text-main); }
-    .search-clear-btn.hidden { display: none; }
 
     .seg-control {
       display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
@@ -186,13 +194,14 @@
       padding: 6px 10px; border-bottom: 1px solid var(--border); gap: 4px;
     }
 
-    /* Sidebar Tree */
+    /* Sidebar Tree + Drag & Drop */
     .tree { flex: 1; overflow-y: auto; padding: 6px 8px 20px; }
     .tree-pinned { margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
-    .tree-folder { margin-bottom: 3px; }
+    .tree-folder { margin-bottom: 3px; border-radius: 7px; }
     .tree-folder-row {
       display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 7px;
       color: var(--text-main); font-weight: 600; font-size: 13px; cursor: pointer; user-select: none;
+      border: 1.5px solid transparent; transition: background 0.12s ease, border-color 0.12s ease;
     }
     .tree-folder-row:hover { background: var(--bg-hover); }
     .tree-folder-row.active-view { background: var(--accent-soft); color: var(--accent-text); }
@@ -202,8 +211,8 @@
     .tree-folder-actions { display: flex; align-items: center; gap: 2px; opacity: 0; transition: opacity 0.12s ease; }
     .tree-folder-row:hover .tree-folder-actions, .tree-folder-row.active-view .tree-folder-actions { opacity: 1; }
 
-    .tree-mini-btn { width: 24px; height: 24px; border-radius: 5px; color: var(--text-muted); }
-    .tree-mini-btn:hover { background: var(--bg-app); color: var(--text-main); }
+    .tree-mini-btn { width: 24px; height: 24px; border-radius: 5px; color: var(--text-muted); flex-shrink: 0; }
+    .tree-mini-btn:hover { background: var(--bg-hover); color: var(--text-main); }
     .tree-mini-btn.active { background: var(--bg-app); color: var(--accent-text); box-shadow: var(--shadow-sm); }
 
     .tree-chevron { color: var(--text-faint); display: inline-flex; flex-shrink: 0; }
@@ -214,6 +223,8 @@
     .tree-item {
       display: flex; align-items: center; gap: 7px; padding: 6px 8px 6px 26px; border-radius: 7px;
       color: var(--text-secondary); font-size: 13px; cursor: pointer; user-select: none; margin-top: 1px;
+      border-top: 2px solid transparent; border-bottom: 2px solid transparent;
+      transition: background 0.12s ease;
     }
     .tree-item.pinned-item { padding-left: 10px; }
     .tree-item:hover { background: var(--bg-hover); color: var(--text-main); }
@@ -225,6 +236,11 @@
     .tree-item:hover .tree-item-more, .tree-item.active .tree-item-more { opacity: 1; }
     .tree-item-more:hover { background: var(--bg-app); color: var(--text-main); }
     .code-badge { font-size: 10px; padding: 1px 5px; border-radius: 4px; background: var(--bg-subtle); color: var(--text-muted); font-weight: 500; flex-shrink: 0; }
+
+    .dragging { opacity: 0.42; }
+    .drag-over-top { border-top: 2px solid var(--accent) !important; }
+    .drag-over-bottom { border-bottom: 2px solid var(--accent) !important; }
+    .drag-over-inside { background: var(--accent-soft) !important; border-color: var(--accent) !important; }
 
     @media (hover: none) { .tree-folder-actions, .tree-item-more { opacity: 1 !important; } }
 
@@ -262,6 +278,116 @@
     .crumb-title-input:hover { border-color: var(--border); }
     .crumb-title-input:focus { border-color: var(--accent); background: var(--bg-sidebar); }
     .main-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+    /* ================= HOME GALLERY ================= */
+    .home-scroll { flex: 1; overflow-y: auto; background: var(--bg-app); }
+    .home-wrap { max-width: 1180px; margin: 0 auto; padding: 20px 24px 56px; display: flex; flex-direction: column; gap: 16px; }
+
+    .home-summary-bar {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    }
+    .home-stats {
+      display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: var(--text-main);
+      font-variant-numeric: tabular-nums; flex-wrap: wrap;
+    }
+    .home-stats-sep { color: var(--border-strong); font-weight: 400; }
+    .home-stats-sub { font-weight: 500; color: var(--text-muted); font-size: 13px; }
+    .home-controls { display: flex; align-items: center; gap: 8px; }
+    .home-sort-select {
+      height: 32px; padding: 0 10px; border: 1px solid var(--border); border-radius: 7px;
+      background: var(--bg-app); color: var(--text-main); font-size: 13px; font-weight: 500; outline: none; cursor: pointer;
+    }
+
+    .home-filter-bar { display: flex; flex-direction: column; gap: 10px; }
+    .home-filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .home-search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 340px; display: flex; align-items: center; }
+    .home-search-wrap .search-input { height: 33px; font-size: 13px; }
+    .filter-pills { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .filter-pill {
+      height: 29px; padding: 0 11px; border-radius: 999px; font-size: 12.5px; font-weight: 500;
+      border: 1px solid var(--border); background: var(--bg-app); color: var(--text-secondary);
+      transition: all 0.14s ease;
+    }
+    .filter-pill:hover { background: var(--bg-hover); color: var(--text-main); }
+    .filter-pill.active { background: var(--accent); border-color: var(--accent); color: #ffffff; }
+    .filter-tag-pill {
+      height: 25px; padding: 0 9px; border-radius: 6px; font-size: 11.5px; font-weight: 500;
+      background: var(--bg-subtle); color: var(--text-muted); border: 1px solid transparent;
+      transition: all 0.12s ease;
+    }
+    .filter-tag-pill:hover { background: var(--bg-hover); color: var(--text-main); }
+    .filter-tag-pill.active { background: var(--accent-soft); color: var(--accent-text); border-color: var(--accent-border); }
+
+    .gallery-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 22px 18px; align-items: start;
+    }
+    .gallery-card {
+      display: flex; flex-direction: column; gap: 9px; cursor: pointer; group: true;
+      transition: transform 0.16s ease;
+    }
+    .gallery-card:hover .gallery-thumb img { transform: scale(1.03); }
+    .gallery-thumb {
+      position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 14px; overflow: hidden;
+      background: var(--bg-subtle); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .gallery-thumb img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: transform 0.25s ease;
+    }
+    .gallery-thumb-empty {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+      color: var(--text-faint); width: 100%; height: 100%;
+      background: linear-gradient(145deg, var(--bg-sidebar), var(--bg-subtle));
+    }
+    .gallery-thumb-letter {
+      font-size: 38px; font-weight: 800; color: var(--border-strong); line-height: 1; user-select: none;
+    }
+
+    /* Gallery Overlay Badges (Exact User Spec) */
+    .g-badge-tl { position: absolute; top: 9px; left: 9px; display: flex; align-items: center; gap: 4px; z-index: 2; }
+    .g-badge-tr { position: absolute; top: 9px; right: 9px; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; z-index: 2; }
+    .g-badge-br { position: absolute; bottom: 9px; right: 9px; z-index: 2; }
+
+    .g-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 8px; border-radius: 7px; font-size: 11.5px; font-weight: 700; line-height: 1.1;
+      letter-spacing: -0.01em; color: #ffffff; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22); user-select: none;
+    }
+    .g-badge-pin { background: rgba(10, 12, 16, 0.84); }
+    .g-badge-enc { background: rgba(229, 57, 53, 0.94); }
+    .g-badge-status { background: rgba(15, 18, 24, 0.78); font-weight: 600; font-size: 11px; }
+    .g-badge-status .s-dot { width: 6px; height: 6px; border-radius: 999px; flex-shrink: 0; }
+    .g-badge-status.wip .s-dot { background: #fbbf24; }
+    .g-badge-status.synced .s-dot { background: #34d399; }
+    .g-badge-branch {
+      background: rgba(15, 18, 24, 0.76); padding: 4px 9px; border-radius: 8px;
+      font-size: 11.5px; font-weight: 600; font-variant-numeric: tabular-nums;
+    }
+
+    .gallery-meta { display: flex; flex-direction: column; gap: 4px; padding: 0 2px; min-width: 0; }
+    .gallery-title-row { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+    .gallery-title {
+      font-size: 15px; font-weight: 700; color: var(--text-main);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
+    }
+    .gallery-summary {
+      font-size: 12.5px; line-height: 1.48; color: var(--text-secondary);
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      min-height: 1.48em;
+    }
+    .gallery-tags {
+      display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
+      font-size: 12px; color: var(--text-muted); margin-top: 1px;
+    }
+    .gallery-tag-link { color: var(--text-muted); transition: color 0.12s ease; }
+    .gallery-tag-link:hover { color: var(--accent-text); }
+    .gallery-foot-sub {
+      font-size: 11.5px; color: var(--text-faint); font-variant-numeric: tabular-nums;
+      display: flex; align-items: center; gap: 6px; margin-top: 1px;
+    }
 
     /* Lorebook Keyword Bar */
     .lore-bar {
@@ -324,7 +450,7 @@
       padding: 16px 20px; background: var(--bg-app); color: var(--text-main); font-size: 14.5px; line-height: 1.7;
     }
 
-    /* Character Info Page */
+    /* Character Info Page (1:1 Square Profile) */
     .char-info-page { flex: 1; overflow-y: auto; background: var(--bg-app); }
     .char-info-top { padding: 18px 24px 14px; border-bottom: 1px solid var(--border); }
     .char-info-kicker { font-size: 12px; font-weight: 600; color: var(--accent); margin-bottom: 4px; }
@@ -332,7 +458,7 @@
     .char-info-section { padding: 18px 24px; border-bottom: 1px solid var(--border); }
     .char-profile-row { display: flex; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
     .profile-box {
-      width: 160px; height: 204px; border-radius: 10px; border: 1px solid var(--border);
+      width: 180px; height: 180px; aspect-ratio: 1 / 1; border-radius: 12px; border: 1px solid var(--border);
       background: var(--bg-sidebar); overflow: hidden; display: flex; flex-direction: column;
       align-items: center; justify-content: center; color: var(--text-faint); flex-shrink: 0;
     }
@@ -387,21 +513,52 @@
     .md-blank { height: 0.7em; }
     .md-hr { height: 1px; background: var(--border-strong); margin: 10px 0; }
 
-    /* Statusbar */
+    /* ================= TOKEN MINI-BAR STATUSBAR ================= */
     .statusbar {
       height: var(--statusbar-h); min-height: var(--statusbar-h);
-      border-top: 1px solid var(--border); background: var(--bg-sidebar); padding: 0 12px;
-      display: flex; align-items: center; justify-content: space-between;
-      font-size: 12px; color: var(--text-muted); gap: 10px;
-      overflow-x: auto; white-space: nowrap; font-variant-numeric: tabular-nums;
+      border-top: 1px solid var(--border); background: var(--bg-app); padding: 0 14px;
+      display: flex; align-items: center; gap: 12px;
+      font-size: 12px; color: var(--text-muted); cursor: pointer; user-select: none;
+      transition: background 0.14s ease;
     }
-    .status-group { display: flex; align-items: center; gap: 10px; min-width: 0; }
-    .status-sep { color: var(--border-strong); }
+    .statusbar:hover { background: var(--bg-sidebar); }
+    .token-track {
+      flex: 1; height: 7px; border-radius: 999px; background: var(--bg-hover);
+      overflow: hidden; display: flex; min-width: 80px;
+    }
+    .token-seg { height: 100%; transition: width 0.22s ease; flex-shrink: 0; }
+    .token-summary {
+      display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+      font-variant-numeric: tabular-nums; font-size: 12px; color: var(--text-muted); flex-shrink: 0;
+    }
+    .token-summary strong { color: var(--text-main); font-weight: 700; }
+    .token-summary.over strong, .token-summary.over .tok-num { color: var(--danger); font-weight: 700; }
+    .item-inline-metric {
+      font-size: 11.5px; color: var(--text-muted); padding: 2px 7px; border-radius: 5px;
+      background: var(--bg-subtle); font-variant-numeric: tabular-nums; white-space: nowrap;
+    }
+
+    /* Token Breakdown Popover */
+    .token-popover {
+      position: fixed; bottom: calc(var(--statusbar-h) + 8px); right: 14px;
+      width: min(340px, calc(100vw - 24px)); background: var(--bg-app);
+      border: 1px solid var(--border); border-radius: 11px; box-shadow: var(--shadow-md);
+      padding: 12px 14px; z-index: 120; display: flex; flex-direction: column; gap: 10px;
+    }
+    .tp-head { display: flex; align-items: center; justify-content: space-between; font-weight: 700; font-size: 13px; }
+    .tp-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12.5px; }
+    .tp-label { display: inline-flex; align-items: center; gap: 7px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tp-dot { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+    .tp-val { font-variant-numeric: tabular-nums; color: var(--text-muted); font-size: 12px; flex-shrink: 0; }
+    .tp-budget-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding-top: 8px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-secondary);
+    }
 
     /* Dropdown & Accent Popover */
     .dropdown-wrap { position: relative; }
     .dropdown-menu {
-      position: fixed; min-width: 210px; max-width: min(280px, calc(100vw - 16px)); max-height: 360px; overflow-y: auto;
+      position: fixed; min-width: 210px; max-width: min(280px, calc(100vw - 16px)); max-height: 380px; overflow-y: auto;
       background: var(--bg-app); border: 1px solid var(--border); border-radius: 9px;
       box-shadow: var(--shadow-md); padding: 5px; z-index: 100;
     }
@@ -474,7 +631,7 @@
 
     /* Toast */
     .toast-wrap {
-      position: fixed; bottom: 42px; right: 14px; z-index: 300;
+      position: fixed; bottom: 44px; right: 14px; z-index: 300;
       display: flex; flex-direction: column; gap: 8px; pointer-events: none; max-width: min(92vw, 340px);
     }
     .toast {
@@ -491,16 +648,20 @@
         box-shadow: var(--shadow-md); transform: translateX(0);
       }
       .sidebar.collapsed { width: min(84vw, 310px); min-width: min(84vw, 310px); border-right-width: 1px; transform: translateX(-100%); }
-      .sidebar:not(.collapsed) + .sidebar-backdrop { display: block; opacity: 1; }
+      .sidebar:not(.collapsed):not(.hidden) + .sidebar-backdrop { display: block; opacity: 1; }
       .editor-stage { flex-direction: column; }
       .preview-pane { width: 100%; min-width: 0; height: 45%; border-left: none; border-top: 1px solid var(--border); }
       .history-layout { grid-template-columns: 1fr; }
     }
     @media (max-width: 680px) {
       .hide-xs { display: none !important; }
+      .home-wrap { padding: 14px 12px 44px; gap: 12px; }
+      .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 10px; }
+      .g-badge { padding: 3px 6px; font-size: 10.5px; }
       .char-info-top, .char-info-section { padding: 14px 16px; }
       .cards-scroll { padding: 12px; }
       .lore-grid { grid-template-columns: 1fr; }
+      .statusbar { padding: 0 10px; gap: 8px; }
     }
   </style>
 </head>
@@ -509,8 +670,10 @@
   <header class="topbar">
     <div class="topbar-left">
       <button class="btn btn-ghost btn-icon" id="btnToggleSidebar" title="사이드바 접기/열기" aria-label="사이드바 토글"></button>
-      <div class="dropdown-wrap"><button class="btn" id="btnWorkMenu" title="작품 전환 및 관리"></button></div>
-      <div class="dropdown-wrap"><button class="btn" id="btnBranchMenu" title="플랫폼 버전 분기 전환 및 관리"></button></div>
+      <button class="btn btn-ghost btn-icon" id="btnGoHome" title="작품 홈 갤러리로 이동" aria-label="홈"></button>
+      <span class="brand-title hidden" id="homeBrandTitle">프롬프트 아카이브 스튜디오</span>
+      <div class="dropdown-wrap" id="wrapWorkMenu"><button class="btn" id="btnWorkMenu" title="작품 전환 및 관리"></button></div>
+      <div class="dropdown-wrap" id="wrapBranchMenu"><button class="btn" id="btnBranchMenu" title="플랫폼 버전 분기 전환 및 관리"></button></div>
       <button class="btn btn-ghost" id="btnHistory" title="GitHub 커밋 및 로컬 스냅샷 비교"></button>
     </div>
     <div class="topbar-right">
@@ -552,13 +715,14 @@
     <main class="main" id="mainPane"></main>
   </div>
 
-  <footer class="statusbar">
-    <div class="status-group" id="statusLeft"></div>
-    <div class="status-group" id="statusRight"></div>
+  <footer class="statusbar hidden" id="statusbar" title="클릭하여 폴더별 토큰 분포 및 목표 한도 확인">
+    <div class="token-track" id="tokenTrack"></div>
+    <div class="token-summary" id="tokenSummary"></div>
   </footer>
 </div>
 
 <div id="dropdownRoot"></div>
+<div id="tokenPopoverRoot"></div>
 
 <!-- Settings Modal -->
 <div class="modal-backdrop" id="modalSettings">
@@ -630,18 +794,22 @@
   'use strict';
 
   /* ================= COMPACT SVG ICONS & CONSTANTS ================= */
-  const svg = (d, s = 14, w = 1.6) =>
+  const svg = (d, s = 14, w = 1.65) =>
     `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
 
   const ICONS = {
     sidebar: svg('<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/>', 17),
+    home: svg('<path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5"/><path d="M9 21v-6h6v6"/>', 16),
+    pin: svg('<path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1 1 1 0 0 1 1 1z"/>', 13, 2),
     user: svg('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
-    branch: svg('<line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/>'),
+    branch: svg('<line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/>', 13, 1.8),
     chevDown: svg('<polyline points="6 9 12 15 18 9"/>', 13, 1.8),
     chevRight: svg('<polyline points="9 18 15 12 9 6"/>', 13, 1.8),
+    arrowUp: svg('<polyline points="18 15 12 9 6 15"/>', 13.5, 1.8),
+    arrowDown: svg('<polyline points="6 9 12 15 18 9"/>', 13.5, 1.8),
     history: svg('<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/>', 15),
-    lock: svg('<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>', 14, 1.7),
-    unlock: svg('<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>', 14, 1.7),
+    lock: svg('<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>', 12.5, 2),
+    unlock: svg('<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>', 13.5, 1.7),
     cloud: svg('<path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>', 15),
     moon: svg('<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>', 16),
     sun: svg('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>', 16),
@@ -659,6 +827,7 @@
     download: svg('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>'),
     table: svg('<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="10" y1="3" x2="10" y2="21"/>'),
     more: svg('<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>', 14, 1.7),
+    moreV: svg('<circle cx="12" cy="5" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="12" cy="19" r="1.2"/>', 15, 1.8),
     edit: svg('<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>'),
     trash: svg('<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>'),
     close: svg('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>', 15, 1.7),
@@ -668,6 +837,7 @@
     refresh: svg('<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>'),
     eye: svg('<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'),
     external: svg('<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>', 13.5),
+    move: svg('<polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/>', 13.5),
     check: svg('<polyline points="20 6 9 17 4 12"/>', 14, 1.9)
   };
 
@@ -682,11 +852,14 @@
     ['로즈 핑크', '#e11d48'], ['앰버', '#d97706'], ['틸', '#0d9488'], ['슬레이트', '#475569']
   ];
 
+  const TOKEN_SEG_COLORS = ['var(--seg-0)', '#fb923c', '#a855f7', '#3b82f6', '#10b981', '#ec4899', '#eab308', '#14b8a6'];
+
   /* ================= HELPERS ================= */
   const $ = (id) => document.getElementById(id);
   const uid = (p = 'id') => `${p}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
   const escHtml = (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const fmtNum = (n) => Number(n || 0).toLocaleString('ko-KR');
+  const fmtShort = (n) => n >= 1000 ? `${(n / 1000).toFixed(1).replace(/\.0$/, '')}K` : String(n || 0);
   const clone = (o) => JSON.parse(JSON.stringify(o));
   const splitCsv = (s = '') => s.split(',').map(x => x.trim()).filter(Boolean);
   const isMobile = () => window.innerWidth <= 900;
@@ -861,7 +1034,8 @@
     return {
       id: uid('work'), title, summary, tags,
       profile: { assetPath: '', externalUrl: '' },
-      encrypted: false, activeBranchId: branchId,
+      encrypted: false, pinned: false, dirty: true,
+      activeBranchId: branchId,
       branches: [{ id: branchId, name: '기본 (공통)', folders: createDefaultFolders(withSample) }],
       updatedAt: Date.now()
     };
@@ -870,19 +1044,23 @@
   /* ================= STATE & ACCESSORS ================= */
   const state = {
     works: [], activeWorkId: null,
-    viewMode: 'charInfo', // 'charInfo' | 'editor' | 'loreCards' | 'textCards'
+    viewMode: 'home', // 'home' | 'charInfo' | 'editor' | 'loreCards' | 'textCards'
     activeFolderId: null, activeItemId: null,
     searchQuery: '', searchScope: 'current',
+    homeQuery: '', homeFilter: 'all', homeTag: '', homeSort: 'updated',
     sidebarCollapsed: isMobile(), showPreview: true,
-    editingCardIds: new Set(), assetCache: new Map(), dirtyWorkIds: new Set(),
+    showTokenPopover: false,
+    tokenBudget: Math.max(500, Number(localStorage.getItem('ps_token_budget')) || 10000),
+    editingCardIds: new Set(), assetCache: new Map(),
     config: { owner: '', repo: '', branch: 'main', token: '', rememberPass: true },
     masterPass: '',
     theme: localStorage.getItem('ps_theme') || 'light',
     accentColor: localStorage.getItem('ps_accent') || '#2563eb'
   };
 
-  let cmEditor = null, previewTimer = null, saveTimer = null, selectedHistoryPayload = null;
+  let cmEditor = null, previewTimer = null, saveTimer = null, selectedHistoryPayload = null, dragState = null;
 
+  const isHome = () => state.viewMode === 'home';
   const getActiveWork = () => state.works.find(w => w.id === state.activeWorkId) || state.works[0] || null;
   const getActiveBranch = (w = getActiveWork()) => w ? (w.branches.find(b => b.id === w.activeBranchId) || w.branches[0] || null) : null;
   const isCodeItem = (f, it) => f?.kind === 'code' || it?.type === 'html' || it?.type === 'jsx';
@@ -908,23 +1086,30 @@
     else localStorage.removeItem('ps_master_pass');
   }
 
-  function calcWorkPromptStats(branch = getActiveBranch()) {
-    let chars = 0, tokens = 0;
+  function calcWorkPromptBreakdown(branch = getActiveBranch()) {
+    let chars = 0, tokens = 0, segIdx = 0;
+    const folders = [];
     for (const f of (branch?.folders || [])) {
+      let fChars = 0, fTokens = 0, hasNonCode = false;
       for (const it of f.items) {
         if (isCodeItem(f, it)) continue;
+        hasNonCode = true;
         const txt = it.content || '';
-        chars += txt.length;
-        tokens += estimateTokens(txt);
+        fChars += txt.length;
+        fTokens += estimateTokens(txt);
       }
+      const excluded = f.kind === 'code' || (!hasNonCode && f.items.length > 0);
+      const color = excluded ? 'var(--border-strong)' : TOKEN_SEG_COLORS[segIdx++ % TOKEN_SEG_COLORS.length];
+      folders.push({ id: f.id, name: f.name, chars: fChars, tokens: fTokens, excluded, color });
+      if (!excluded) { chars += fChars; tokens += fTokens; }
     }
-    return { chars, tokens };
+    return { chars, tokens, folders };
   }
 
-  function scheduleWorkSave(work, createSnapshot = false) {
+  function scheduleWorkSave(work, createSnapshot = false, markDirty = true) {
     if (!work) return;
     work.updatedAt = Date.now();
-    state.dirtyWorkIds.add(work.id);
+    if (markDirty) work.dirty = true;
     updateTopbarStatusDot();
     clearTimeout(saveTimer);
     saveTimer = setTimeout(async () => {
@@ -938,6 +1123,62 @@
     if (snaps[0] && JSON.stringify(snaps[0].data) === JSON.stringify(work)) return;
     await idb('snapshots', 'put', { id: uid('snap'), workId: work.id, note, createdAt: Date.now(), data: clone(work) });
     for (const old of snaps.slice(14)) await idb('snapshots', 'delete', old.id);
+  }
+
+  async function createAndOpenNewWork() {
+    const nw = createWorkObject();
+    nw._justCreated = true;
+    state.works.unshift(nw);
+    state.activeWorkId = nw.id;
+    state.viewMode = 'charInfo';
+    if (!isMobile()) state.sidebarCollapsed = false;
+    await idb('works', 'put', nw);
+    renderAll();
+    toast('새 작품이 생성되었습니다. 캐릭터 정보를 입력해 주세요.');
+  }
+
+  async function duplicateWork(source) {
+    const copy = clone(source);
+    copy.id = uid('work');
+    copy.title = `${source.title || '제목 없음'} (사본)`;
+    copy.pinned = false;
+    copy.dirty = true;
+    copy.updatedAt = Date.now();
+    // Clone local profile asset independently
+    if (source.profile?.assetPath) {
+      const dataUrl = await getAssetDataUrl(source.profile.assetPath);
+      if (dataUrl) {
+        const newPath = `assets/${copy.id}_profile.webp`;
+        await idb('assets', 'put', { path: newPath, dataUrl, dirty: true, updatedAt: Date.now() });
+        state.assetCache.set(newPath, dataUrl);
+        copy.profile = { assetPath: newPath, externalUrl: '' };
+      }
+    }
+    state.works.unshift(copy);
+    await idb('works', 'put', copy);
+    renderAll();
+    toast(`'${copy.title}' 작품이 복제되었습니다.`);
+  }
+
+  async function deleteWorkById(workId) {
+    const w = state.works.find(x => x.id === workId);
+    if (!w || !confirm(`'${w.title || '제목 없음'}' 작품을 로컬에서 삭제할까요?`)) return;
+    await idb('works', 'delete', w.id);
+    if (w.profile?.assetPath) { state.assetCache.delete(w.profile.assetPath); await idb('assets', 'delete', w.profile.assetPath); }
+    state.works = state.works.filter(x => x.id !== w.id);
+    if (state.activeWorkId === w.id) state.activeWorkId = state.works[0]?.id || null;
+    if (!state.works.length) state.viewMode = 'home';
+    else if (!isHome() && !state.activeWorkId) state.viewMode = 'home';
+    renderAll();
+    toast('작품을 삭제했습니다.');
+  }
+
+  function enterWork(workId, mode = 'charInfo') {
+    state.activeWorkId = workId;
+    state.viewMode = mode;
+    if (!isMobile()) state.sidebarCollapsed = false;
+    closeDropdown(); closeTokenPopover();
+    renderAll();
   }
 
   /* ================= THEME & ACCENT CUSTOMIZER ================= */
@@ -1083,6 +1324,11 @@
     return '';
   }
 
+  async function getWorkThumbSrc(work) {
+    if (!work?.profile) return '';
+    return work.profile.assetPath ? getAssetDataUrl(work.profile.assetPath) : (work.profile.externalUrl || '');
+  }
+
   async function saveProfileAsset(work, file) {
     const dataUrl = await compressImageFile(file);
     const assetPath = `assets/${work.id}_profile.webp`;
@@ -1098,6 +1344,7 @@
   function initStaticUI() {
     const staticHtml = {
       btnToggleSidebar: ICONS.sidebar,
+      btnGoHome: ICONS.home,
       btnHistory: `${ICONS.history}<span class="hide-xs">이전 작업내역</span>`,
       btnAccentPicker: '<span class="accent-dot-preview"></span>',
       btnGitSave: `${ICONS.save}<span class="hide-xs">GitHub 저장</span>`,
@@ -1117,11 +1364,26 @@
   function updateTopbarStatusDot() {
     const work = getActiveWork();
     const connected = !!(state.config.owner && state.config.repo && state.config.token);
-    const dotCls = work && state.dirtyWorkIds.has(work.id) ? 'dirty' : (connected ? 'connected' : '');
+    const anyDirty = isHome() ? state.works.some(w => w.dirty) : !!work?.dirty;
+    const dotCls = anyDirty ? 'dirty' : (connected ? 'connected' : '');
     $('btnSettings').innerHTML = `<span class="pill-dot ${dotCls}"></span>${ICONS.cloud}<span class="hide-xs">${escHtml(connected ? state.config.repo : '연동 설정')}</span>`;
   }
 
   async function renderTopbar() {
+    const home = isHome();
+    $('btnToggleSidebar').classList.toggle('hidden', home);
+    $('btnGoHome').classList.toggle('hidden', home);
+    $('homeBrandTitle').classList.toggle('hidden', !home);
+    $('wrapWorkMenu').classList.toggle('hidden', home);
+    $('wrapBranchMenu').classList.toggle('hidden', home);
+    $('btnHistory').classList.toggle('hidden', home);
+    $('btnEncryptToggle').classList.toggle('hidden', home);
+    $('btnGitSave').classList.toggle('hidden', home);
+
+    $('btnTheme').innerHTML = state.theme === 'dark' ? ICONS.sun : ICONS.moon;
+    updateTopbarStatusDot();
+
+    if (home) return;
     const work = getActiveWork(), branch = getActiveBranch(work);
     $('btnWorkMenu').innerHTML = `
       <span class="work-thumb-mini" id="topWorkThumb">${ICONS.user}</span>
@@ -1129,7 +1391,7 @@
       <span style="opacity:0.6;display:inline-flex;">${ICONS.chevDown}</span>`;
 
     if (work) {
-      const src = work.profile?.assetPath ? await getAssetDataUrl(work.profile.assetPath) : (work.profile?.externalUrl || '');
+      const src = await getWorkThumbSrc(work);
       const thumb = $('topWorkThumb');
       if (src && thumb) thumb.innerHTML = `<img src="${escHtml(src)}" alt="" />`;
     }
@@ -1139,12 +1401,14 @@
     const encBtn = $('btnEncryptToggle'), isEnc = !!work?.encrypted;
     encBtn.classList.toggle('btn-encrypt-on', isEnc);
     encBtn.innerHTML = isEnc ? `${ICONS.lock}<span class="hide-xs">암호화 ON</span>` : `${ICONS.unlock}<span class="hide-xs">평문 저장</span>`;
-    $('btnTheme').innerHTML = state.theme === 'dark' ? ICONS.sun : ICONS.moon;
-    updateTopbarStatusDot();
   }
 
   function renderSidebar() {
-    $('sidebar').classList.toggle('collapsed', state.sidebarCollapsed);
+    const sb = $('sidebar');
+    sb.classList.toggle('hidden', isHome());
+    if (isHome()) return;
+
+    sb.classList.toggle('collapsed', state.sidebarCollapsed);
     $('btnClearSearch').classList.toggle('hidden', !state.searchQuery.trim());
     $('segCurrent').classList.toggle('active', state.searchScope === 'current');
     $('segAll').classList.toggle('active', state.searchScope === 'all');
@@ -1199,8 +1463,8 @@
         const cardType = f.kind === 'lorebook' ? 'loreCards' : f.kind === 'text' ? 'textCards' : '';
         const isCardActive = cardType && state.viewMode === cardType && state.activeFolderId === f.id;
         return `
-          <div class="tree-folder">
-            <div class="tree-folder-row ${isCardActive ? 'active-view' : ''}" data-ftoggle="${f.id}">
+          <div class="tree-folder" data-folder-wrap="${f.id}">
+            <div class="tree-folder-row ${isCardActive ? 'active-view' : ''}" draggable="true" data-ftoggle="${f.id}">
               <span class="tree-chevron">${f.collapsed ? ICONS.chevRight : ICONS.chevDown}</span>
               <span class="tree-folder-icon">${fIcon}</span>
               <span class="tree-folder-name">${escHtml(f.name)}</span>
@@ -1216,7 +1480,7 @@
               const itIcon = it.type === 'lorebook' ? ICONS.book : (it.type === 'html' || it.type === 'jsx') ? ICONS.code : ICONS.file;
               const len = (it.content || '').length;
               return `
-                <div class="tree-item ${active ? 'active' : ''}" data-iselect="${it.id}" data-fid="${f.id}">
+                <div class="tree-item ${active ? 'active' : ''}" draggable="true" data-iselect="${it.id}" data-fid="${f.id}">
                   <span class="tree-item-icon">${itIcon}</span>
                   <span class="tree-item-title">${escHtml(it.title)}</span>
                   ${len ? `<span class="tree-item-meta">${fmtNum(len)}</span>` : ''}
@@ -1230,8 +1494,18 @@
   /* ================= MAIN VIEWS ================= */
   function renderMain() {
     cmEditor = null;
-    const work = getActiveWork(), branch = getActiveBranch(work), main = $('mainPane');
-    if (!work || !branch) { main.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-faint);">작품이 없습니다.</div>'; return; }
+    const main = $('mainPane');
+    if (isHome()) {
+      renderHomeGallery(main);
+      renderStatusbar();
+      return;
+    }
+    const work = getActiveWork(), branch = getActiveBranch(work);
+    if (!work || !branch) {
+      state.viewMode = 'home';
+      renderAll();
+      return;
+    }
 
     if (state.viewMode === 'loreCards' || state.viewMode === 'textCards') {
       const folder = branch.folders.find(f => f.id === state.activeFolderId);
@@ -1247,6 +1521,217 @@
     renderStatusbar();
   }
 
+  /* ================= HOME GALLERY VIEW ================= */
+  function getFilteredHomeWorks() {
+    const q = state.homeQuery.trim().toLowerCase();
+    const list = state.works.map(w => ({
+      work: w,
+      stats: calcWorkPromptBreakdown(getActiveBranch(w))
+    })).filter(({ work: w }) => {
+      if (state.homeFilter === 'pinned' && !w.pinned) return false;
+      if (state.homeFilter === 'wip' && !w.dirty) return false;
+      if (state.homeFilter === 'synced' && w.dirty) return false;
+      if (state.homeFilter === 'encrypted' && !w.encrypted) return false;
+      if (state.homeTag && !(w.tags || []).includes(state.homeTag)) return false;
+      if (q && !`${w.title || ''}\n${w.summary || ''}\n${(w.tags || []).join(' ')}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
+
+    list.sort((a, b) => {
+      if (!!a.work.pinned !== !!b.work.pinned) return a.work.pinned ? -1 : 1;
+      if (state.homeSort === 'title') return (a.work.title || '').localeCompare(b.work.title || '', 'ko');
+      if (state.homeSort === 'tokens') return b.stats.tokens - a.stats.tokens;
+      if (state.homeSort === 'branches') return (b.work.branches?.length || 0) - (a.work.branches?.length || 0);
+      return (b.work.updatedAt || 0) - (a.work.updatedAt || 0);
+    });
+    return list;
+  }
+
+  function renderHomeGallery(main) {
+    const totalWorks = state.works.length;
+    const syncedCount = state.works.filter(w => !w.dirty).length;
+    const wipCount = totalWorks - syncedCount;
+    const totalTokensAll = state.works.reduce((sum, w) => sum + calcWorkPromptBreakdown(getActiveBranch(w)).tokens, 0);
+
+    const tagMap = new Map();
+    for (const w of state.works) for (const t of (w.tags || [])) tagMap.set(t, (tagMap.get(t) || 0) + 1);
+    const topTags = [...tagMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 14).map(([t]) => t);
+    if (state.homeTag && !tagMap.has(state.homeTag)) state.homeTag = '';
+
+    const items = getFilteredHomeWorks();
+
+    main.innerHTML = `
+      <div class="home-scroll">
+        <div class="home-wrap">
+          <div class="home-summary-bar">
+            <div class="home-stats">
+              <span>전체 작품 ${totalWorks}개</span>
+              <span class="home-stats-sep">|</span>
+              <span class="home-stats-sub">배포 완료 ${syncedCount} · 제작중 ${wipCount}</span>
+              <span class="home-stats-sep hide-xs">|</span>
+              <span class="home-stats-sub hide-xs">누적 ${fmtShort(totalTokensAll)} 토큰</span>
+            </div>
+            <div class="home-controls">
+              <select class="home-sort-select" id="homeSortSelect" aria-label="정렬">
+                ${[['updated', '최신순'], ['title', '제목순'], ['tokens', '토큰순'], ['branches', '분기순']].map(([v, l]) =>
+                  `<option value="${v}" ${state.homeSort === v ? 'selected' : ''}>${l}</option>`).join('')}
+              </select>
+              <button class="btn btn-primary" id="btnHomeNewWork">${ICONS.plus}<span>새 작품</span></button>
+            </div>
+          </div>
+
+          <div class="home-filter-bar">
+            <div class="home-filter-row">
+              <div class="home-search-wrap">
+                <span class="search-icon-slot">${ICONS.search}</span>
+                <input type="text" class="search-input" id="homeSearchInput" value="${escHtml(state.homeQuery)}" placeholder="작품 제목, 소개, 태그 검색..." />
+                <button type="button" class="search-clear-btn ${state.homeQuery ? '' : 'hidden'}" id="btnClearHomeSearch">${ICONS.close}</button>
+              </div>
+              <div class="filter-pills" id="homeFilterPills">
+                ${[['all', '전체'], ['pinned', '고정됨'], ['wip', '제작중'], ['synced', '배포 완료'], ['encrypted', '암호화']].map(([v, l]) =>
+                  `<button type="button" class="filter-pill ${state.homeFilter === v ? 'active' : ''}" data-hfilter="${v}">${l}</button>`).join('')}
+              </div>
+            </div>
+            ${topTags.length ? `
+              <div class="filter-pills" id="homeTagPills">
+                ${topTags.map(t => `<button type="button" class="filter-tag-pill ${state.homeTag === t ? 'active' : ''}" data-htag="${escHtml(t)}">#${escHtml(t)}</button>`).join('')}
+              </div>` : ''}
+          </div>
+
+          <div class="gallery-grid" id="galleryGrid">
+            ${items.length ? items.map(({ work: w, stats }) => {
+              const tags = w.tags || [];
+              const shownTags = tags.slice(0, 3);
+              const extraTags = tags.length - shownTags.length;
+              const initial = (w.title || 'W').trim().charAt(0).toUpperCase();
+              const branchCount = w.branches?.length || 1;
+              return `
+                <article class="gallery-card" data-open-work="${w.id}">
+                  <div class="gallery-thumb" data-thumb-slot="${w.id}">
+                    <div class="gallery-thumb-empty">
+                      <span class="gallery-thumb-letter">${escHtml(initial)}</span>
+                    </div>
+                    ${w.pinned ? `<div class="g-badge-tl"><span class="g-badge g-badge-pin">${ICONS.pin}<span>고정됨</span></span></div>` : ''}
+                    <div class="g-badge-tr">
+                      ${w.encrypted ? `<span class="g-badge g-badge-enc">${ICONS.lock}<span>암호화</span></span>` : ''}
+                      <span class="g-badge g-badge-status ${w.dirty ? 'wip' : 'synced'}"><span class="s-dot"></span><span>${w.dirty ? '제작중' : '배포 완료'}</span></span>
+                    </div>
+                    <div class="g-badge-br">
+                      <span class="g-badge g-badge-branch" title="플랫폼 분기 수">${ICONS.branch}<span>${branchCount}</span></span>
+                    </div>
+                  </div>
+                  <div class="gallery-meta">
+                    <div class="gallery-title-row">
+                      <div class="gallery-title">${escHtml(w.title || '제목 없음')}</div>
+                      <button type="button" class="tree-mini-btn" data-gmenu="${w.id}" title="작품 메뉴">${ICONS.moreV}</button>
+                    </div>
+                    <div class="gallery-summary">${escHtml(w.summary || '한 줄 소개가 비어 있습니다.')}</div>
+                    ${tags.length ? `
+                      <div class="gallery-tags">
+                        ${shownTags.map(t => `<span class="gallery-tag-link" data-pick-tag="${escHtml(t)}">#${escHtml(t)}</span>`).join('')}
+                        ${extraTags > 0 ? `<span>+${extraTags}</span>` : ''}
+                      </div>` : ''}
+                    <div class="gallery-foot-sub">
+                      <span>${fmtShort(stats.tokens)} 토큰</span>
+                      <span>·</span>
+                      <span>${new Date(w.updatedAt || Date.now()).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}</span>
+                    </div>
+                  </div>
+                </article>`;
+            }).join('') : `
+              <div style="grid-column:1/-1;padding:64px 20px;text-align:center;color:var(--text-faint);display:flex;flex-direction:column;align-items:center;gap:12px;">
+                <div>${state.works.length ? '조건에 맞는 작품이 없습니다.' : '등록된 작품이 없습니다. 새 작품을 만들어 보세요.'}</div>
+                ${state.works.length ? '<button class="btn btn-sm" id="btnResetHomeFilter">필터 초기화</button>' : ''}
+              </div>`}
+          </div>
+        </div>
+      </div>`;
+
+    // Bind gallery controls
+    $('btnHomeNewWork').onclick = createAndOpenNewWork;
+    $('homeSortSelect').onchange = (e) => { state.homeSort = e.target.value; renderHomeGallery(main); };
+    $('homeSearchInput').oninput = (e) => {
+      state.homeQuery = e.target.value;
+      const pos = e.target.selectionStart;
+      renderHomeGallery(main);
+      const inp = $('homeSearchInput');
+      if (inp) { inp.focus(); inp.setSelectionRange(pos, pos); }
+    };
+    $('btnClearHomeSearch').onclick = () => { state.homeQuery = ''; renderHomeGallery(main); $('homeSearchInput')?.focus(); };
+    $('homeFilterPills').onclick = (e) => {
+      const btn = e.target.closest('[data-hfilter]');
+      if (btn) { state.homeFilter = btn.dataset.hfilter; renderHomeGallery(main); }
+    };
+    if ($('homeTagPills')) {
+      $('homeTagPills').onclick = (e) => {
+        const btn = e.target.closest('[data-htag]');
+        if (btn) { state.homeTag = state.homeTag === btn.dataset.htag ? '' : btn.dataset.htag; renderHomeGallery(main); }
+      };
+    }
+    if ($('btnResetHomeFilter')) {
+      $('btnResetHomeFilter').onclick = () => { state.homeQuery = ''; state.homeFilter = 'all'; state.homeTag = ''; renderHomeGallery(main); };
+    }
+
+    $('galleryGrid').onclick = (e) => {
+      const menuBtn = e.target.closest('[data-gmenu]');
+      if (menuBtn) { e.stopPropagation(); return openGalleryQuickMenu(menuBtn, menuBtn.dataset.gmenu); }
+      const tagLink = e.target.closest('[data-pick-tag]');
+      if (tagLink) {
+        e.stopPropagation();
+        state.homeTag = state.homeTag === tagLink.dataset.pickTag ? '' : tagLink.dataset.pickTag;
+        return renderHomeGallery(main);
+      }
+      const card = e.target.closest('[data-open-work]');
+      if (card) enterWork(card.dataset.openWork, 'charInfo');
+    };
+
+    // Async parallel thumbnail loading without layout shift
+    items.forEach(async ({ work: w }) => {
+      const src = await getWorkThumbSrc(w);
+      if (!src) return;
+      const slot = main.querySelector(`[data-thumb-slot="${w.id}"]`);
+      if (!slot) return;
+      const empty = slot.querySelector('.gallery-thumb-empty');
+      if (empty) {
+        const img = Object.assign(document.createElement('img'), { src, alt: w.title || '', loading: 'lazy' });
+        empty.replaceWith(img);
+      }
+    });
+  }
+
+  function openGalleryQuickMenu(anchor, workId) {
+    const work = state.works.find(w => w.id === workId);
+    if (!work) return;
+    const menu = showDropdown(anchor, `
+      <button class="dd-item" id="gqPin"><span>${work.pinned ? '상단 고정 해제' : '상단 고정'}</span>${ICONS.pin}</button>
+      <button class="dd-item" id="gqDup"><span>작품 복제</span>${ICONS.copy}</button>
+      <div class="dd-sep"></div>
+      <div class="dd-label">즉시 내보내기</div>
+      <button class="dd-item" id="gqTxt"><span>전체 TXT 내보내기</span>${ICONS.download}</button>
+      <button class="dd-item" id="gqCsv"><span>로어북 CSV 내보내기</span>${ICONS.table}</button>
+      <div class="dd-sep"></div>
+      <button class="dd-item" id="gqPush" style="color:var(--accent);font-weight:600;"><span>GitHub 단독 푸시</span>${ICONS.cloud}</button>
+      <button class="dd-item" id="gqDel" style="color:var(--danger);"><span>작품 삭제</span>${ICONS.trash}</button>`);
+
+    menu.querySelector('#gqPin').onclick = async () => {
+      closeDropdown();
+      work.pinned = !work.pinned;
+      await idb('works', 'put', work);
+      renderMain();
+      toast(work.pinned ? '작품을 상단에 고정했습니다.' : '상단 고정을 해제했습니다.');
+    };
+    menu.querySelector('#gqDup').onclick = async () => { closeDropdown(); await duplicateWork(work); };
+    menu.querySelector('#gqTxt').onclick = () => { closeDropdown(); exportWorkTxt(work); };
+    menu.querySelector('#gqCsv').onclick = () => { closeDropdown(); exportLorebookCsv(work); };
+    menu.querySelector('#gqPush').onclick = async () => {
+      closeDropdown();
+      try { toast(`'${work.title || '제목 없음'}' GitHub 푸시 중...`); await pushWorkToGitHub(work); toast('GitHub 단독 푸시 완료!'); }
+      catch (e) { toast(e.message); }
+    };
+    menu.querySelector('#gqDel').onclick = async () => { closeDropdown(); await deleteWorkById(work.id); };
+  }
+
+  /* ================= CHARACTER INFO VIEW (1:1 PROFILE) ================= */
   function renderCharInfoView(main, work) {
     const titleLen = (work.title || '').length, sumLen = (work.summary || '').length;
     const { assetPath = '', externalUrl = '' } = work.profile || {};
@@ -1259,7 +1744,7 @@
         </div>
         <div class="char-info-section">
           <div class="char-profile-row">
-            <div class="profile-box" id="profilePreviewBox">${ICONS.image}<span style="font-size:12px;margin-top:6px;">프로필 이미지</span></div>
+            <div class="profile-box" id="profilePreviewBox">${ICONS.image}<span style="font-size:12px;margin-top:6px;">1:1 프로필 이미지</span></div>
             <div class="profile-controls">
               <div style="display:flex;gap:8px;flex-wrap:wrap;">
                 <input type="file" id="profileFileInput" accept="image/*" style="display:none;" />
@@ -1270,7 +1755,7 @@
                 <label style="font-size:12px;color:var(--text-muted);">또는 외부 이미지 URL</label>
                 <input class="form-input" id="profileUrlInput" value="${escHtml(externalUrl)}" placeholder="https://..." style="height:32px;font-size:12.5px;" />
               </div>
-              <div class="profile-asset-note">${assetPath ? `에셋 경로: ${escHtml(assetPath)}` : (externalUrl ? '외부 URL 연결됨' : '업로드 시 레포의 assets/ 폴더에 분리 저장됩니다.')}</div>
+              <div class="profile-asset-note">${assetPath ? `에셋 경로: ${escHtml(assetPath)}` : (externalUrl ? '외부 URL 연결됨' : '업로드 시 레포의 assets/ 폴더에 1:1 썸네일로 분리 저장됩니다.')}</div>
             </div>
           </div>
         </div>
@@ -1289,7 +1774,7 @@
       </div>`;
 
     (async () => {
-      const src = assetPath ? await getAssetDataUrl(assetPath) : externalUrl;
+      const src = await getWorkThumbSrc(work);
       if (src && $('profilePreviewBox')) $('profilePreviewBox').innerHTML = `<img src="${escHtml(src)}" alt="profile" />`;
     })();
 
@@ -1435,6 +1920,7 @@
           <input class="crumb-title-input" id="editorItemTitle" value="${escHtml(item.title)}" title="클릭하여 항목 이름 수정" />
         </div>
         <div class="main-tools">
+          <span class="item-inline-metric hide-xs" id="editorItemMetric">${fmtNum((item.content || '').length)}자 · ${fmtNum(estimateTokens(item.content))}토큰</span>
           <select class="form-select" id="editorItemType" style="height:28px;font-size:12px;padding:0 8px;">
             ${[['text', '텍스트'], ['lorebook', '로어북'], ['html', 'HTML'], ['jsx', 'JSX']].map(([v, l]) =>
               `<option value="${v}" ${item.type === v ? 'selected' : ''}>${l}</option>`).join('')}
@@ -1482,6 +1968,8 @@
     const onContentChange = (val) => {
       item.content = val;
       scheduleWorkSave(work);
+      const mEl = $('editorItemMetric');
+      if (mEl) mEl.textContent = `${fmtNum(val.length)}자 · ${fmtNum(estimateTokens(val))}토큰`;
       renderStatusbar();
       if (isCode && state.showPreview) { clearTimeout(previewTimer); previewTimer = setTimeout(() => updateCodePreview(item), 380); }
     };
@@ -1540,34 +2028,195 @@
     <\/script></body></html>`;
   }
 
-  /* ================= STATUS BAR ================= */
+  /* ================= TOKEN MINI-BAR STATUSBAR & POPOVER ================= */
+  const closeTokenPopover = () => { state.showTokenPopover = false; $('tokenPopoverRoot').innerHTML = ''; };
+
   function renderStatusbar() {
+    const bar = $('statusbar');
     const work = getActiveWork(), branch = getActiveBranch(work);
-    if (!work || !branch) { $('statusLeft').innerHTML = $('statusRight').innerHTML = ''; return; }
-
-    const isDirty = state.dirtyWorkIds.has(work.id);
-    const saveBadge = `<span style="display:inline-flex;align-items:center;gap:5px;"><span class="pill-dot ${isDirty ? 'dirty' : 'connected'}"></span><span>${isDirty ? '로컬 저장됨' : '동기화됨'}</span></span>`;
-
-    let metricHtml = '<span>캐릭터 정보 편집 중</span>';
-    if (state.viewMode === 'loreCards' || state.viewMode === 'textCards') {
-      const f = branch.folders.find(x => x.id === state.activeFolderId);
-      const c = (f?.items || []).reduce((a, b) => a + (b.content || '').length, 0);
-      const t = (f?.items || []).reduce((a, b) => a + estimateTokens(b.content || ''), 0);
-      metricHtml = `<span>${escHtml(f?.name || '')}: ${fmtNum(c)}자 (약 ${fmtNum(t)} 토큰)</span>`;
-    } else if (state.viewMode === 'editor') {
-      const { folder, item } = findFolderAndItem(branch, state.activeItemId);
-      metricHtml = `<span>현재 항목 ${fmtNum((item?.content || '').length)}자 (약 ${fmtNum(estimateTokens(item?.content))} 토큰)${isCodeItem(folder, item) ? ' · 합계 제외' : ''}</span>`;
+    if (isHome() || !work || !branch) {
+      bar.classList.add('hidden');
+      closeTokenPopover();
+      return;
     }
+    bar.classList.remove('hidden');
 
-    $('statusLeft').innerHTML = `
-      <span style="font-weight:500;color:var(--text-secondary);">분기: ${escHtml(branch.name)}</span>
-      <span class="status-sep hide-xs">|</span><span class="hide-xs">${saveBadge}</span>
-      <span class="status-sep">|</span>${metricHtml}`;
+    const stats = calcWorkPromptBreakdown(branch);
+    const denom = Math.max(state.tokenBudget, stats.tokens, 1);
+    const over = stats.tokens > state.tokenBudget;
 
-    const total = calcWorkPromptStats(branch);
-    $('statusRight').innerHTML = `
-      <span style="font-weight:500;color:var(--text-main);">작품 전체 ${fmtNum(total.chars)}자 (약 ${fmtNum(total.tokens)} 토큰)</span>
-      <span class="hide-xs" style="color:var(--text-faint);">· 코드 제외</span>`;
+    $('tokenTrack').innerHTML = stats.folders
+      .filter(f => !f.excluded && f.tokens > 0)
+      .map(f => `<div class="token-seg" style="width:${(f.tokens / denom * 100).toFixed(2)}%;background:${f.color};" title="${escHtml(f.name)}: ${fmtNum(f.chars)}자 (${fmtNum(f.tokens)} 토큰)"></div>`)
+      .join('');
+
+    const sumEl = $('tokenSummary');
+    sumEl.classList.toggle('over', over);
+    sumEl.innerHTML = `<strong>${fmtNum(stats.chars)}자</strong><span>입력</span><span class="tok-num">${fmtNum(stats.tokens)} 토큰</span>`;
+
+    if (state.showTokenPopover) renderTokenPopover(stats, branch);
+  }
+
+  function renderTokenPopover(stats, branch) {
+    const pct = Math.round((stats.tokens / Math.max(state.tokenBudget, 1)) * 100);
+    const curItem = state.viewMode === 'editor' ? findFolderAndItem(branch, state.activeItemId).item : null;
+
+    $('tokenPopoverRoot').innerHTML = `
+      <div class="token-popover" id="tokenPopoverBox">
+        <div class="tp-head">
+          <span>토큰 분포 (${pct}%)</span>
+          <span style="font-size:11.5px;font-weight:500;color:var(--text-muted);">${escHtml(branch.name)}</span>
+        </div>
+        ${curItem ? `
+          <div class="tp-row" style="padding:6px 8px;border-radius:7px;background:var(--bg-sidebar);">
+            <span class="tp-label" style="font-weight:600;">현재: ${escHtml(curItem.title)}</span>
+            <span class="tp-val">${fmtNum((curItem.content || '').length)}자 · ${fmtNum(estimateTokens(curItem.content))}tok</span>
+          </div>` : ''}
+        <div style="display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;">
+          ${stats.folders.map(f => `
+            <div class="tp-row" style="${f.excluded ? 'opacity:0.55;' : ''}">
+              <span class="tp-label"><span class="tp-dot" style="background:${f.color};"></span><span>${escHtml(f.name)}</span></span>
+              <span class="tp-val">${f.excluded ? '코드 제외' : `${fmtNum(f.chars)}자 · ${fmtNum(f.tokens)}tok`}</span>
+            </div>`).join('')}
+        </div>
+        <div class="tp-budget-row">
+          <label for="tokenBudgetInput">목표 토큰 한도</label>
+          <input type="number" id="tokenBudgetInput" class="form-input" min="500" step="500" value="${state.tokenBudget}" style="width:104px;height:28px;font-size:12px;text-align:right;" />
+        </div>
+      </div>`;
+
+    $('tokenBudgetInput').onchange = (e) => {
+      state.tokenBudget = Math.max(500, Number(e.target.value) || 10000);
+      localStorage.setItem('ps_token_budget', String(state.tokenBudget));
+      renderStatusbar();
+    };
+  }
+
+  /* ================= DRAG & DROP + ORDERING LOGIC ================= */
+  function clearDragVisuals() {
+    $('treeContainer').querySelectorAll('.dragging,.drag-over-top,.drag-over-bottom,.drag-over-inside')
+      .forEach(el => el.classList.remove('dragging', 'drag-over-top', 'drag-over-bottom', 'drag-over-inside'));
+  }
+
+  function adaptItemTypeForFolder(item, targetFolder) {
+    if (targetFolder.kind === 'lorebook' && item.type === 'text') item.type = 'lorebook';
+    else if (targetFolder.kind === 'text' && item.type === 'lorebook') item.type = 'text';
+    else if (targetFolder.kind === 'code' && item.type !== 'html' && item.type !== 'jsx') {
+      item.type = targetFolder.name.toLowerCase().includes('jsx') ? 'jsx' : 'html';
+    }
+  }
+
+  function moveFolder(branch, fromId, toId, placeAfter) {
+    const fromIdx = branch.folders.findIndex(f => f.id === fromId);
+    let toIdx = branch.folders.findIndex(f => f.id === toId);
+    if (fromIdx < 0 || toIdx < 0 || fromIdx === toIdx) return false;
+    const [moved] = branch.folders.splice(fromIdx, 1);
+    toIdx = branch.folders.findIndex(f => f.id === toId);
+    branch.folders.splice(placeAfter ? toIdx + 1 : toIdx, 0, moved);
+    return true;
+  }
+
+  function moveItem(branch, fromFid, itemId, toFid, toItemId = null, placeAfter = false) {
+    const srcFolder = branch.folders.find(f => f.id === fromFid);
+    const dstFolder = branch.folders.find(f => f.id === toFid);
+    if (!srcFolder || !dstFolder) return false;
+    const fromIdx = srcFolder.items.findIndex(i => i.id === itemId);
+    if (fromIdx < 0 || (fromFid === toFid && itemId === toItemId)) return false;
+
+    const [moved] = srcFolder.items.splice(fromIdx, 1);
+    if (fromFid !== toFid) adaptItemTypeForFolder(moved, dstFolder);
+
+    if (toItemId) {
+      const targetIdx = dstFolder.items.findIndex(i => i.id === toItemId);
+      dstFolder.items.splice(targetIdx < 0 ? dstFolder.items.length : (placeAfter ? targetIdx + 1 : targetIdx), 0, moved);
+    } else {
+      dstFolder.items.push(moved);
+      dstFolder.collapsed = false;
+    }
+    if (state.activeItemId === itemId) state.activeFolderId = dstFolder.id;
+    return true;
+  }
+
+  function bindSidebarDragAndDrop() {
+    const tree = $('treeContainer');
+
+    tree.addEventListener('dragstart', (e) => {
+      if (state.searchQuery.trim()) return e.preventDefault();
+      const itemEl = e.target.closest('.tree-item[data-iselect]');
+      const folderEl = e.target.closest('.tree-folder-row[data-ftoggle]');
+      if (itemEl) {
+        dragState = { kind: 'item', folderId: itemEl.dataset.fid, itemId: itemEl.dataset.iselect };
+        itemEl.classList.add('dragging');
+      } else if (folderEl) {
+        dragState = { kind: 'folder', folderId: folderEl.dataset.ftoggle };
+        folderEl.classList.add('dragging');
+      } else return;
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', dragState.itemId || dragState.folderId);
+    });
+
+    tree.addEventListener('dragover', (e) => {
+      if (!dragState) return;
+      const itemEl = e.target.closest('.tree-item[data-iselect]');
+      const folderEl = e.target.closest('.tree-folder-row[data-ftoggle]');
+      if (!itemEl && !folderEl) return;
+
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      clearDragVisuals();
+
+      if (dragState.kind === 'folder' && folderEl) {
+        if (folderEl.dataset.ftoggle === dragState.folderId) return;
+        const r = folderEl.getBoundingClientRect();
+        folderEl.classList.add(e.clientY > r.top + r.height / 2 ? 'drag-over-bottom' : 'drag-over-top');
+      } else if (dragState.kind === 'item') {
+        if (itemEl && itemEl.dataset.iselect !== dragState.itemId) {
+          const r = itemEl.getBoundingClientRect();
+          itemEl.classList.add(e.clientY > r.top + r.height / 2 ? 'drag-over-bottom' : 'drag-over-top');
+        } else if (folderEl) {
+          folderEl.classList.add('drag-over-inside');
+        }
+      }
+    });
+
+    tree.addEventListener('drop', (e) => {
+      if (!dragState) return;
+      e.preventDefault();
+      const work = getActiveWork(), branch = getActiveBranch(work);
+      const itemEl = e.target.closest('.tree-item[data-iselect]');
+      const folderEl = e.target.closest('.tree-folder-row[data-ftoggle]');
+      let changed = false, crossFolderName = '';
+
+      if (branch) {
+        if (dragState.kind === 'folder' && folderEl) {
+          const r = folderEl.getBoundingClientRect();
+          changed = moveFolder(branch, dragState.folderId, folderEl.dataset.ftoggle, e.clientY > r.top + r.height / 2);
+        } else if (dragState.kind === 'item') {
+          if (itemEl) {
+            const r = itemEl.getBoundingClientRect();
+            const dstFid = itemEl.dataset.fid;
+            changed = moveItem(branch, dragState.folderId, dragState.itemId, dstFid, itemEl.dataset.iselect, e.clientY > r.top + r.height / 2);
+            if (changed && dstFid !== dragState.folderId) crossFolderName = branch.folders.find(f => f.id === dstFid)?.name || '';
+          } else if (folderEl) {
+            const dstFid = folderEl.dataset.ftoggle;
+            changed = moveItem(branch, dragState.folderId, dragState.itemId, dstFid, null, true);
+            if (changed && dstFid !== dragState.folderId) crossFolderName = branch.folders.find(f => f.id === dstFid)?.name || '';
+          }
+        }
+      }
+      clearDragVisuals();
+      dragState = null;
+
+      if (changed && work) {
+        scheduleWorkSave(work);
+        renderSidebar();
+        renderStatusbar();
+        if (state.viewMode === 'editor' || state.viewMode === 'loreCards' || state.viewMode === 'textCards') renderMain();
+        if (crossFolderName) toast(`'${crossFolderName}' 폴더로 이동했습니다.`);
+      }
+    });
+
+    tree.addEventListener('dragend', () => { clearDragVisuals(); dragState = null; });
   }
 
   /* ================= DROPDOWNS & MODALS ================= */
@@ -1585,44 +2234,23 @@
   }
 
   function openWorkMenu(anchor) {
+    const sorted = [...state.works].sort((a, b) => (!!b.pinned - !!a.pinned) || ((b.updatedAt || 0) - (a.updatedAt || 0)));
     const menu = showDropdown(anchor, `
       <div class="dd-label">내 작품 목록 (${state.works.length})</div>
-      ${state.works.map(w => `
+      ${sorted.map(w => `
         <button class="dd-item ${w.id === state.activeWorkId ? 'active' : ''}" data-pick-work="${w.id}">
-          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(w.title || '제목 없음')}</span>
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${w.pinned ? '📌 ' : ''}${escHtml(w.title || '제목 없음')}</span>
           ${w.encrypted ? ICONS.lock : ''}
         </button>`).join('')}
       <div class="dd-sep"></div>
+      <button class="dd-item" id="ddGoHome"><span>홈 갤러리 보기</span>${ICONS.home}</button>
       <button class="dd-item" id="ddNewWork" style="color:var(--accent);font-weight:600;"><span>새 작품 만들기</span>${ICONS.plus}</button>
       <button class="dd-item" id="ddDeleteWork" style="color:var(--danger);"><span>현재 작품 삭제</span>${ICONS.trash}</button>`);
 
-    menu.querySelectorAll('[data-pick-work]').forEach(b => {
-      b.onclick = () => { state.activeWorkId = b.dataset.pickWork; state.viewMode = 'charInfo'; closeDropdown(); renderAll(); };
-    });
-    menu.querySelector('#ddNewWork').onclick = async () => {
-      closeDropdown();
-      const nw = createWorkObject();
-      nw._justCreated = true;
-      state.works.unshift(nw);
-      state.activeWorkId = nw.id;
-      state.viewMode = 'charInfo';
-      await idb('works', 'put', nw);
-      renderAll();
-      toast('새 작품이 생성되었습니다. 캐릭터 정보를 입력해 주세요.');
-    };
-    menu.querySelector('#ddDeleteWork').onclick = async () => {
-      closeDropdown();
-      const w = getActiveWork();
-      if (!w || !confirm(`'${w.title || '제목 없음'}' 작품을 로컬에서 삭제할까요?`)) return;
-      await idb('works', 'delete', w.id);
-      if (w.profile?.assetPath) await idb('assets', 'delete', w.profile.assetPath);
-      state.works = state.works.filter(x => x.id !== w.id);
-      if (!state.works.length) { const fresh = createWorkObject({ title: '새 작품' }); state.works.push(fresh); await idb('works', 'put', fresh); }
-      state.activeWorkId = state.works[0].id;
-      state.viewMode = 'charInfo';
-      renderAll();
-      toast('작품을 삭제했습니다.');
-    };
+    menu.querySelectorAll('[data-pick-work]').forEach(b => { b.onclick = () => enterWork(b.dataset.pickWork, 'charInfo'); });
+    menu.querySelector('#ddGoHome').onclick = () => { closeDropdown(); state.viewMode = 'home'; renderAll(); };
+    menu.querySelector('#ddNewWork').onclick = async () => { closeDropdown(); await createAndOpenNewWork(); };
+    menu.querySelector('#ddDeleteWork').onclick = async () => { closeDropdown(); const w = getActiveWork(); if (w) await deleteWorkById(w.id); };
   }
 
   function openBranchMenu(anchor) {
@@ -1674,9 +2302,14 @@
 
   function openFolderMenu(anchor, folder) {
     const work = getActiveWork(), branch = getActiveBranch(work);
+    const idx = branch.folders.findIndex(f => f.id === folder.id);
     const menu = showDropdown(anchor, `
       <button class="dd-item" id="ddRenameF"><span>폴더 이름/유형 변경</span>${ICONS.edit}</button>
+      ${idx > 0 ? `<button class="dd-item" id="ddMoveFUp"><span>위로 이동</span>${ICONS.arrowUp}</button>` : ''}
+      ${idx < branch.folders.length - 1 ? `<button class="dd-item" id="ddMoveFDown"><span>아래로 이동</span>${ICONS.arrowDown}</button>` : ''}
+      <div class="dd-sep"></div>
       <button class="dd-item" id="ddDelF" style="color:var(--danger);"><span>폴더 삭제</span>${ICONS.trash}</button>`);
+
     menu.querySelector('#ddRenameF').onclick = () => {
       closeDropdown();
       openSimpleFormModal('폴더 설정', [
@@ -1688,6 +2321,14 @@
         scheduleWorkSave(work); renderAll();
       });
     };
+    const shiftFolder = (delta) => {
+      closeDropdown();
+      const [m] = branch.folders.splice(idx, 1);
+      branch.folders.splice(idx + delta, 0, m);
+      scheduleWorkSave(work); renderSidebar(); renderStatusbar();
+    };
+    if (menu.querySelector('#ddMoveFUp')) menu.querySelector('#ddMoveFUp').onclick = () => shiftFolder(-1);
+    if (menu.querySelector('#ddMoveFDown')) menu.querySelector('#ddMoveFDown').onclick = () => shiftFolder(1);
     menu.querySelector('#ddDelF').onclick = () => {
       closeDropdown();
       if (!confirm(`'${folder.name}' 폴더와 하위 항목을 모두 삭제할까요?`)) return;
@@ -1698,15 +2339,45 @@
   }
 
   function openItemMenu(anchor, folder, item) {
-    const work = getActiveWork();
+    const work = getActiveWork(), branch = getActiveBranch(work);
+    const idx = folder.items.findIndex(i => i.id === item.id);
+    const otherFolders = branch.folders.filter(f => f.id !== folder.id);
     const menu = showDropdown(anchor, `
       <button class="dd-item" id="ddDupI"><span>항목 복제</span>${ICONS.copy}</button>
+      ${idx > 0 ? `<button class="dd-item" id="ddMoveIUp"><span>위로 이동</span>${ICONS.arrowUp}</button>` : ''}
+      ${idx < folder.items.length - 1 ? `<button class="dd-item" id="ddMoveIDown"><span>아래로 이동</span>${ICONS.arrowDown}</button>` : ''}
+      ${otherFolders.length ? `<button class="dd-item" id="ddMoveIFolder"><span>다른 폴더로 이동</span>${ICONS.move}</button>` : ''}
+      <div class="dd-sep"></div>
       <button class="dd-item" id="ddDelI" style="color:var(--danger);"><span>항목 삭제</span>${ICONS.trash}</button>`);
+
     menu.querySelector('#ddDupI').onclick = () => {
       closeDropdown();
       folder.items.push({ ...clone(item), id: uid('itm'), title: `${item.title} (사본)` });
+      scheduleWorkSave(work); renderSidebar(); renderStatusbar();
+    };
+    const shiftItem = (delta) => {
+      closeDropdown();
+      const [m] = folder.items.splice(idx, 1);
+      folder.items.splice(idx + delta, 0, m);
       scheduleWorkSave(work); renderSidebar();
     };
+    if (menu.querySelector('#ddMoveIUp')) menu.querySelector('#ddMoveIUp').onclick = () => shiftItem(-1);
+    if (menu.querySelector('#ddMoveIDown')) menu.querySelector('#ddMoveIDown').onclick = () => shiftItem(1);
+    if (menu.querySelector('#ddMoveIFolder')) {
+      menu.querySelector('#ddMoveIFolder').onclick = () => {
+        closeDropdown();
+        openSimpleFormModal('다른 폴더로 이동', [{
+          id: 'target', label: '이동할 폴더 선택', type: 'select',
+          value: otherFolders[0].id,
+          options: otherFolders.map(f => ({ value: f.id, label: f.name }))
+        }], ({ target }) => {
+          if (moveItem(branch, folder.id, item.id, target)) {
+            scheduleWorkSave(work); renderAll();
+            toast(`'${branch.folders.find(f => f.id === target)?.name}' 폴더로 이동했습니다.`);
+          }
+        });
+      };
+    }
     menu.querySelector('#ddDelI').onclick = () => {
       closeDropdown();
       if (!confirm(`'${item.title}' 항목을 삭제할까요?`)) return;
@@ -1796,7 +2467,7 @@
   }
 
   async function decodeRemoteWork(b64Content) {
-    let obj = JSON.parse(b64ToUtf8(b64Content));
+    const obj = JSON.parse(b64ToUtf8(b64Content));
     return obj.__encrypted ? decryptObj(obj, await ensureMasterPass()) : obj;
   }
 
@@ -1809,12 +2480,15 @@
         await idb('assets', 'put', rec);
       }
     }
-    const payload = work.encrypted ? await encryptObj(work, await ensureMasterPass()) : work;
-    const msg = `Save ${work.encrypted ? '[Encrypted]' : (work.title || work.id)} (${new Date().toLocaleString('ko-KR')})`;
+    const cleanWork = { ...work, dirty: false };
+    const payload = cleanWork.encrypted ? await encryptObj(cleanWork, await ensureMasterPass()) : cleanWork;
+    const msg = `Save ${cleanWork.encrypted ? '[Encrypted]' : (cleanWork.title || cleanWork.id)} (${new Date().toLocaleString('ko-KR')})`;
     await ghPutFile(`works/${work.id}.json`, utf8ToB64(JSON.stringify(payload, null, 2)), msg);
+    work.dirty = false;
+    await idb('works', 'put', work);
     await saveLocalSnapshot(work, 'GitHub 저장 시점');
-    state.dirtyWorkIds.delete(work.id);
-    updateTopbarStatusDot(); renderStatusbar();
+    updateTopbarStatusDot();
+    if (isHome()) renderMain(); else renderStatusbar();
   }
 
   async function pullAllFromGitHub() {
@@ -1826,10 +2500,10 @@
       const file = await ghGetFile(`works/${f.name}`, branch);
       if (!file?.content) continue;
       const obj = await decodeRemoteWork(file.content);
+      obj.dirty = false;
       await idb('works', 'put', obj);
       const idx = state.works.findIndex(w => w.id === obj.id);
       if (idx >= 0) state.works[idx] = obj; else state.works.push(obj);
-      state.dirtyWorkIds.delete(obj.id);
       loaded++;
     }
     if (state.works.length && !state.works.some(w => w.id === state.activeWorkId)) state.activeWorkId = state.works[0].id;
@@ -1922,12 +2596,20 @@
 
   function bindGlobalEvents() {
     $('btnToggleSidebar').onclick = () => { state.sidebarCollapsed = !state.sidebarCollapsed; renderSidebar(); };
+    $('btnGoHome').onclick = () => { state.viewMode = 'home'; closeDropdown(); closeTokenPopover(); renderAll(); };
     $('sidebarBackdrop').onclick = () => { state.sidebarCollapsed = true; renderSidebar(); };
     $('btnWorkMenu').onclick = (e) => { e.stopPropagation(); openWorkMenu(e.currentTarget); };
     $('btnBranchMenu').onclick = (e) => { e.stopPropagation(); openBranchMenu(e.currentTarget); };
     $('btnAccentPicker').onclick = (e) => { e.stopPropagation(); openAccentMenu(e.currentTarget); };
     $('btnHistory').onclick = openHistoryModal;
     $('btnQuickCharInfo').onclick = () => { state.viewMode = 'charInfo'; closeSidebarOnMobile(); renderAll(); };
+
+    $('statusbar').onclick = (e) => {
+      e.stopPropagation();
+      state.showTokenPopover = !state.showTokenPopover;
+      if (state.showTokenPopover) renderStatusbar();
+      else closeTokenPopover();
+    };
 
     $('btnEncryptToggle').onclick = () => {
       const w = getActiveWork();
@@ -1993,9 +2675,10 @@
       if (!selectedHistoryPayload || !confirm('선택한 과거 버전으로 현재 작품을 덮어쓸까요?')) return;
       const idx = state.works.findIndex(w => w.id === selectedHistoryPayload.id);
       if (idx < 0) return;
-      state.works[idx] = clone(selectedHistoryPayload);
-      await idb('works', 'put', state.works[idx]);
-      state.dirtyWorkIds.add(state.works[idx].id);
+      const restored = clone(selectedHistoryPayload);
+      restored.dirty = true;
+      state.works[idx] = restored;
+      await idb('works', 'put', restored);
       $('modalHistory').classList.remove('open');
       state.viewMode = 'charInfo';
       renderAll();
@@ -2017,7 +2700,7 @@
       ], ({ name, kind }) => {
         if (!name.trim()) return;
         branch.folders.push(mkFolder(name.trim(), kind, false, []));
-        scheduleWorkSave(work); renderSidebar();
+        scheduleWorkSave(work); renderSidebar(); renderStatusbar();
       });
     };
 
@@ -2058,7 +2741,7 @@
       const fRow = e.target.closest('[data-ftoggle]');
       if (fRow) {
         const f = branch.folders.find(x => x.id === fRow.dataset.ftoggle);
-        if (f) { f.collapsed = !f.collapsed; scheduleWorkSave(work); renderSidebar(); }
+        if (f) { f.collapsed = !f.collapsed; scheduleWorkSave(work, false, false); renderSidebar(); }
         return;
       }
       const iRow = e.target.closest('[data-iselect]');
@@ -2068,20 +2751,28 @@
       }
     };
 
+    bindSidebarDragAndDrop();
+
     // Modals, Dropdowns & Shortcuts
     document.querySelectorAll('[data-close-modal]').forEach(b => { b.onclick = () => $(b.dataset.closeModal).classList.remove('open'); });
     document.querySelectorAll('.modal-backdrop').forEach(mb => { mb.onclick = (e) => { if (e.target === mb) mb.classList.remove('open'); }; });
-    document.addEventListener('click', (e) => { if (!e.target.closest('.dropdown-menu')) closeDropdown(); });
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.dropdown-menu')) closeDropdown();
+      if (!e.target.closest('#tokenPopoverRoot') && !e.target.closest('#statusbar')) closeTokenPopover();
+    });
     document.addEventListener('keydown', async (e) => {
       const mod = e.ctrlKey || e.metaKey;
       if (mod && e.shiftKey && e.key.toLowerCase() === 'f') {
-        e.preventDefault(); state.sidebarCollapsed = false; renderSidebar(); $('searchInput').focus();
-      } else if (mod && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        if (isHome()) $('homeSearchInput')?.focus();
+        else { state.sidebarCollapsed = false; renderSidebar(); $('searchInput').focus(); }
+      } else if (mod && e.key.toLowerCase() === 's' && !isHome()) {
         e.preventDefault();
         const w = getActiveWork();
         if (w) { await idb('works', 'put', w); await saveLocalSnapshot(w, '로컬 스냅샷 저장 (Ctrl+S)'); toast('로컬 스냅샷이 저장되었습니다.'); }
       } else if (e.key === 'Escape') {
         closeDropdown();
+        closeTokenPopover();
         document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open'));
       }
     });
@@ -2103,6 +2794,7 @@
       await idb('works', 'put', sample);
     }
     state.activeWorkId = state.works[0].id;
+    state.viewMode = 'home';
     renderAll();
   }
 
