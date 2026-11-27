@@ -366,7 +366,7 @@
     .gallery-summary {
       font-size: 12.5px; line-height: 1.48; color: var(--text-secondary);
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-      min-height: 1.48em;
+      height: 2.96em;
     }
     .gallery-tags { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; font-size: 12px; color: var(--text-muted); margin-top: 1px; }
     .gallery-tag-link { color: var(--text-muted); transition: color 0.12s ease; }
@@ -465,11 +465,26 @@
     .char-info-section { padding: 18px 24px; border-bottom: 1px solid var(--border); }
     .char-profile-row { display: flex; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
     .profile-box {
-      width: 180px; height: 180px; aspect-ratio: 1 / 1; border-radius: 12px; border: 1px solid var(--border);
+      position: relative; width: 180px; height: 180px; aspect-ratio: 1 / 1; border-radius: 12px; border: 1px solid var(--border);
       background: var(--bg-sidebar); overflow: hidden; display: flex; flex-direction: column;
       align-items: center; justify-content: center; color: var(--text-faint); flex-shrink: 0;
     }
-    .profile-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .profile-box.has-img { cursor: grab; touch-action: none; user-select: none; }
+    .profile-box.is-dragging { cursor: grabbing; border-color: var(--accent); }
+    .profile-box img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+    .profile-drag-hint {
+      position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+      padding: 2px 7px; border-radius: 999px; background: rgba(15, 18, 24, 0.72); color: #ffffff;
+      font-size: 10.5px; font-weight: 500; white-space: nowrap; pointer-events: none;
+      opacity: 0.85; transition: opacity 0.15s ease;
+    }
+    .profile-box.is-dragging .profile-drag-hint { opacity: 0; }
+    .profile-pos-row {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap; max-width: 420px;
+      padding: 6px 10px; border-radius: 7px; background: var(--bg-sidebar); border: 1px solid var(--border);
+    }
+    .profile-pos-slider { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-muted); flex: 1; min-width: 108px; }
+    .profile-pos-slider input[type="range"] { flex: 1; min-width: 56px; accent-color: var(--accent); cursor: pointer; }
     .profile-controls { display: flex; flex-direction: column; gap: 10px; flex: 1; min-width: 220px; padding-top: 2px; }
     .profile-asset-note {
       font-size: 12px; line-height: 1.5; color: var(--text-muted); font-family: var(--font-mono);
@@ -1137,13 +1152,14 @@
     const branchId = uid('br');
     const defTpl = withSample ? null : getDefaultTemplate();
     const folders = withSample ? createDefaultFolders(true) : (defTpl ? cloneFoldersFresh(defTpl.folders) : createDefaultFolders(false));
+    const now = Date.now();
     return {
       id: uid('work'), title, summary, tags,
       profile: { assetPath: '', externalUrl: '' },
       encrypted: false, pinned: false, dirty: true,
       activeBranchId: branchId,
       branches: [{ id: branchId, name: '기본 (공통)', folders }],
-      updatedAt: Date.now()
+      createdAt: now, updatedAt: now
     };
   }
 
@@ -1177,6 +1193,19 @@
   const getActiveBranch = (w = getActiveWork()) => w ? (w.branches.find(b => b.id === w.activeBranchId) || w.branches[0] || null) : null;
   const isCodeItem = (f, it) => f?.kind === 'code' || it?.type === 'html' || it?.type === 'jsx';
   const defaultItemType = (f) => f.kind === 'lorebook' ? 'lorebook' : f.kind === 'code' ? (f.name.toLowerCase().includes('jsx') ? 'jsx' : 'html') : 'text';
+  const getProfilePos = (w) => {
+    const p = w?.profile?.pos;
+    return p && typeof p.x === 'number' && typeof p.y === 'number' ? `${p.x}% ${p.y}%` : '50% 50%';
+  };
+  function getWorkCreatedAt(w) {
+    if (w?.createdAt) return w.createdAt;
+    const m = String(w?.id || '').match(/^work_([0-9a-z]+)_/i);
+    if (m) {
+      const ts = parseInt(m[1], 36);
+      if (ts > 1577836800000 && ts < 4102444800000) return ts;
+    }
+    return w?.updatedAt || 0;
+  }
 
   function findFolderAndItem(branch, itemId) {
     for (const f of (branch?.folders || [])) {
@@ -1251,15 +1280,15 @@
   }
 
   async function duplicateWork(source) {
-    const copy = clone(source);
-    Object.assign(copy, { id: uid('work'), title: `${source.title || '제목 없음'} (사본)`, pinned: false, dirty: true, updatedAt: Date.now() });
+    const copy = clone(source), now = Date.now();
+    Object.assign(copy, { id: uid('work'), title: `${source.title || '제목 없음'} (사본)`, pinned: false, dirty: true, createdAt: now, updatedAt: now });
     if (source.profile?.assetPath) {
       const dataUrl = await getAssetDataUrl(source.profile.assetPath);
       if (dataUrl) {
         const newPath = `assets/${copy.id}_profile.webp`;
-        await idb('assets', 'put', { path: newPath, dataUrl, dirty: true, updatedAt: Date.now() });
+        await idb('assets', 'put', { path: newPath, dataUrl, dirty: true, updatedAt: now });
         state.assetCache.set(newPath, dataUrl);
-        copy.profile = { assetPath: newPath, externalUrl: '' };
+        copy.profile = { assetPath: newPath, externalUrl: '', ...(source.profile.pos ? { pos: clone(source.profile.pos) } : {}) };
       }
     }
     state.works.unshift(copy);
@@ -1520,7 +1549,7 @@
     if (work) {
       const src = await getWorkThumbSrc(work);
       const thumb = $('topWorkThumb');
-      if (src && thumb) thumb.innerHTML = `<img src="${escHtml(src)}" alt="" />`;
+      if (src && thumb) thumb.innerHTML = `<img src="${escHtml(src)}" style="object-position:${getProfilePos(work)};" alt="" />`;
     }
 
     $('btnBranchMenu').innerHTML = `<span style="opacity:0.75;display:inline-flex;">${ICONS.branch}</span><span style="max-width:110px;overflow:hidden;text-overflow:ellipsis;">${escHtml(branch?.name || '기본 (공통)')}</span><span style="opacity:0.6;display:inline-flex;">${ICONS.chevDown}</span>`;
@@ -1658,11 +1687,12 @@
 
     list.sort((a, b) => {
       if (!!a.work.pinned !== !!b.work.pinned) return a.work.pinned ? -1 : 1;
-      if (state.homeSort === 'oldest') return (a.work.updatedAt || 0) - (b.work.updatedAt || 0);
+      if (!!a.work.dirty !== !!b.work.dirty) return a.work.dirty ? -1 : 1;
+      if (state.homeSort === 'oldest') return getWorkCreatedAt(a.work) - getWorkCreatedAt(b.work);
       if (state.homeSort === 'title') return (a.work.title || '').localeCompare(b.work.title || '', 'ko');
       if (state.homeSort === 'tokens') return b.stats.tokens - a.stats.tokens;
       if (state.homeSort === 'branches') return (b.work.branches?.length || 0) - (a.work.branches?.length || 0);
-      return (b.work.updatedAt || 0) - (a.work.updatedAt || 0);
+      return getWorkCreatedAt(b.work) - getWorkCreatedAt(a.work);
     });
     return list;
   }
@@ -1760,7 +1790,7 @@
               ${tags.length ? `<div class="gallery-tags">${shownTags.map(t => `<span class="gallery-tag-link" data-pick-tag="${escHtml(t)}">#${escHtml(t)}</span>`).join('')}${extraTags > 0 ? `<span>+${extraTags}</span>` : ''}</div>` : ''}
               <div class="gallery-foot-sub">
                 <span>${fmtShort(stats.tokens)} 토큰</span><span>·</span>
-                <span>${new Date(w.updatedAt || Date.now()).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}</span>
+                <span title="생성일">${new Date(getWorkCreatedAt(w) || Date.now()).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}</span>
               </div>
             </div>
           </article>`;
@@ -1773,7 +1803,11 @@
       items.forEach(async ({ work: w }) => {
         const src = await getWorkThumbSrc(w);
         const empty = src && grid.querySelector(`[data-thumb-slot="${w.id}"] .gallery-thumb-empty`);
-        if (empty) empty.replaceWith(Object.assign(document.createElement('img'), { src, alt: w.title || '', loading: 'lazy' }));
+        if (empty) {
+          const img = Object.assign(document.createElement('img'), { src, alt: w.title || '', loading: 'lazy' });
+          img.style.objectPosition = getProfilePos(w);
+          empty.replaceWith(img);
+        }
       });
     };
 
@@ -1887,6 +1921,11 @@
                 <label style="font-size:12px;color:var(--text-muted);">또는 외부 이미지 URL</label>
                 <input class="form-input" id="profileUrlInput" value="${escHtml(externalUrl)}" placeholder="https://..." style="height:32px;font-size:12.5px;" />
               </div>
+              <div class="profile-pos-row hidden" id="profilePosRow">
+                <label class="profile-pos-slider"><span>좌우</span><input type="range" id="profilePosX" min="0" max="100" value="${Math.round(work.profile?.pos?.x ?? 50)}" /></label>
+                <label class="profile-pos-slider"><span>상하</span><input type="range" id="profilePosY" min="0" max="100" value="${Math.round(work.profile?.pos?.y ?? 50)}" /></label>
+                <button type="button" class="btn btn-ghost btn-xs" id="btnResetProfilePos">중앙</button>
+              </div>
               <div class="profile-asset-note">${assetPath ? `에셋 경로: ${escHtml(assetPath)}` : (externalUrl ? '외부 URL 연결됨' : '업로드 시 레포의 assets/ 폴더에 1:1 썸네일로 분리 저장됩니다.')}</div>
             </div>
           </div>
@@ -1921,9 +1960,48 @@
         </div>
       </div>`;
 
+    const applyProfilePos = (x, y) => {
+      const nx = Math.max(0, Math.min(100, Math.round(x)));
+      const ny = Math.max(0, Math.min(100, Math.round(y)));
+      work.profile = { ...(work.profile || { assetPath: '', externalUrl: '' }), pos: { x: nx, y: ny } };
+      const posStr = `${nx}% ${ny}%`;
+      const pImg = $('profilePreviewImg'), tImg = $('topWorkThumb')?.querySelector('img');
+      if (pImg) pImg.style.objectPosition = posStr;
+      if (tImg) tImg.style.objectPosition = posStr;
+      if ($('profilePosX')) $('profilePosX').value = nx;
+      if ($('profilePosY')) $('profilePosY').value = ny;
+      scheduleWorkSave(work);
+    };
+
     getWorkThumbSrc(work).then(src => {
-      if (src && $('profilePreviewBox')) $('profilePreviewBox').innerHTML = `<img src="${escHtml(src)}" alt="profile" />`;
+      const box = $('profilePreviewBox');
+      if (!src || !box) return;
+      box.classList.add('has-img');
+      box.innerHTML = `<img id="profilePreviewImg" src="${escHtml(src)}" style="object-position:${getProfilePos(work)};" alt="profile" draggable="false" /><span class="profile-drag-hint">드래그로 위치 조정</span>`;
+      $('profilePosRow')?.classList.remove('hidden');
+
+      box.onpointerdown = (e) => {
+        e.preventDefault();
+        const img = $('profilePreviewImg');
+        const sx = e.clientX, sy = e.clientY;
+        const ox = work.profile?.pos?.x ?? 50, oy = work.profile?.pos?.y ?? 50;
+        const rect = box.getBoundingClientRect();
+        const nw = img?.naturalWidth || 1, nh = img?.naturalHeight || 1;
+        const divX = nw > nh ? Math.max(40, rect.width * (nw / nh - 1)) : 120;
+        const divY = nh > nw ? Math.max(40, rect.height * (nh / nw - 1)) : 120;
+        box.classList.add('is-dragging');
+        box.setPointerCapture(e.pointerId);
+        box.onpointermove = (ev) => applyProfilePos(ox - ((ev.clientX - sx) / divX) * 100, oy - ((ev.clientY - sy) / divY) * 100);
+        box.onpointerup = box.onpointercancel = () => {
+          box.classList.remove('is-dragging');
+          box.onpointermove = box.onpointerup = box.onpointercancel = null;
+        };
+      };
     });
+
+    $('profilePosX').oninput = (e) => applyProfilePos(Number(e.target.value), work.profile?.pos?.y ?? 50);
+    $('profilePosY').oninput = (e) => applyProfilePos(work.profile?.pos?.x ?? 50, Number(e.target.value));
+    $('btnResetProfilePos').onclick = () => applyProfilePos(50, 50);
 
     $('btnUploadProfile').onclick = () => $('profileFileInput').click();
     $('profileFileInput').onchange = async (e) => { if (e.target.files?.[0]) await saveProfileAsset(work, e.target.files[0]); };
@@ -2666,7 +2744,15 @@
   function openFolderMenu(anchor, folder) {
     const work = getActiveWork(), branch = getActiveBranch(work);
     const idx = branch.folders.findIndex(f => f.id === folder.id);
+    let fChars = 0, fTokens = 0;
+    for (const it of (folder.items || [])) {
+      const txt = it.content || '';
+      fChars += txt.length;
+      fTokens += estimateTokens(txt);
+    }
     const menu = showDropdown(anchor, `
+      <div class="dd-label" style="font-variant-numeric:tabular-nums;font-weight:500;">${fmtNum(fChars)}자 · ${fmtNum(fTokens)}토큰${folder.kind === 'code' ? ' (합산 제외)' : ''}</div>
+      <div class="dd-sep"></div>
       <button class="dd-item" id="ddRenameF"><span>폴더 이름/유형 변경</span>${ICONS.edit}</button>
       ${idx > 0 ? `<button class="dd-item" id="ddMoveFUp"><span>위로 이동</span>${ICONS.arrowUp}</button>` : ''}
       ${idx < branch.folders.length - 1 ? `<button class="dd-item" id="ddMoveFDown"><span>아래로 이동</span>${ICONS.arrowDown}</button>` : ''}
