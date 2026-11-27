@@ -284,7 +284,7 @@
 
     /* ================= HOME GALLERY ================= */
     .home-scroll { flex: 1; overflow-y: auto; background: var(--bg-app); }
-    .home-wrap { max-width: 1180px; margin: 0 auto; padding: 20px 24px 56px; display: flex; flex-direction: column; gap: 16px; }
+    .home-wrap { max-width: 1260px; margin: 0 auto; padding: 20px 24px 56px; display: flex; flex-direction: column; gap: 16px; }
 
     .home-summary-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
     .home-stats {
@@ -301,7 +301,7 @@
 
     .home-filter-bar { display: flex; flex-direction: column; gap: 10px; }
     .home-filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .home-search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 340px; display: flex; align-items: center; }
+    .home-search-wrap { position: relative; flex: 1 1 240px; min-width: 200px; display: flex; align-items: center; }
     .home-search-wrap .search-input { height: 33px; font-size: 13px; }
     .filter-pills { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .filter-pill {
@@ -320,7 +320,7 @@
     .filter-tag-pill.active { background: var(--accent-soft); color: var(--accent-text); border-color: var(--accent-border); }
 
     .gallery-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
       gap: 22px 18px; align-items: start;
     }
     .gallery-card { display: flex; flex-direction: column; gap: 9px; cursor: pointer; }
@@ -390,11 +390,15 @@
     .lore-count { font-size: 12px; padding: 2px 8px; border-radius: 5px; background: var(--bg-subtle); color: var(--text-muted); white-space: nowrap; }
 
     /* Editor Find & Replace Bar */
-    .find-bar { padding: 6px 12px; border-bottom: 1px solid var(--border); background: var(--bg-sidebar); display: flex; flex-direction: column; gap: 6px; }
-    .find-row { display: flex; align-items: center; gap: 6px; }
-    .find-input-wrap { position: relative; flex: 1; min-width: 120px; display: flex; align-items: center; }
-    .find-input-wrap .lore-input { min-width: 0; padding-right: 54px; }
-    .find-row .lore-input { min-width: 0; }
+    .find-bar { padding: 7px 12px; border-bottom: 1px solid var(--border); background: var(--bg-sidebar); display: flex; flex-direction: column; gap: 6px; }
+    .find-row { display: grid; grid-template-columns: minmax(0, 1fr) 150px; align-items: center; gap: 10px; }
+    .find-input-wrap { position: relative; width: 100%; min-width: 0; display: flex; align-items: center; }
+    .find-row .lore-input { width: 100%; min-width: 0; }
+    .find-input-wrap .lore-input { padding-right: 54px; }
+    .find-actions { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .find-actions .btn-xs { padding: 0 8px; }
+    #edReplaceRow .find-actions { gap: 8px; }
+    #edReplaceRow .find-actions .btn-xs { flex: 1 0 auto; }
     .find-count { position: absolute; right: 8px; font-size: 11px; color: var(--text-faint); font-variant-numeric: tabular-nums; pointer-events: none; }
     .cm-find-match { background: rgba(250, 204, 21, 0.34); border-radius: 2px; }
     .cm-find-current { background: rgba(249, 115, 22, 0.46); border-radius: 2px; outline: 1px solid var(--amber); }
@@ -2287,15 +2291,19 @@
             <input type="text" class="lore-input" id="edFindInput" value="${escHtml(state.editorFindQuery)}" placeholder="문서 내 검색... (Enter 다음)" />
             <span class="find-count" id="edFindCount"></span>
           </div>
-          <button type="button" class="tree-mini-btn" id="edFindPrev" title="이전 찾기 (Shift+Enter)">${ICONS.arrowUp}</button>
-          <button type="button" class="tree-mini-btn" id="edFindNext" title="다음 찾기 (Enter)">${ICONS.arrowDown}</button>
-          <button type="button" class="btn btn-ghost btn-xs ${state.showEditorReplace ? 'btn-accent-soft' : ''}" id="edToggleReplace" title="찾아바꾸기 (Ctrl+H)">바꾸기</button>
-          <button type="button" class="tree-mini-btn" id="edFindClose" title="닫기 (Esc)">${ICONS.close}</button>
+          <div class="find-actions">
+            <button type="button" class="tree-mini-btn" id="edFindPrev" title="이전 찾기 (Shift+Enter)">${ICONS.arrowUp}</button>
+            <button type="button" class="tree-mini-btn" id="edFindNext" title="다음 찾기 (Enter)">${ICONS.arrowDown}</button>
+            <button type="button" class="btn btn-ghost btn-xs ${state.showEditorReplace ? 'btn-accent-soft' : ''}" id="edToggleReplace" title="찾아바꾸기 (Ctrl+H)">바꾸기</button>
+            <button type="button" class="tree-mini-btn" id="edFindClose" title="닫기 (Esc)">${ICONS.close}</button>
+          </div>
         </div>
         <div class="find-row ${state.showEditorReplace ? '' : 'hidden'}" id="edReplaceRow">
           <input type="text" class="lore-input" id="edReplaceInput" value="${escHtml(state.editorReplaceText)}" placeholder="바꿀 내용 입력..." />
-          <button type="button" class="btn btn-xs" id="edReplaceOne">바꾸기</button>
-          <button type="button" class="btn btn-xs btn-primary" id="edReplaceAll">모두</button>
+          <div class="find-actions">
+            <button type="button" class="btn btn-xs" id="edReplaceOne">바꾸기</button>
+            <button type="button" class="btn btn-xs btn-primary" id="edReplaceAll">모두 바꾸기</button>
+          </div>
         </div>
       </div>
       <div class="editor-stage" id="editorStage">
