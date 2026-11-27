@@ -2468,8 +2468,7 @@
       $('edToggleReplace')?.classList.toggle('btn-accent-soft', state.showEditorReplace);
       if (open) {
         const sel = cmEditor?.getSelection();
-        if (sel && !sel.includes('
-') && sel.length <= 80) {
+        if (sel && !sel.includes('\n') && sel.length <= 80) {
           state.editorFindQuery = sel;
           if ($('edFindInput')) $('edFindInput').value = sel;
         }
