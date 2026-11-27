@@ -389,6 +389,16 @@
     }
     .lore-count { font-size: 12px; padding: 2px 8px; border-radius: 5px; background: var(--bg-subtle); color: var(--text-muted); white-space: nowrap; }
 
+    /* Editor Find & Replace Bar */
+    .find-bar { padding: 6px 12px; border-bottom: 1px solid var(--border); background: var(--bg-sidebar); display: flex; flex-direction: column; gap: 6px; }
+    .find-row { display: flex; align-items: center; gap: 6px; }
+    .find-input-wrap { position: relative; flex: 1; min-width: 120px; display: flex; align-items: center; }
+    .find-input-wrap .lore-input { min-width: 0; padding-right: 54px; }
+    .find-row .lore-input { min-width: 0; }
+    .find-count { position: absolute; right: 8px; font-size: 11px; color: var(--text-faint); font-variant-numeric: tabular-nums; pointer-events: none; }
+    .cm-find-match { background: rgba(250, 204, 21, 0.34); border-radius: 2px; }
+    .cm-find-current { background: rgba(249, 115, 22, 0.46); border-radius: 2px; outline: 1px solid var(--amber); }
+
     /* Editor & Split Preview */
     .editor-stage { flex: 1; min-height: 0; display: flex; overflow: hidden; }
     .editor-stage.is-resizing { user-select: none; cursor: col-resize; }
@@ -479,12 +489,6 @@
       opacity: 0.85; transition: opacity 0.15s ease;
     }
     .profile-box.is-dragging .profile-drag-hint { opacity: 0; }
-    .profile-pos-row {
-      display: flex; align-items: center; gap: 10px; flex-wrap: wrap; max-width: 420px;
-      padding: 6px 10px; border-radius: 7px; background: var(--bg-sidebar); border: 1px solid var(--border);
-    }
-    .profile-pos-slider { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-muted); flex: 1; min-width: 108px; }
-    .profile-pos-slider input[type="range"] { flex: 1; min-width: 56px; accent-color: var(--accent); cursor: pointer; }
     .profile-controls { display: flex; flex-direction: column; gap: 10px; flex: 1; min-width: 220px; padding-top: 2px; }
     .profile-asset-note {
       font-size: 12px; line-height: 1.5; color: var(--text-muted); font-family: var(--font-mono);
@@ -691,6 +695,7 @@
     }
     @media (max-width: 680px) {
       .hide-xs { display: none !important; }
+      .main-tools .btn-sm { padding: 0 7px; }
       .home-wrap { padding: 14px 12px 44px; gap: 12px; }
       .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 10px; }
       .g-badge { padding: 3px 6px; font-size: 10.5px; }
@@ -1171,6 +1176,7 @@
     searchQuery: '', searchScope: 'current',
     homeQuery: '', homeFilter: 'all', homeTag: '', homeSort: 'updated',
     sidebarCollapsed: isMobile(), showPreview: true, showTokenPopover: false, isSyncing: false,
+    showEditorFind: false, showEditorReplace: false, editorFindQuery: '', editorReplaceText: '',
     previewWidth: Math.min(78, Math.max(20, Number(localStorage.getItem('ps_preview_w')) || 46)),
     previewHeight: Math.min(75, Math.max(20, Number(localStorage.getItem('ps_preview_h')) || 45)),
     tokenBudget: Math.max(500, Number(localStorage.getItem('ps_token_budget')) || 10000),
@@ -1185,7 +1191,7 @@
     accentColor: localStorage.getItem('ps_accent') || '#2563eb'
   };
 
-  let cmEditor = null, previewTimer = null, selectedHistoryPayload = null, dragState = null;
+  let cmEditor = null, previewTimer = null, findSyncTimer = null, editorFindCtrl = null, selectedHistoryPayload = null, dragState = null;
   const saveTimers = new Map();
 
   const isHome = () => state.viewMode === 'home';
@@ -1650,6 +1656,7 @@
   /* ================= MAIN VIEWS ================= */
   function renderMain() {
     cmEditor = null;
+    editorFindCtrl = null;
     const main = $('mainPane');
     if (isHome()) { renderHomeGallery(main); return renderStatusbar(); }
 
@@ -1921,11 +1928,6 @@
                 <label style="font-size:12px;color:var(--text-muted);">또는 외부 이미지 URL</label>
                 <input class="form-input" id="profileUrlInput" value="${escHtml(externalUrl)}" placeholder="https://..." style="height:32px;font-size:12.5px;" />
               </div>
-              <div class="profile-pos-row hidden" id="profilePosRow">
-                <label class="profile-pos-slider"><span>좌우</span><input type="range" id="profilePosX" min="0" max="100" value="${Math.round(work.profile?.pos?.x ?? 50)}" /></label>
-                <label class="profile-pos-slider"><span>상하</span><input type="range" id="profilePosY" min="0" max="100" value="${Math.round(work.profile?.pos?.y ?? 50)}" /></label>
-                <button type="button" class="btn btn-ghost btn-xs" id="btnResetProfilePos">중앙</button>
-              </div>
               <div class="profile-asset-note">${assetPath ? `에셋 경로: ${escHtml(assetPath)}` : (externalUrl ? '외부 URL 연결됨' : '업로드 시 레포의 assets/ 폴더에 1:1 썸네일로 분리 저장됩니다.')}</div>
             </div>
           </div>
@@ -1963,45 +1965,65 @@
     const applyProfilePos = (x, y) => {
       const nx = Math.max(0, Math.min(100, Math.round(x)));
       const ny = Math.max(0, Math.min(100, Math.round(y)));
+      const prev = work.profile?.pos;
+      if (prev && prev.x === nx && prev.y === ny) return;
       work.profile = { ...(work.profile || { assetPath: '', externalUrl: '' }), pos: { x: nx, y: ny } };
       const posStr = `${nx}% ${ny}%`;
       const pImg = $('profilePreviewImg'), tImg = $('topWorkThumb')?.querySelector('img');
       if (pImg) pImg.style.objectPosition = posStr;
       if (tImg) tImg.style.objectPosition = posStr;
-      if ($('profilePosX')) $('profilePosX').value = nx;
-      if ($('profilePosY')) $('profilePosY').value = ny;
       scheduleWorkSave(work);
     };
 
     getWorkThumbSrc(work).then(src => {
       const box = $('profilePreviewBox');
       if (!src || !box) return;
-      box.classList.add('has-img');
-      box.innerHTML = `<img id="profilePreviewImg" src="${escHtml(src)}" style="object-position:${getProfilePos(work)};" alt="profile" draggable="false" /><span class="profile-drag-hint">드래그로 위치 조정</span>`;
-      $('profilePosRow')?.classList.remove('hidden');
+      box.innerHTML = `<img id="profilePreviewImg" src="${escHtml(src)}" style="object-position:${getProfilePos(work)};" alt="profile" draggable="false" />`;
+      const img = $('profilePreviewImg');
+      let lastTap = { t: 0, x: 0, y: 0 };
 
-      box.onpointerdown = (e) => {
-        e.preventDefault();
-        const img = $('profilePreviewImg');
-        const sx = e.clientX, sy = e.clientY;
-        const ox = work.profile?.pos?.x ?? 50, oy = work.profile?.pos?.y ?? 50;
-        const rect = box.getBoundingClientRect();
-        const nw = img?.naturalWidth || 1, nh = img?.naturalHeight || 1;
-        const divX = nw > nh ? Math.max(40, rect.width * (nw / nh - 1)) : 120;
-        const divY = nh > nw ? Math.max(40, rect.height * (nh / nw - 1)) : 120;
-        box.classList.add('is-dragging');
-        box.setPointerCapture(e.pointerId);
-        box.onpointermove = (ev) => applyProfilePos(ox - ((ev.clientX - sx) / divX) * 100, oy - ((ev.clientY - sy) / divY) * 100);
-        box.onpointerup = box.onpointercancel = () => {
-          box.classList.remove('is-dragging');
-          box.onpointermove = box.onpointerup = box.onpointercancel = null;
+      const setupDrag = () => {
+        const nw = img.naturalWidth, nh = img.naturalHeight;
+        if (!nw || !nh) return;
+        const canX = nw > nh * 1.01, canY = nh > nw * 1.01;
+        if (!canX && !canY) return;
+        box.classList.add('has-img');
+        if (!box.querySelector('.profile-drag-hint')) {
+          box.insertAdjacentHTML('beforeend', '<span class="profile-drag-hint">드래그로 위치 조정</span>');
+        }
+        box.onpointerdown = (e) => {
+          e.preventDefault();
+          const sx = e.clientX, sy = e.clientY;
+          const ox = work.profile?.pos?.x ?? 50, oy = work.profile?.pos?.y ?? 50;
+          const rect = box.getBoundingClientRect();
+          const divX = canX ? Math.max(24, rect.width * (nw / nh - 1)) : 1;
+          const divY = canY ? Math.max(24, rect.height * (nh / nw - 1)) : 1;
+          let moved = false;
+          box.classList.add('is-dragging');
+          box.setPointerCapture(e.pointerId);
+          box.onpointermove = (ev) => {
+            const dx = ev.clientX - sx, dy = ev.clientY - sy;
+            if (!moved && Math.hypot(dx, dy) > 4) moved = true;
+            if (moved) applyProfilePos(canX ? ox - (dx / divX) * 100 : ox, canY ? oy - (dy / divY) * 100 : oy);
+          };
+          box.onpointerup = box.onpointercancel = () => {
+            box.classList.remove('is-dragging');
+            box.onpointermove = box.onpointerup = box.onpointercancel = null;
+            if (!moved) {
+              const now = Date.now();
+              if (now - lastTap.t < 340 && Math.hypot(sx - lastTap.x, sy - lastTap.y) < 20) {
+                applyProfilePos(50, 50);
+                lastTap.t = 0;
+              } else {
+                lastTap = { t: now, x: sx, y: sy };
+              }
+            }
+          };
         };
       };
+      if (img.complete && img.naturalWidth) setupDrag();
+      else img.onload = setupDrag;
     });
-
-    $('profilePosX').oninput = (e) => applyProfilePos(Number(e.target.value), work.profile?.pos?.y ?? 50);
-    $('profilePosY').oninput = (e) => applyProfilePos(work.profile?.pos?.x ?? 50, Number(e.target.value));
-    $('btnResetProfilePos').onclick = () => applyProfilePos(50, 50);
 
     $('btnUploadProfile').onclick = () => $('profileFileInput').click();
     $('profileFileInput').onchange = async (e) => { if (e.target.files?.[0]) await saveProfileAsset(work, e.target.files[0]); };
@@ -2247,9 +2269,10 @@
             ${[['text', '텍스트'], ['lorebook', '로어북'], ['html', 'HTML'], ['jsx', 'JSX']].map(([v, l]) =>
               `<option value="${v}" ${item.type === v ? 'selected' : ''}>${l}</option>`).join('')}
           </select>
-          ${isCode ? `<button class="btn btn-sm" id="btnTogglePreview">${ICONS.eye}<span>${state.showPreview ? '미리보기 숨김' : '미리보기'}</span></button>` : ''}
-          <button class="btn btn-sm" id="btnCopyItem">${ICONS.copy}<span>복사</span></button>
-          <button class="btn btn-sm" id="btnExportItemTxt">${ICONS.download}<span>TXT</span></button>
+          <button class="btn btn-sm ${state.showEditorFind ? 'btn-accent-soft' : ''}" id="btnToggleFind" title="편집기 내 검색/바꾸기 (Ctrl+F)">${ICONS.search}</button>
+          ${isCode ? `<button class="btn btn-sm" id="btnTogglePreview" title="${state.showPreview ? '미리보기 숨김' : '미리보기'}">${ICONS.eye}<span class="hide-xs">${state.showPreview ? '미리보기 숨김' : '미리보기'}</span></button>` : ''}
+          <button class="btn btn-sm" id="btnCopyItem" title="복사">${ICONS.copy}<span class="hide-xs">복사</span></button>
+          <button class="btn btn-sm" id="btnExportItemTxt" title="TXT 내보내기">${ICONS.download}<span class="hide-xs">TXT</span></button>
         </div>
       </div>
       ${isLore ? `
@@ -2258,6 +2281,23 @@
           <input class="lore-input" id="loreKeywordsInput" value="${escHtml(item.keywords || '')}" placeholder="예: 학원, 친구, 룸메이트" />
           <span class="lore-count" id="loreKwCount">${splitCsv(item.keywords).length}개</span>
         </div>` : ''}
+      <div class="find-bar ${state.showEditorFind ? '' : 'hidden'}" id="editorFindBar">
+        <div class="find-row">
+          <div class="find-input-wrap">
+            <input type="text" class="lore-input" id="edFindInput" value="${escHtml(state.editorFindQuery)}" placeholder="문서 내 검색... (Enter 다음)" />
+            <span class="find-count" id="edFindCount"></span>
+          </div>
+          <button type="button" class="tree-mini-btn" id="edFindPrev" title="이전 찾기 (Shift+Enter)">${ICONS.arrowUp}</button>
+          <button type="button" class="tree-mini-btn" id="edFindNext" title="다음 찾기 (Enter)">${ICONS.arrowDown}</button>
+          <button type="button" class="btn btn-ghost btn-xs ${state.showEditorReplace ? 'btn-accent-soft' : ''}" id="edToggleReplace" title="찾아바꾸기 (Ctrl+H)">바꾸기</button>
+          <button type="button" class="tree-mini-btn" id="edFindClose" title="닫기 (Esc)">${ICONS.close}</button>
+        </div>
+        <div class="find-row ${state.showEditorReplace ? '' : 'hidden'}" id="edReplaceRow">
+          <input type="text" class="lore-input" id="edReplaceInput" value="${escHtml(state.editorReplaceText)}" placeholder="바꿀 내용 입력..." />
+          <button type="button" class="btn btn-xs" id="edReplaceOne">바꾸기</button>
+          <button type="button" class="btn btn-xs btn-primary" id="edReplaceAll">모두</button>
+        </div>
+      </div>
       <div class="editor-stage" id="editorStage">
         <div class="editor-pane" id="editorMount"></div>
         ${isCode && state.showPreview ? `
@@ -2323,14 +2363,151 @@
       }
     }
 
+    let findMarks = [], findMatches = [], findIdx = -1, suppressFindSync = false;
+    const clearFindMarks = () => { findMarks.forEach(m => m.clear()); findMarks = []; };
+
+    const collectMatches = (q) => {
+      if (!q) return [];
+      const ql = q.toLowerCase(), res = [];
+      if (cmEditor) {
+        for (let line = 0, n = cmEditor.lineCount(); line < n; line++) {
+          const t = cmEditor.getLine(line).toLowerCase();
+          for (let p = 0; (p = t.indexOf(ql, p)) !== -1; p += q.length) {
+            res.push({ from: { line, ch: p }, to: { line, ch: p + q.length } });
+          }
+        }
+      } else {
+        const t = (item.content || '').toLowerCase();
+        for (let p = 0; (p = t.indexOf(ql, p)) !== -1; p += q.length) res.push({ start: p, end: p + q.length });
+      }
+      return res;
+    };
+
+    const paintFind = (scroll = true) => {
+      clearFindMarks();
+      const cntEl = $('edFindCount');
+      if (cntEl) cntEl.textContent = state.editorFindQuery ? (findMatches.length ? `${findIdx + 1}/${findMatches.length}` : '0/0') : '';
+      if (!findMatches.length || findIdx < 0) return;
+      if (cmEditor) {
+        const maxM = 400, s = Math.max(0, Math.min(findIdx - 200, findMatches.length - maxM)), e = Math.min(findMatches.length, s + maxM);
+        cmEditor.operation(() => {
+          for (let i = s; i < e; i++) {
+            findMarks.push(cmEditor.markText(findMatches[i].from, findMatches[i].to, { className: i === findIdx ? 'cm-find-current' : 'cm-find-match' }));
+          }
+        });
+        if (scroll) cmEditor.scrollIntoView(findMatches[findIdx].from, 80);
+      } else if (scroll && $('fallbackTa')) {
+        const m = findMatches[findIdx];
+        $('fallbackTa').setSelectionRange(m.start, m.end);
+      }
+    };
+
+    const runFind = (keepIdx = false, scroll = true) => {
+      findMatches = state.showEditorFind ? collectMatches(state.editorFindQuery) : [];
+      findIdx = !findMatches.length ? -1 : (keepIdx && findIdx >= 0 ? Math.min(findIdx, findMatches.length - 1) : 0);
+      paintFind(scroll);
+    };
+
+    const stepFind = (delta) => {
+      if (!findMatches.length) runFind(false, true);
+      if (!findMatches.length) return;
+      findIdx = (findIdx + delta + findMatches.length) % findMatches.length;
+      paintFind(true);
+    };
+
     const onContentChange = (val) => {
       item.content = val;
       scheduleWorkSave(work);
       const mEl = $('editorItemMetric');
       if (mEl) mEl.textContent = fmtMetric(val);
       renderStatusbar();
+      if (state.showEditorFind && !suppressFindSync) { clearTimeout(findSyncTimer); findSyncTimer = setTimeout(() => runFind(true, false), 150); }
       if (isCode && state.showPreview) { clearTimeout(previewTimer); previewTimer = setTimeout(() => updateCodePreview(item), 380); }
     };
+
+    const replaceOne = () => {
+      if (!findMatches.length || findIdx < 0) return;
+      const rep = state.editorReplaceText, m = findMatches[findIdx];
+      suppressFindSync = true;
+      if (cmEditor) {
+        cmEditor.replaceRange(rep, m.from, m.to);
+      } else if ($('fallbackTa')) {
+        const v = item.content || '';
+        $('fallbackTa').value = v.slice(0, m.start) + rep + v.slice(m.end);
+        onContentChange($('fallbackTa').value);
+      }
+      suppressFindSync = false;
+      runFind(true, true);
+    };
+
+    const replaceAll = () => {
+      if (!findMatches.length) return;
+      const rep = state.editorReplaceText, cnt = findMatches.length;
+      suppressFindSync = true;
+      if (cmEditor) {
+        cmEditor.operation(() => {
+          for (let i = findMatches.length - 1; i >= 0; i--) cmEditor.replaceRange(rep, findMatches[i].from, findMatches[i].to);
+        });
+      } else if ($('fallbackTa')) {
+        let v = item.content || '';
+        for (let i = findMatches.length - 1; i >= 0; i--) v = v.slice(0, findMatches[i].start) + rep + v.slice(findMatches[i].end);
+        $('fallbackTa').value = v;
+        onContentChange(v);
+      }
+      suppressFindSync = false;
+      runFind(false, false);
+      toast(`${cnt}건을 모두 바꿨습니다.`);
+    };
+
+    const setFindOpen = (open, withReplace = null) => {
+      state.showEditorFind = open;
+      if (withReplace !== null) state.showEditorReplace = withReplace;
+      $('editorFindBar')?.classList.toggle('hidden', !open);
+      $('btnToggleFind')?.classList.toggle('btn-accent-soft', open);
+      $('edReplaceRow')?.classList.toggle('hidden', !state.showEditorReplace);
+      $('edToggleReplace')?.classList.toggle('btn-accent-soft', state.showEditorReplace);
+      if (open) {
+        const sel = cmEditor?.getSelection();
+        if (sel && !sel.includes('
+') && sel.length <= 80) {
+          state.editorFindQuery = sel;
+          if ($('edFindInput')) $('edFindInput').value = sel;
+        }
+        runFind(false, true);
+        const targetInp = withReplace && state.editorFindQuery ? $('edReplaceInput') : $('edFindInput');
+        targetInp?.focus(); targetInp?.select();
+      } else {
+        clearFindMarks(); findMatches = []; findIdx = -1;
+        cmEditor?.focus();
+      }
+      cmEditor?.refresh();
+    };
+
+    editorFindCtrl = { open: (rep = false) => setFindOpen(true, rep ? true : null), close: () => setFindOpen(false) };
+
+    $('btnToggleFind').onclick = () => setFindOpen(!state.showEditorFind);
+    $('edFindClose').onclick = () => setFindOpen(false);
+    $('edToggleReplace').onclick = () => {
+      state.showEditorReplace = !state.showEditorReplace;
+      $('edReplaceRow').classList.toggle('hidden', !state.showEditorReplace);
+      $('edToggleReplace').classList.toggle('btn-accent-soft', state.showEditorReplace);
+      if (state.showEditorReplace) $('edReplaceInput')?.focus();
+      cmEditor?.refresh();
+    };
+    $('edFindInput').oninput = (e) => { state.editorFindQuery = e.target.value; runFind(false, true); };
+    $('edFindInput').onkeydown = (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); stepFind(e.shiftKey ? -1 : 1); }
+      else if (e.key === 'Escape') { e.preventDefault(); setFindOpen(false); }
+    };
+    $('edReplaceInput').oninput = (e) => { state.editorReplaceText = e.target.value; };
+    $('edReplaceInput').onkeydown = (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); replaceOne(); }
+      else if (e.key === 'Escape') { e.preventDefault(); setFindOpen(false); }
+    };
+    $('edFindPrev').onclick = () => stepFind(-1);
+    $('edFindNext').onclick = () => stepFind(1);
+    $('edReplaceOne').onclick = replaceOne;
+    $('edReplaceAll').onclick = replaceAll;
 
     const mount = $('editorMount');
     if (window.CodeMirror) {
@@ -2345,10 +2522,39 @@
       mount.innerHTML = `<textarea class="fallback-textarea" id="fallbackTa">${escHtml(item.content || '')}</textarea>`;
       $('fallbackTa').oninput = (e) => onContentChange(e.target.value);
     }
+    if (state.showEditorFind) runFind(false, false);
     if (isCode && state.showPreview) updateCodePreview(item);
   }
 
   function runJsxInIframe(rawCode, rawProps) {
+    const pvToast = (msg) => {
+      let wrap = document.getElementById('__pv_toasts__');
+      if (!wrap) {
+        wrap = document.createElement('div');
+        wrap.id = '__pv_toasts__';
+        wrap.className = 'pv-toast-wrap';
+        document.body.appendChild(wrap);
+      }
+      const el = document.createElement('div');
+      el.className = 'pv-toast';
+      el.textContent = String(msg ?? '');
+      wrap.appendChild(el);
+      setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .2s'; }, 2200);
+      setTimeout(() => el.remove(), 2450);
+    };
+    const clip = (v) => { const s = String(v ?? '').trim(); return s.length > 60 ? s.slice(0, 60) + '…' : s; };
+    Object.assign(window, {
+      showNotification: (msg) => { pvToast(msg || '알림'); },
+      sendMessage: (msg) => { pvToast('[sendMessage] ' + (clip(msg) || '(빈 메시지)')); return Promise.resolve(); },
+      sendToAI: (msg) => { pvToast('[sendToAI] ' + (clip(msg) || '(빈 메시지)')); return Promise.resolve(); },
+      reroll: () => { pvToast('[reroll] 실행됨 (미리보기 생략)'); return Promise.resolve(); },
+      randomInt: (min, max) => {
+        const a = Math.ceil(Number(min)), b = Math.floor(Number(max));
+        if (!Number.isFinite(a) || !Number.isFinite(b)) return 0;
+        const lo = Math.min(a, b), hi = Math.max(a, b);
+        return Math.floor(Math.random() * (hi - lo + 1)) + lo;
+      }
+    });
     const showErr = (e) => {
       const root = document.getElementById('root');
       root.textContent = '';
@@ -2357,8 +2563,17 @@
       box.textContent = String((e && e.message) || e || 'Unknown error');
       root.appendChild(box);
     };
-    window.onerror = (m, _s, _l, _c, e) => showErr(e || m);
-    window.onunhandledrejection = (ev) => showErr(ev.reason);
+    const onRuntimeErr = (e) => {
+      const root = document.getElementById('root');
+      if (root && root.childNodes.length) {
+        pvToast('미리보기 생략: ' + String((e && e.message) || e || '실행 오류'));
+        return true;
+      }
+      showErr(e);
+      return true;
+    };
+    window.onerror = (m, _s, _l, _c, e) => onRuntimeErr(e || m);
+    window.onunhandledrejection = (ev) => { ev.preventDefault(); onRuntimeErr(ev.reason); };
     try {
       if (!window.React || !window.ReactDOM || !window.Babel) throw new Error('React/Babel CDN을 불러오지 못했습니다.');
       let src = String(rawCode || '').trim();
@@ -2473,7 +2688,7 @@
       iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${baseStyle}</style></head><body>${code}</body></html>`;
       return;
     }
-    const errStyle = `.err{color:${isDark ? '#fca5a5' : '#991b1b'};background:${isDark ? '#31191a' : '#fef2f2'};border:1px solid ${isDark ? '#7f1d1d' : '#fecaca'};padding:10px;border-radius:8px;font-family:monospace;font-size:12px;white-space:pre-wrap;}`;
+    const errStyle = `.err{color:${isDark ? '#fca5a5' : '#991b1b'};background:${isDark ? '#31191a' : '#fef2f2'};border:1px solid ${isDark ? '#7f1d1d' : '#fecaca'};padding:10px;border-radius:8px;font-family:monospace;font-size:12px;white-space:pre-wrap;}.pv-toast-wrap{position:fixed;bottom:10px;right:10px;left:10px;display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:none;z-index:9999;}.pv-toast{max-width:100%;padding:7px 11px;border-radius:7px;background:rgba(15,23,42,0.88);color:#f8fafc;font-size:12px;line-height:1.4;box-shadow:0 4px 12px rgba(0,0,0,0.22);word-break:break-word;}`;
     const safeCode = JSON.stringify(code).replace(/<\//g, '<\\/');
     const safeProps = JSON.stringify(state.jsxPropsMap.get(item.id) || '').replace(/<\//g, '<\\/');
     const runner = runJsxInIframe.toString();
@@ -2939,8 +3154,7 @@
     work.dirty = false;
     await idb('works', 'put', work);
     await saveLocalSnapshot(work, 'GitHub 저장 시점');
-    updateTopbarStatusDot();
-    if (!skipRender) { if (isHome()) renderMain(); else renderStatusbar(); }
+    if (!skipRender) { updateTopbarStatusDot(); if (isHome()) renderMain(); else renderStatusbar(); }
   }
 
   async function pullAllFromGitHub() {
@@ -3100,14 +3314,19 @@
 
     $('btnPushAll').onclick = async () => {
       if (state.isSyncing) return;
+      const dirtyWorks = state.works.filter(w => w.dirty);
+      if (!dirtyWorks.length && !state.deletedQueue.length) return toast('변경된 작품이 없습니다.');
       const btn = $('btnPushAll');
       state.isSyncing = true;
       btn.disabled = true;
       try {
-        toast('GitHub 동기화 중...');
-        for (const w of state.works) await pushWorkToGitHub(w, { skipRender: true });
+        toast('변경된 항목 GitHub 반영 중...');
+        for (const w of dirtyWorks) await pushWorkToGitHub(w, { skipRender: true });
         const delCnt = await flushDeletedToGitHub();
-        toast(`총 ${state.works.length}개 업로드${delCnt ? ` · 원격 삭제 ${delCnt}건` : ''} 완료!`);
+        const parts = [];
+        if (dirtyWorks.length) parts.push(`수정된 ${dirtyWorks.length}개 업로드`);
+        if (delCnt) parts.push(`원격 삭제 ${delCnt}건`);
+        toast(parts.length ? `${parts.join(' · ')} 완료!` : '동기화 완료!');
       } catch (e) { toast(e.message); }
       finally {
         state.isSyncing = false;
@@ -3210,15 +3429,20 @@
     });
     document.addEventListener('keydown', async (e) => {
       const mod = e.ctrlKey || e.metaKey;
-      if (mod && e.shiftKey && e.key.toLowerCase() === 'f') {
+      const key = e.key.toLowerCase();
+      if (mod && e.shiftKey && key === 'f') {
         e.preventDefault();
         if (isHome()) $('homeSearchInput')?.focus();
         else { state.sidebarCollapsed = false; renderSidebar(); $('searchInput').focus(); }
-      } else if (mod && e.key.toLowerCase() === 's' && !isHome()) {
+      } else if (mod && !e.shiftKey && (key === 'f' || key === 'h') && state.viewMode === 'editor' && editorFindCtrl) {
+        e.preventDefault();
+        editorFindCtrl.open(key === 'h');
+      } else if (mod && key === 's' && !isHome()) {
         e.preventDefault();
         const w = getActiveWork();
         if (w) { await idb('works', 'put', w); await saveLocalSnapshot(w, '로컬 스냅샷 저장 (Ctrl+S)'); toast('로컬 스냅샷이 저장되었습니다.'); }
       } else if (e.key === 'Escape') {
+        if (state.viewMode === 'editor' && state.showEditorFind && editorFindCtrl) editorFindCtrl.close();
         closeDropdown(); closeTokenPopover();
         document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open'));
       }
