@@ -87,10 +87,6 @@
     button, input, textarea, select { font-family: inherit; font-size: inherit; color: inherit; }
     button { background: none; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .hidden { display: none !important; }
-    .ellipsis, .tree-folder-name, .tree-item-title, .card-title, .search-hit-sub, .gallery-title {
-      min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    }
-    .tabular { font-variant-numeric: tabular-nums; }
 
     ::-webkit-scrollbar { width: 7px; height: 7px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -122,6 +118,7 @@
 
     /* Buttons & Controls */
     .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
       height: 32px; padding: 0 10px; border-radius: 7px;
       border: 1px solid var(--border); background: var(--bg-app); color: var(--text-main);
       font-size: 13px; font-weight: 500; white-space: nowrap; flex-shrink: 0;
@@ -129,14 +126,16 @@
     }
     .btn:hover { background: var(--bg-hover); border-color: var(--border-strong); }
     .btn:active { transform: translateY(0.5px); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
     .btn-ghost { border-color: transparent; background: transparent; color: var(--text-secondary); }
     .btn-ghost:hover { background: var(--bg-hover); border-color: transparent; color: var(--text-main); }
     .btn-icon { width: 34px; height: 34px; padding: 0; }
     .btn-primary { background: var(--accent); border-color: var(--accent); color: #ffffff; }
     .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: #ffffff; }
+    .btn-accent-soft { background: var(--accent-soft); border-color: var(--accent-border); color: var(--accent-text); }
+    .btn-accent-soft:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-text); }
     .btn-encrypt-on { background: rgba(229, 57, 53, 0.12); border-color: rgba(229, 57, 53, 0.35); color: var(--nsfw-red); }
     .btn-encrypt-on:hover { background: rgba(229, 57, 53, 0.18); border-color: var(--nsfw-red); }
-    .btn-danger-soft { color: var(--danger); border-color: var(--danger-soft); background: var(--danger-soft); }
     .btn-sm { height: 28px; padding: 0 8px; font-size: 12px; border-radius: 6px; }
     .btn-xs { height: 24px; padding: 0 6px; font-size: 11.5px; border-radius: 5px; }
 
@@ -174,7 +173,9 @@
       border: 1px solid var(--border); background: var(--bg-app); color: var(--text-main);
       font-size: 12.5px; outline: none; transition: border-color 0.14s ease, box-shadow 0.14s ease;
     }
-    .search-clear-btn { position: absolute; right: 4px; width: 22px; height: 22px; border-radius: 5px; color: var(--text-muted); }
+    .search-clear-btn {
+      position: absolute; right: 4px; width: 22px; height: 22px; border-radius: 5px; color: var(--text-muted);
+    }
     .search-clear-btn:hover { background: var(--bg-hover); color: var(--text-main); }
 
     .seg-control {
@@ -195,7 +196,6 @@
       display: flex; align-items: center; justify-content: space-between;
       padding: 6px 10px; border-bottom: 1px solid var(--border); gap: 4px;
     }
-    .sidebar-actions .btn-sm { padding: 0 6px; }
 
     /* Sidebar Tree + Drag & Drop */
     .tree { flex: 1; overflow-y: auto; padding: 6px 8px 20px; }
@@ -208,7 +208,9 @@
     }
     .tree-folder-row:hover { background: var(--bg-hover); }
     .tree-folder-row.active-view { background: var(--accent-soft); color: var(--accent-text); }
-    .tree-folder-name, .tree-item-title, .card-title, .search-hit-sub, .gallery-title { flex: 1; }
+    .tree-folder-name, .tree-item-title, .card-title, .search-hit-sub {
+      flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
     .tree-folder-actions { display: flex; align-items: center; gap: 2px; opacity: 0; transition: opacity 0.12s ease; }
     .tree-folder-row:hover .tree-folder-actions, .tree-folder-row.active-view .tree-folder-actions { opacity: 1; }
 
@@ -283,6 +285,7 @@
     /* ================= HOME GALLERY ================= */
     .home-scroll { flex: 1; overflow-y: auto; background: var(--bg-app); }
     .home-wrap { max-width: 1180px; margin: 0 auto; padding: 20px 24px 56px; display: flex; flex-direction: column; gap: 16px; }
+
     .home-summary-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
     .home-stats {
       display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: var(--text-main);
@@ -316,8 +319,11 @@
     .filter-tag-pill:hover { background: var(--bg-hover); color: var(--text-main); }
     .filter-tag-pill.active { background: var(--accent-soft); color: var(--accent-text); border-color: var(--accent-border); }
 
-    .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 22px 18px; align-items: start; }
-    .gallery-card { display: flex; flex-direction: column; gap: 9px; cursor: pointer; transition: transform 0.16s ease; }
+    .gallery-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 22px 18px; align-items: start;
+    }
+    .gallery-card { display: flex; flex-direction: column; gap: 9px; cursor: pointer; }
     .gallery-card:hover .gallery-thumb img { transform: scale(1.03); }
     .gallery-thumb {
       position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 14px; overflow: hidden;
@@ -349,20 +355,26 @@
     .g-badge-status .s-dot { width: 6px; height: 6px; border-radius: 999px; flex-shrink: 0; }
     .g-badge-status.wip .s-dot { background: #fbbf24; }
     .g-badge-status.synced .s-dot { background: #34d399; }
-    .g-badge-branch { background: rgba(15, 18, 24, 0.76); padding: 4px 9px; border-radius: 8px; font-size: 11.5px; font-weight: 600; }
+    .g-badge-branch {
+      background: rgba(15, 18, 24, 0.76); padding: 4px 9px; border-radius: 8px;
+      font-size: 11.5px; font-weight: 600; font-variant-numeric: tabular-nums;
+    }
 
     .gallery-meta { display: flex; flex-direction: column; gap: 4px; padding: 0 2px; min-width: 0; }
     .gallery-title-row { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
-    .gallery-title { font-size: 15px; font-weight: 700; color: var(--text-main); }
+    .gallery-title { font-size: 15px; font-weight: 700; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
     .gallery-summary {
       font-size: 12.5px; line-height: 1.48; color: var(--text-secondary);
-      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 1.48em;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      min-height: 1.48em;
     }
     .gallery-tags { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; font-size: 12px; color: var(--text-muted); margin-top: 1px; }
     .gallery-tag-link { color: var(--text-muted); transition: color 0.12s ease; }
     .gallery-tag-link:hover { color: var(--accent-text); }
-    .gallery-foot-sub { font-size: 11.5px; color: var(--text-faint); display: flex; align-items: center; gap: 6px; margin-top: 1px; }
-    .empty-state { grid-column: 1 / -1; padding: 64px 20px; text-align: center; color: var(--text-faint); display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .gallery-foot-sub {
+      font-size: 11.5px; color: var(--text-faint); font-variant-numeric: tabular-nums;
+      display: flex; align-items: center; gap: 6px; margin-top: 1px;
+    }
 
     /* Lorebook Keyword Bar */
     .lore-bar {
@@ -425,8 +437,8 @@
       padding: 16px 20px; background: var(--bg-app); color: var(--text-main); font-size: 14.5px; line-height: 1.7;
     }
 
-    /* Character Info Page (1:1 Square Profile) */
-    .char-info-page { flex: 1; overflow-y: auto; background: var(--bg-app); }
+    /* Character Info Page (1:1 Square Profile + Templates) */
+    .char-info-page { flex: 1; overflow-y: auto; background: var(--bg-app); padding-bottom: 24px; }
     .char-info-top { padding: 18px 24px 14px; border-bottom: 1px solid var(--border); }
     .char-info-kicker { font-size: 12px; font-weight: 600; color: var(--accent); margin-bottom: 4px; }
     .char-info-heading { font-size: 18px; font-weight: 700; color: var(--text-main); line-height: 1.4; }
@@ -443,14 +455,21 @@
       font-size: 12px; line-height: 1.5; color: var(--text-muted); font-family: var(--font-mono);
       background: var(--bg-sidebar); padding: 7px 10px; border-radius: 7px; border: 1px solid var(--border); word-break: break-all;
     }
-    .field-label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-    .field-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+    .field-label-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+    .field-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px; }
     .field-counter { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
     .field-counter.over { color: var(--danger); font-weight: 600; }
     .field-input {
       width: 100%; height: 40px; padding: 0 13px; border: 1px solid var(--border); border-radius: 8px;
       background: var(--bg-app); color: var(--text-main); font-size: 14px; outline: none;
       transition: border-color 0.14s ease, box-shadow 0.14s ease;
+    }
+    .tpl-box { display: flex; flex-direction: column; gap: 10px; }
+    .tpl-controls-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .tpl-select { flex: 1; min-width: 200px; max-width: 340px; height: 32px; font-size: 13px; }
+    .tpl-summary-note {
+      font-size: 12px; line-height: 1.55; color: var(--text-muted);
+      background: var(--bg-sidebar); padding: 8px 11px; border-radius: 8px; border: 1px solid var(--border);
     }
 
     /* Card Views */
@@ -497,7 +516,10 @@
       transition: background 0.14s ease;
     }
     .statusbar:hover { background: var(--bg-sidebar); }
-    .token-track { flex: 1; height: 7px; border-radius: 999px; background: var(--bg-hover); overflow: hidden; display: flex; min-width: 80px; }
+    .token-track {
+      flex: 1; height: 7px; border-radius: 999px; background: var(--bg-hover);
+      overflow: hidden; display: flex; min-width: 80px;
+    }
     .token-seg { height: 100%; transition: width 0.22s ease; flex-shrink: 0; }
     .token-summary {
       display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
@@ -537,8 +559,6 @@
     .dd-item { width: 100%; padding: 7px 9px; border-radius: 6px; justify-content: space-between; text-align: left; font-size: 13px; color: var(--text-main); }
     .dd-item:hover { background: var(--bg-hover); }
     .dd-item.active { background: var(--accent-soft); color: var(--accent-text); font-weight: 600; }
-    .dd-item.dd-accent { color: var(--accent); font-weight: 600; }
-    .dd-item.dd-danger { color: var(--danger); }
     .dd-sep { height: 1px; background: var(--border); margin: 4px 0; }
     .dd-label { font-size: 11px; color: var(--text-faint); padding: 4px 9px; font-weight: 600; }
 
@@ -555,7 +575,7 @@
     .accent-swatch:hover { transform: scale(1.12); }
     .accent-swatch.active { border-color: var(--text-main); transform: scale(1.1); }
     .accent-custom-row { display: flex; align-items: center; gap: 6px; }
-    .accent-custom-row .form-input { min-width: 0; width: 0; flex: 1; height: 28px; font-family: var(--font-mono); font-size: 12px; }
+    .accent-custom-row .form-input { min-width: 0; width: 0; }
     .accent-native-picker { width: 32px; height: 28px; padding: 0; border: 1px solid var(--border); border-radius: 6px; background: transparent; cursor: pointer; flex-shrink: 0; }
 
     /* Modal & Forms */
@@ -677,10 +697,10 @@
         <button type="button" class="tree-mini-btn" id="btnQuickCharInfo" title="캐릭터 정보·태그·썸네일 편집"></button>
       </div>
       <div class="sidebar-actions">
-        <button class="btn btn-ghost btn-sm" id="btnAddFolder" type="button"></button>
+        <button class="btn btn-ghost btn-sm" id="btnAddFolder" type="button" style="padding:0 6px;"></button>
         <div style="display:flex;align-items:center;gap:2px;">
-          <button class="btn btn-ghost btn-sm" id="btnExportCsv" type="button" title="로어북 CSV 내보내기"></button>
-          <button class="btn btn-ghost btn-sm" id="btnExportTxt" type="button" title="작품 전체 TXT 내보내기"></button>
+          <button class="btn btn-ghost btn-sm" id="btnExportCsv" type="button" title="로어북 CSV 내보내기" style="padding:0 6px;"></button>
+          <button class="btn btn-ghost btn-sm" id="btnExportTxt" type="button" title="작품 전체 TXT 내보내기" style="padding:0 6px;"></button>
         </div>
       </div>
       <div class="tree" id="treeContainer"></div>
@@ -777,9 +797,10 @@
     pin: svg('<path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1 1 1 0 0 1 1 1z"/>', 13, 2),
     user: svg('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
     branch: svg('<line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/>', 13, 1.8),
-    chevDown: svg('<polyline points="6 9 12 15 18 9"/>', 13.5, 1.8),
+    chevDown: svg('<polyline points="6 9 12 15 18 9"/>', 13, 1.8),
     chevRight: svg('<polyline points="9 18 15 12 9 6"/>', 13, 1.8),
     arrowUp: svg('<polyline points="18 15 12 9 6 15"/>', 13.5, 1.8),
+    arrowDown: svg('<polyline points="6 9 12 15 18 9"/>', 13.5, 1.8),
     history: svg('<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/>', 15),
     lock: svg('<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>', 12.5, 2),
     unlock: svg('<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>', 13.5, 1.7),
@@ -811,6 +832,8 @@
     eye: svg('<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'),
     external: svg('<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>', 13.5),
     move: svg('<polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/>', 13.5),
+    layers: svg('<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>', 14),
+    star: svg('<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>', 13.5),
     check: svg('<polyline points="20 6 9 17 4 12"/>', 14, 1.9)
   };
 
@@ -826,6 +849,9 @@
   ];
 
   const TOKEN_SEG_COLORS = ['var(--seg-0)', '#fb923c', '#a855f7', '#3b82f6', '#10b981', '#ec4899', '#eab308', '#14b8a6'];
+  const WORK_TOPBAR_IDS = ['btnToggleSidebar', 'btnGoHome', 'wrapWorkMenu', 'wrapBranchMenu', 'btnHistory', 'btnEncryptToggle', 'btnGitSave'];
+  const CFG_TEXT_MAP = [['cfgOwner', 'owner'], ['cfgRepo', 'repo'], ['cfgBranch', 'branch'], ['cfgToken', 'token']];
+  const BUILTIN_TPL_ID = '__builtin__';
 
   /* ================= HELPERS ================= */
   const $ = (id) => document.getElementById(id);
@@ -833,12 +859,14 @@
   const escHtml = (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const fmtNum = (n) => Number(n || 0).toLocaleString('ko-KR');
   const fmtShort = (n) => n >= 1000 ? `${(n / 1000).toFixed(1).replace(/\.0$/, '')}K` : String(n || 0);
+  const fmtMetric = (s = '') => `${fmtNum(s.length)}자 · ${fmtNum(estimateTokens(s))}토큰`;
   const clone = (o) => JSON.parse(JSON.stringify(o));
   const splitCsv = (s = '') => s.split(',').map(x => x.trim()).filter(Boolean);
   const isMobile = () => window.innerWidth <= 900;
   const closeSidebarOnMobile = () => { if (isMobile()) state.sidebarCollapsed = true; };
-  const closeModal = (id) => $(id).classList.remove('open');
-  const shiftArrayItem = (arr, idx, delta) => { const [m] = arr.splice(idx, 1); arr.splice(idx + delta, 0, m); };
+  const toggleModal = (id, open = false) => $(id).classList.toggle('open', open);
+  const readJsonLS = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key) || 'null') ?? fallback; } catch { return fallback; } };
+  const shiftArray = (arr, idx, delta) => { const [m] = arr.splice(idx, 1); arr.splice(idx + delta, 0, m); };
 
   function estimateTokens(text = '') {
     if (!text) return 0;
@@ -862,7 +890,8 @@
       await navigator.clipboard.writeText(text);
     } catch {
       const ta = Object.assign(document.createElement('textarea'), { value: text });
-      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); ta.remove();
     }
     toast(label);
   }
@@ -872,7 +901,8 @@
       href: URL.createObjectURL(new Blob([content], { type: mime })),
       download: filename
     });
-    document.body.appendChild(a); a.click();
+    document.body.appendChild(a);
+    a.click();
     setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 300);
   }
 
@@ -941,10 +971,11 @@
     return JSON.parse(new TextDecoder().decode(buf));
   }
 
-  const isGhConnected = () => !!(state.config.owner && state.config.repo && state.config.token);
+  const isGhReady = () => !!(state.config.owner && state.config.repo && state.config.token);
+  const ghBranch = () => state.config.branch || 'main';
 
   async function ghRequest(path, options = {}) {
-    if (!isGhConnected()) throw new Error('GitHub 연동 설정을 먼저 입력해주세요.');
+    if (!isGhReady()) throw new Error('GitHub 연동 설정을 먼저 입력해주세요.');
     const { owner, repo, token } = state.config;
     const res = await fetch(`https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${path}`, {
       ...options,
@@ -969,7 +1000,7 @@
   }
 
   async function ghPutFile(filePath, content, message) {
-    const branch = state.config.branch || 'main';
+    const branch = ghBranch();
     const existing = await ghGetFile(filePath, branch);
     return ghRequest(`contents/${filePath}`, {
       method: 'PUT',
@@ -979,7 +1010,7 @@
   }
 
   async function ghDeleteFile(filePath, message) {
-    const branch = state.config.branch || 'main';
+    const branch = ghBranch();
     const existing = await ghGetFile(filePath, branch);
     if (!existing?.sha) return false;
     await ghRequest(`contents/${filePath}`, {
@@ -990,7 +1021,7 @@
     return true;
   }
 
-  /* ================= DEFAULT TEMPLATES ================= */
+  /* ================= DEFAULT & CUSTOM TEMPLATES ================= */
   const mkItem = (title, type = 'text', content = '', keywords = '') => ({ id: uid('itm'), title, type, keywords, content });
   const mkFolder = (name, kind, collapsed, items) => ({ id: uid('fld'), name, kind, collapsed, items });
 
@@ -1016,14 +1047,47 @@
     ];
   }
 
+  function cloneFoldersFresh(folders = [], emptyContent = false) {
+    return folders.map(f => ({
+      id: uid('fld'),
+      name: f.name,
+      kind: f.kind || 'text',
+      collapsed: !!f.collapsed,
+      items: (f.items || []).map(it => ({
+        id: uid('itm'),
+        title: it.title,
+        type: it.type || 'text',
+        keywords: emptyContent ? '' : (it.keywords || ''),
+        content: emptyContent ? '' : (it.content || '')
+      }))
+    }));
+  }
+
+  function persistTemplates() {
+    localStorage.setItem('ps_templates', JSON.stringify(state.templates));
+    localStorage.setItem('ps_default_tpl_id', state.defaultTemplateId || '');
+  }
+
+  const getDefaultTemplate = () => state.templates.find(t => t.id === state.defaultTemplateId) || null;
+
+  function resolveTemplateById(tplId) {
+    if (tplId && tplId !== BUILTIN_TPL_ID) {
+      const found = state.templates.find(t => t.id === tplId);
+      if (found) return { id: found.id, name: found.name, folders: found.folders, isBuiltin: false };
+    }
+    return { id: BUILTIN_TPL_ID, name: '앱 기본 폴더 (초기값)', folders: createDefaultFolders(false), isBuiltin: true };
+  }
+
   function createWorkObject({ title = '', summary = '', tags = [], withSample = false } = {}) {
     const branchId = uid('br');
+    const defTpl = withSample ? null : getDefaultTemplate();
+    const folders = withSample ? createDefaultFolders(true) : (defTpl ? cloneFoldersFresh(defTpl.folders) : createDefaultFolders(false));
     return {
       id: uid('work'), title, summary, tags,
       profile: { assetPath: '', externalUrl: '' },
       encrypted: false, pinned: false, dirty: true,
       activeBranchId: branchId,
-      branches: [{ id: branchId, name: '기본 (공통)', folders: createDefaultFolders(withSample) }],
+      branches: [{ id: branchId, name: '기본 (공통)', folders }],
       updatedAt: Date.now()
     };
   }
@@ -1037,8 +1101,11 @@
     homeQuery: '', homeFilter: 'all', homeTag: '', homeSort: 'updated',
     sidebarCollapsed: isMobile(), showPreview: true, showTokenPopover: false,
     tokenBudget: Math.max(500, Number(localStorage.getItem('ps_token_budget')) || 10000),
+    templates: readJsonLS('ps_templates', []),
+    defaultTemplateId: localStorage.getItem('ps_default_tpl_id') || '',
+    selectedTemplateId: '',
     editingCardIds: new Set(), assetCache: new Map(),
-    deletedQueue: (() => { try { return JSON.parse(localStorage.getItem('ps_deleted_queue') || '[]'); } catch { return []; } })(),
+    deletedQueue: readJsonLS('ps_deleted_queue', []),
     config: { owner: '', repo: '', branch: 'main', token: '', rememberPass: true },
     masterPass: '',
     theme: localStorage.getItem('ps_theme') || 'light',
@@ -1063,10 +1130,8 @@
   }
 
   function loadConfig() {
-    try {
-      Object.assign(state.config, JSON.parse(localStorage.getItem('ps_config') || '{}'));
-      if (state.config.rememberPass) state.masterPass = localStorage.getItem('ps_master_pass') || '';
-    } catch {}
+    Object.assign(state.config, readJsonLS('ps_config', {}));
+    if (state.config.rememberPass) state.masterPass = localStorage.getItem('ps_master_pass') || '';
   }
 
   function persistConfig() {
@@ -1116,20 +1181,21 @@
   }
 
   async function createAndOpenNewWork() {
+    const defTpl = getDefaultTemplate();
     const nw = createWorkObject();
     nw._justCreated = true;
     state.works.unshift(nw);
+    state.activeWorkId = nw.id;
+    state.viewMode = 'charInfo';
+    if (!isMobile()) state.sidebarCollapsed = false;
     await idb('works', 'put', nw);
-    enterWork(nw.id, 'charInfo');
-    toast('새 작품이 생성되었습니다. 캐릭터 정보를 입력해 주세요.');
+    renderAll();
+    toast(defTpl ? `'${defTpl.name}' 템플릿으로 새 작품이 생성되었습니다.` : '새 작품이 생성되었습니다. 캐릭터 정보를 입력해 주세요.');
   }
 
   async function duplicateWork(source) {
-    const copy = Object.assign(clone(source), {
-      id: uid('work'),
-      title: `${source.title || '제목 없음'} (사본)`,
-      pinned: false, dirty: true, updatedAt: Date.now()
-    });
+    const copy = clone(source);
+    Object.assign(copy, { id: uid('work'), title: `${source.title || '제목 없음'} (사본)`, pinned: false, dirty: true, updatedAt: Date.now() });
     if (source.profile?.assetPath) {
       const dataUrl = await getAssetDataUrl(source.profile.assetPath);
       if (dataUrl) {
@@ -1148,6 +1214,7 @@
   const saveDeletedQueue = () => localStorage.setItem('ps_deleted_queue', JSON.stringify(state.deletedQueue));
 
   async function flushDeletedToGitHub() {
+    if (!state.deletedQueue.length) return 0;
     let removed = 0;
     while (state.deletedQueue.length) {
       const item = state.deletedQueue[0];
@@ -1164,6 +1231,8 @@
   async function deleteWorkById(workId) {
     const w = state.works.find(x => x.id === workId);
     if (!w || !confirm(`'${w.title || '제목 없음'}' 작품을 로컬에서 삭제할까요?\n(다음 GitHub 저장/푸시 시 원격에서도 함께 삭제됩니다.)`)) return;
+    clearTimeout(saveTimers.get(w.id));
+    saveTimers.delete(w.id);
     if (!state.deletedQueue.some(d => d.id === w.id)) {
       state.deletedQueue.push({ id: w.id, title: w.title || w.id, assetPath: w.profile?.assetPath || '' });
       saveDeletedQueue();
@@ -1312,9 +1381,9 @@
     if (state.assetCache.has(assetPath)) return state.assetCache.get(assetPath);
     const local = await idb('assets', 'get', assetPath);
     if (local?.dataUrl) { state.assetCache.set(assetPath, local.dataUrl); return local.dataUrl; }
-    if (isGhConnected()) {
+    if (isGhReady()) {
       try {
-        const file = await ghGetFile(assetPath, state.config.branch || 'main');
+        const file = await ghGetFile(assetPath, ghBranch());
         if (file?.content) {
           const mime = assetPath.endsWith('.png') ? 'image/png' : assetPath.endsWith('.jpg') ? 'image/jpeg' : 'image/webp';
           const dataUrl = `data:${mime};base64,${file.content.replace(/\n/g, '')}`;
@@ -1327,8 +1396,8 @@
     return '';
   }
 
-  const getCachedThumbSrc = (w) => (w?.profile?.assetPath ? state.assetCache.get(w.profile.assetPath) : w?.profile?.externalUrl) || '';
-  const getWorkThumbSrc = async (w) => !w?.profile ? '' : (w.profile.assetPath ? getAssetDataUrl(w.profile.assetPath) : (w.profile.externalUrl || ''));
+  const getWorkThumbSrc = (work) => !work?.profile ? Promise.resolve('')
+    : (work.profile.assetPath ? getAssetDataUrl(work.profile.assetPath) : Promise.resolve(work.profile.externalUrl || ''));
 
   async function saveProfileAsset(work, file) {
     const dataUrl = await compressImageFile(file);
@@ -1362,34 +1431,33 @@
   }
 
   function updateTopbarStatusDot() {
-    const work = getActiveWork(), connected = isGhConnected();
-    const anyDirty = state.deletedQueue.length > 0 || (isHome() ? state.works.some(w => w.dirty) : !!work?.dirty);
+    const connected = isGhReady();
+    const anyDirty = state.deletedQueue.length > 0 || (isHome() ? state.works.some(w => w.dirty) : !!getActiveWork()?.dirty);
     const dotCls = anyDirty ? 'dirty' : (connected ? 'connected' : '');
     $('btnSettings').innerHTML = `<span class="pill-dot ${dotCls}"></span>${ICONS.cloud}<span class="hide-xs">${escHtml(connected ? state.config.repo : '연동 설정')}</span>`;
   }
 
   async function renderTopbar() {
     const home = isHome();
-    ['btnToggleSidebar', 'btnGoHome', 'wrapWorkMenu', 'wrapBranchMenu', 'btnHistory', 'btnEncryptToggle', 'btnGitSave']
-      .forEach(id => $(id).classList.toggle('hidden', home));
+    WORK_TOPBAR_IDS.forEach(id => $(id).classList.toggle('hidden', home));
     $('homeBrandTitle').classList.toggle('hidden', !home);
     $('btnTheme').innerHTML = state.theme === 'dark' ? ICONS.sun : ICONS.moon;
     updateTopbarStatusDot();
     if (home) return;
 
     const work = getActiveWork(), branch = getActiveBranch(work);
-    const cachedThumb = getCachedThumbSrc(work);
     $('btnWorkMenu').innerHTML = `
-      <span class="work-thumb-mini" id="topWorkThumb">${cachedThumb ? `<img src="${escHtml(cachedThumb)}" alt="" />` : ICONS.user}</span>
-      <span class="ellipsis" style="max-width:140px;font-weight:600;">${escHtml(work?.title || '제목 없음')}</span>
+      <span class="work-thumb-mini" id="topWorkThumb">${ICONS.user}</span>
+      <span style="max-width:140px;overflow:hidden;text-overflow:ellipsis;font-weight:600;">${escHtml(work?.title || '제목 없음')}</span>
       <span style="opacity:0.6;display:inline-flex;">${ICONS.chevDown}</span>`;
 
-    if (work && !cachedThumb && work.profile?.assetPath) {
+    if (work) {
       const src = await getWorkThumbSrc(work);
-      if (src && $('topWorkThumb')) $('topWorkThumb').innerHTML = `<img src="${escHtml(src)}" alt="" />`;
+      const thumb = $('topWorkThumb');
+      if (src && thumb) thumb.innerHTML = `<img src="${escHtml(src)}" alt="" />`;
     }
 
-    $('btnBranchMenu').innerHTML = `<span style="opacity:0.75;display:inline-flex;">${ICONS.branch}</span><span class="ellipsis" style="max-width:110px;">${escHtml(branch?.name || '기본 (공통)')}</span><span style="opacity:0.6;display:inline-flex;">${ICONS.chevDown}</span>`;
+    $('btnBranchMenu').innerHTML = `<span style="opacity:0.75;display:inline-flex;">${ICONS.branch}</span><span style="max-width:110px;overflow:hidden;text-overflow:ellipsis;">${escHtml(branch?.name || '기본 (공통)')}</span><span style="opacity:0.6;display:inline-flex;">${ICONS.chevDown}</span>`;
 
     const encBtn = $('btnEncryptToggle'), isEnc = !!work?.encrypted;
     encBtn.classList.toggle('btn-encrypt-on', isEnc);
@@ -1416,12 +1484,14 @@
 
     if (q) {
       const hits = [];
-      for (const w of (state.searchScope === 'all' ? state.works : (work ? [work] : []))) {
+      const targets = state.searchScope === 'all' ? state.works : (work ? [work] : []);
+      for (const w of targets) {
         for (const f of (getActiveBranch(w)?.folders || [])) {
           for (const it of f.items) {
             if (`${it.title}\n${it.keywords || ''}\n${it.content || ''}`.toLowerCase().includes(q)) {
               const raw = `${it.keywords ? `[${it.keywords}] ` : ''}${it.content || ''}`;
-              const start = Math.max(0, raw.toLowerCase().indexOf(q) - 24);
+              const pos = raw.toLowerCase().indexOf(q);
+              const start = Math.max(0, pos - 24);
               const snippet = (start > 0 ? '...' : '') + raw.slice(start, start + 110) + (start + 110 < raw.length ? '...' : '');
               hits.push({ w, f, it, snippet });
             }
@@ -1486,10 +1556,10 @@
   function renderMain() {
     cmEditor = null;
     const main = $('mainPane');
-    if (isHome()) { renderHomeGallery(main); renderStatusbar(); return; }
+    if (isHome()) { renderHomeGallery(main); return renderStatusbar(); }
 
     const work = getActiveWork(), branch = getActiveBranch(work);
-    if (!work || !branch) { state.viewMode = 'home'; renderAll(); return; }
+    if (!work || !branch) { state.viewMode = 'home'; return renderAll(); }
 
     if (state.viewMode === 'loreCards' || state.viewMode === 'textCards') {
       const folder = branch.folders.find(f => f.id === state.activeFolderId);
@@ -1506,14 +1576,45 @@
   }
 
   /* ================= HOME GALLERY VIEW ================= */
-  function renderHomeGallery(main) {
-    const workStats = state.works.map(work => ({ work, stats: calcWorkPromptBreakdown(getActiveBranch(work)) }));
-    const totalWorks = workStats.length;
-    const syncedCount = workStats.filter(x => !x.work.dirty).length;
-    const totalTokensAll = workStats.reduce((sum, x) => sum + x.stats.tokens, 0);
+  function getFilteredHomeWorks(statsMap) {
+    const q = state.homeQuery.trim().toLowerCase();
+    const list = state.works
+      .filter(w => {
+        if (state.homeFilter === 'pinned' && !w.pinned) return false;
+        if (state.homeFilter === 'wip' && !w.dirty) return false;
+        if (state.homeFilter === 'synced' && w.dirty) return false;
+        if (state.homeFilter === 'encrypted' && !w.encrypted) return false;
+        if (state.homeTag && !(w.tags || []).includes(state.homeTag)) return false;
+        if (q && !`${w.title || ''}\n${w.summary || ''}\n${(w.tags || []).join(' ')}`.toLowerCase().includes(q)) return false;
+        return true;
+      })
+      .map(w => ({ work: w, stats: statsMap.get(w.id) }));
 
+    list.sort((a, b) => {
+      if (!!a.work.pinned !== !!b.work.pinned) return a.work.pinned ? -1 : 1;
+      if (state.homeSort === 'oldest') return (a.work.updatedAt || 0) - (b.work.updatedAt || 0);
+      if (state.homeSort === 'title') return (a.work.title || '').localeCompare(b.work.title || '', 'ko');
+      if (state.homeSort === 'tokens') return b.stats.tokens - a.stats.tokens;
+      if (state.homeSort === 'branches') return (b.work.branches?.length || 0) - (a.work.branches?.length || 0);
+      return (b.work.updatedAt || 0) - (a.work.updatedAt || 0);
+    });
+    return list;
+  }
+
+  function renderHomeGallery(main) {
+    const statsMap = new Map();
     const tagMap = new Map();
-    for (const { work: w } of workStats) for (const t of (w.tags || [])) tagMap.set(t, (tagMap.get(t) || 0) + 1);
+    let syncedCount = 0, totalTokensAll = 0;
+
+    for (const w of state.works) {
+      const s = calcWorkPromptBreakdown(getActiveBranch(w));
+      statsMap.set(w.id, s);
+      totalTokensAll += s.tokens;
+      if (!w.dirty) syncedCount++;
+      for (const t of (w.tags || [])) tagMap.set(t, (tagMap.get(t) || 0) + 1);
+    }
+
+    const totalWorks = state.works.length;
     const topTags = [...tagMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 14).map(([t]) => t);
     if (state.homeTag && !tagMap.has(state.homeTag)) state.homeTag = '';
 
@@ -1529,7 +1630,7 @@
               <span class="home-stats-sub hide-xs">누적 ${fmtShort(totalTokensAll)} 토큰</span>
             </div>
             <div class="home-controls">
-              ${state.deletedQueue.length ? `<button class="btn btn-sm btn-danger-soft" id="btnHomeSyncDel">${ICONS.cloud}<span>삭제 반영 (${state.deletedQueue.length})</span></button>` : ''}
+              ${state.deletedQueue.length ? `<button class="btn btn-sm" id="btnHomeSyncDel" style="color:var(--danger);border-color:var(--danger-soft);background:var(--danger-soft);">${ICONS.cloud}<span>삭제 반영 (${state.deletedQueue.length})</span></button>` : ''}
               <select class="home-sort-select" id="homeSortSelect" aria-label="정렬">
                 ${[['updated', '최신순'], ['oldest', '오래된 순'], ['title', '제목순'], ['tokens', '토큰순'], ['branches', '분기순']].map(([v, l]) =>
                   `<option value="${v}" ${state.homeSort === v ? 'selected' : ''}>${l}</option>`).join('')}
@@ -1550,23 +1651,67 @@
                   `<button type="button" class="filter-pill ${state.homeFilter === v ? 'active' : ''}" data-hfilter="${v}">${l}</button>`).join('')}
               </div>
             </div>
-            ${topTags.length ? `<div class="filter-pills" id="homeTagPills">${topTags.map(t =>
-              `<button type="button" class="filter-tag-pill ${state.homeTag === t ? 'active' : ''}" data-htag="${escHtml(t)}">#${escHtml(t)}</button>`).join('')}</div>` : ''}
+            ${topTags.length ? `
+              <div class="filter-pills" id="homeTagPills">
+                ${topTags.map(t => `<button type="button" class="filter-tag-pill ${state.homeTag === t ? 'active' : ''}" data-htag="${escHtml(t)}">#${escHtml(t)}</button>`).join('')}
+              </div>` : ''}
           </div>
 
           <div class="gallery-grid" id="galleryGrid"></div>
         </div>
       </div>`;
 
-    const refreshGrid = () => {
+    const renderGrid = () => {
       $('btnClearHomeSearch').classList.toggle('hidden', !state.homeQuery);
-      $('homeFilterPills').querySelectorAll('[data-hfilter]').forEach(b => b.classList.toggle('active', b.dataset.hfilter === state.homeFilter));
-      $('homeTagPills')?.querySelectorAll('[data-htag]').forEach(b => b.classList.toggle('active', b.dataset.htag === state.homeTag));
-      renderHomeGrid(workStats);
+      main.querySelectorAll('[data-hfilter]').forEach(b => b.classList.toggle('active', b.dataset.hfilter === state.homeFilter));
+      main.querySelectorAll('[data-htag]').forEach(b => b.classList.toggle('active', b.dataset.htag === state.homeTag));
+
+      const items = getFilteredHomeWorks(statsMap);
+      const grid = $('galleryGrid');
+      grid.innerHTML = items.length ? items.map(({ work: w, stats }) => {
+        const tags = w.tags || [], shownTags = tags.slice(0, 3), extraTags = tags.length - shownTags.length;
+        const initial = (w.title || 'W').trim().charAt(0).toUpperCase();
+        return `
+          <article class="gallery-card" data-open-work="${w.id}">
+            <div class="gallery-thumb" data-thumb-slot="${w.id}">
+              <div class="gallery-thumb-empty"><span class="gallery-thumb-letter">${escHtml(initial)}</span></div>
+              ${w.pinned ? `<div class="g-badge-tl"><span class="g-badge g-badge-pin">${ICONS.pin}<span>고정됨</span></span></div>` : ''}
+              <div class="g-badge-tr">
+                ${w.encrypted ? `<span class="g-badge g-badge-enc">${ICONS.lock}<span>암호화</span></span>` : ''}
+                <span class="g-badge g-badge-status ${w.dirty ? 'wip' : 'synced'}"><span class="s-dot"></span><span>${w.dirty ? '제작중' : '배포 완료'}</span></span>
+              </div>
+              <div class="g-badge-br">
+                <span class="g-badge g-badge-branch" title="플랫폼 분기 수">${ICONS.branch}<span>${w.branches?.length || 1}</span></span>
+              </div>
+            </div>
+            <div class="gallery-meta">
+              <div class="gallery-title-row">
+                <div class="gallery-title">${escHtml(w.title || '제목 없음')}</div>
+                <button type="button" class="tree-mini-btn" data-gmenu="${w.id}" title="작품 메뉴">${ICONS.moreV}</button>
+              </div>
+              <div class="gallery-summary">${escHtml(w.summary || '한 줄 소개가 비어 있습니다.')}</div>
+              ${tags.length ? `<div class="gallery-tags">${shownTags.map(t => `<span class="gallery-tag-link" data-pick-tag="${escHtml(t)}">#${escHtml(t)}</span>`).join('')}${extraTags > 0 ? `<span>+${extraTags}</span>` : ''}</div>` : ''}
+              <div class="gallery-foot-sub">
+                <span>${fmtShort(stats.tokens)} 토큰</span><span>·</span>
+                <span>${new Date(w.updatedAt || Date.now()).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}</span>
+              </div>
+            </div>
+          </article>`;
+      }).join('') : `
+        <div style="grid-column:1/-1;padding:64px 20px;text-align:center;color:var(--text-faint);display:flex;flex-direction:column;align-items:center;gap:12px;">
+          <div>${state.works.length ? '조건에 맞는 작품이 없습니다.' : '등록된 작품이 없습니다. 새 작품을 만들어 보세요.'}</div>
+          ${state.works.length ? '<button class="btn btn-sm" id="btnResetHomeFilter">필터 초기화</button>' : ''}
+        </div>`;
+
+      items.forEach(async ({ work: w }) => {
+        const src = await getWorkThumbSrc(w);
+        const empty = src && grid.querySelector(`[data-thumb-slot="${w.id}"] .gallery-thumb-empty`);
+        if (empty) empty.replaceWith(Object.assign(document.createElement('img'), { src, alt: w.title || '', loading: 'lazy' }));
+      });
     };
 
     $('btnHomeNewWork').onclick = createAndOpenNewWork;
-    $('homeSortSelect').onchange = (e) => { state.homeSort = e.target.value; refreshGrid(); };
+    $('homeSortSelect').onchange = (e) => { state.homeSort = e.target.value; renderGrid(); };
     if ($('btnHomeSyncDel')) {
       $('btnHomeSyncDel').onclick = async () => {
         try {
@@ -1577,21 +1722,23 @@
         } catch (e) { toast(e.message); }
       };
     }
-    $('homeSearchInput').oninput = (e) => { state.homeQuery = e.target.value; refreshGrid(); };
-    $('btnClearHomeSearch').onclick = () => { state.homeQuery = $('homeSearchInput').value = ''; refreshGrid(); $('homeSearchInput').focus(); };
+    $('homeSearchInput').oninput = (e) => { state.homeQuery = e.target.value; renderGrid(); };
+    $('btnClearHomeSearch').onclick = () => { state.homeQuery = $('homeSearchInput').value = ''; renderGrid(); $('homeSearchInput').focus(); };
     $('homeFilterPills').onclick = (e) => {
       const btn = e.target.closest('[data-hfilter]');
-      if (btn) { state.homeFilter = btn.dataset.hfilter; refreshGrid(); }
+      if (btn) { state.homeFilter = btn.dataset.hfilter; renderGrid(); }
     };
-    $('homeTagPills')?.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-htag]');
-      if (btn) { state.homeTag = state.homeTag === btn.dataset.htag ? '' : btn.dataset.htag; refreshGrid(); }
-    });
+    if ($('homeTagPills')) {
+      $('homeTagPills').onclick = (e) => {
+        const btn = e.target.closest('[data-htag]');
+        if (btn) { state.homeTag = state.homeTag === btn.dataset.htag ? '' : btn.dataset.htag; renderGrid(); }
+      };
+    }
     $('galleryGrid').onclick = (e) => {
       if (e.target.closest('#btnResetHomeFilter')) {
         state.homeQuery = $('homeSearchInput').value = '';
         state.homeFilter = 'all'; state.homeTag = '';
-        return refreshGrid();
+        return renderGrid();
       }
       const menuBtn = e.target.closest('[data-gmenu]');
       if (menuBtn) { e.stopPropagation(); return openGalleryQuickMenu(menuBtn, menuBtn.dataset.gmenu); }
@@ -1599,95 +1746,56 @@
       if (tagLink) {
         e.stopPropagation();
         state.homeTag = state.homeTag === tagLink.dataset.pickTag ? '' : tagLink.dataset.pickTag;
-        return refreshGrid();
+        return renderGrid();
       }
       const card = e.target.closest('[data-open-work]');
       if (card) enterWork(card.dataset.openWork, 'charInfo');
     };
 
-    refreshGrid();
+    renderGrid();
   }
 
-  function renderHomeGrid(workStats) {
-    const grid = $('galleryGrid');
-    if (!grid) return;
-    const q = state.homeQuery.trim().toLowerCase();
+  function openGalleryQuickMenu(anchor, workId) {
+    const work = state.works.find(w => w.id === workId);
+    if (!work) return;
+    const menu = showDropdown(anchor, `
+      <button class="dd-item" id="gqPin"><span>${work.pinned ? '상단 고정 해제' : '상단 고정'}</span>${ICONS.pin}</button>
+      <button class="dd-item" id="gqDup"><span>작품 복제</span>${ICONS.copy}</button>
+      <div class="dd-sep"></div>
+      <div class="dd-label">즉시 내보내기</div>
+      <button class="dd-item" id="gqTxt"><span>전체 TXT 내보내기</span>${ICONS.download}</button>
+      <button class="dd-item" id="gqCsv"><span>로어북 CSV 내보내기</span>${ICONS.table}</button>
+      <div class="dd-sep"></div>
+      <button class="dd-item" id="gqPush" style="color:var(--accent);font-weight:600;"><span>GitHub 단독 푸시</span>${ICONS.cloud}</button>
+      <button class="dd-item" id="gqDel" style="color:var(--danger);"><span>작품 삭제</span>${ICONS.trash}</button>`);
 
-    const items = workStats.filter(({ work: w }) => {
-      if (state.homeFilter === 'pinned' && !w.pinned) return false;
-      if (state.homeFilter === 'wip' && !w.dirty) return false;
-      if (state.homeFilter === 'synced' && w.dirty) return false;
-      if (state.homeFilter === 'encrypted' && !w.encrypted) return false;
-      if (state.homeTag && !(w.tags || []).includes(state.homeTag)) return false;
-      if (q && !`${w.title || ''}\n${w.summary || ''}\n${(w.tags || []).join(' ')}`.toLowerCase().includes(q)) return false;
-      return true;
-    }).sort((a, b) => {
-      if (!!a.work.pinned !== !!b.work.pinned) return a.work.pinned ? -1 : 1;
-      if (state.homeSort === 'oldest') return (a.work.updatedAt || 0) - (b.work.updatedAt || 0);
-      if (state.homeSort === 'title') return (a.work.title || '').localeCompare(b.work.title || '', 'ko');
-      if (state.homeSort === 'tokens') return b.stats.tokens - a.stats.tokens;
-      if (state.homeSort === 'branches') return (b.work.branches?.length || 0) - (a.work.branches?.length || 0);
-      return (b.work.updatedAt || 0) - (a.work.updatedAt || 0);
-    });
-
-    if (!items.length) {
-      grid.innerHTML = `<div class="empty-state">
-        <div>${state.works.length ? '조건에 맞는 작품이 없습니다.' : '등록된 작품이 없습니다. 새 작품을 만들어 보세요.'}</div>
-        ${state.works.length ? '<button class="btn btn-sm" id="btnResetHomeFilter">필터 초기화</button>' : ''}
-      </div>`;
-      return;
-    }
-
-    const toFetch = [];
-    grid.innerHTML = items.map(({ work: w, stats }) => {
-      const tags = w.tags || [], shownTags = tags.slice(0, 3), extraTags = tags.length - shownTags.length;
-      const cachedSrc = getCachedThumbSrc(w);
-      if (!cachedSrc && w.profile?.assetPath) toFetch.push(w);
-      return `
-        <article class="gallery-card" data-open-work="${w.id}">
-          <div class="gallery-thumb" data-thumb-slot="${w.id}">
-            ${cachedSrc
-              ? `<img src="${escHtml(cachedSrc)}" alt="${escHtml(w.title || '')}" loading="lazy" />`
-              : `<div class="gallery-thumb-empty"><span class="gallery-thumb-letter">${escHtml((w.title || 'W').trim().charAt(0).toUpperCase())}</span></div>`}
-            ${w.pinned ? `<div class="g-badge-tl"><span class="g-badge g-badge-pin">${ICONS.pin}<span>고정됨</span></span></div>` : ''}
-            <div class="g-badge-tr">
-              ${w.encrypted ? `<span class="g-badge g-badge-enc">${ICONS.lock}<span>암호화</span></span>` : ''}
-              <span class="g-badge g-badge-status ${w.dirty ? 'wip' : 'synced'}"><span class="s-dot"></span><span>${w.dirty ? '제작중' : '배포 완료'}</span></span>
-            </div>
-            <div class="g-badge-br">
-              <span class="g-badge g-badge-branch tabular" title="플랫폼 분기 수">${ICONS.branch}<span>${w.branches?.length || 1}</span></span>
-            </div>
-          </div>
-          <div class="gallery-meta">
-            <div class="gallery-title-row">
-              <div class="gallery-title">${escHtml(w.title || '제목 없음')}</div>
-              <button type="button" class="tree-mini-btn" data-gmenu="${w.id}" title="작품 메뉴">${ICONS.moreV}</button>
-            </div>
-            <div class="gallery-summary">${escHtml(w.summary || '한 줄 소개가 비어 있습니다.')}</div>
-            ${tags.length ? `<div class="gallery-tags">
-              ${shownTags.map(t => `<span class="gallery-tag-link" data-pick-tag="${escHtml(t)}">#${escHtml(t)}</span>`).join('')}
-              ${extraTags > 0 ? `<span>+${extraTags}</span>` : ''}
-            </div>` : ''}
-            <div class="gallery-foot-sub tabular">
-              <span>${fmtShort(stats.tokens)} 토큰</span><span>·</span>
-              <span>${new Date(w.updatedAt || Date.now()).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}</span>
-            </div>
-          </div>
-        </article>`;
-    }).join('');
-
-    toFetch.forEach(async (w) => {
-      const src = await getWorkThumbSrc(w);
-      const empty = src && grid.querySelector(`[data-thumb-slot="${w.id}"] .gallery-thumb-empty`);
-      if (empty) empty.replaceWith(Object.assign(document.createElement('img'), { src, alt: w.title || '', loading: 'lazy' }));
-    });
+    menu.querySelector('#gqPin').onclick = async () => {
+      closeDropdown();
+      work.pinned = !work.pinned;
+      await idb('works', 'put', work);
+      renderMain();
+      toast(work.pinned ? '작품을 상단에 고정했습니다.' : '상단 고정을 해제했습니다.');
+    };
+    menu.querySelector('#gqDup').onclick = async () => { closeDropdown(); await duplicateWork(work); };
+    menu.querySelector('#gqTxt').onclick = () => { closeDropdown(); exportWorkTxt(work); };
+    menu.querySelector('#gqCsv').onclick = () => { closeDropdown(); exportLorebookCsv(work); };
+    menu.querySelector('#gqPush').onclick = async () => {
+      closeDropdown();
+      try { toast(`'${work.title || '제목 없음'}' GitHub 푸시 중...`); await pushWorkToGitHub(work); toast('GitHub 단독 푸시 완료!'); }
+      catch (e) { toast(e.message); }
+    };
+    menu.querySelector('#gqDel').onclick = async () => { closeDropdown(); await deleteWorkById(work.id); };
   }
 
-  /* ================= CHARACTER INFO VIEW (1:1 PROFILE) ================= */
+  /* ================= CHARACTER INFO VIEW (1:1 PROFILE + TEMPLATES) ================= */
   function renderCharInfoView(main, work) {
     const titleLen = (work.title || '').length, sumLen = (work.summary || '').length;
     const { assetPath = '', externalUrl = '' } = work.profile || {};
-    const cachedThumb = getCachedThumbSrc(work);
+    const branch = getActiveBranch(work);
+    const defTpl = getDefaultTemplate();
+    if (!state.selectedTemplateId || (state.selectedTemplateId !== BUILTIN_TPL_ID && !state.templates.some(t => t.id === state.selectedTemplateId))) {
+      state.selectedTemplateId = defTpl?.id || state.templates[0]?.id || BUILTIN_TPL_ID;
+    }
 
     main.innerHTML = `
       <div class="char-info-page">
@@ -1697,9 +1805,7 @@
         </div>
         <div class="char-info-section">
           <div class="char-profile-row">
-            <div class="profile-box" id="profilePreviewBox">
-              ${cachedThumb ? `<img src="${escHtml(cachedThumb)}" alt="profile" />` : `${ICONS.image}<span style="font-size:12px;margin-top:6px;">1:1 프로필 이미지</span>`}
-            </div>
+            <div class="profile-box" id="profilePreviewBox">${ICONS.image}<span style="font-size:12px;margin-top:6px;">1:1 프로필 이미지</span></div>
             <div class="profile-controls">
               <div style="display:flex;gap:8px;flex-wrap:wrap;">
                 <input type="file" id="profileFileInput" accept="image/*" style="display:none;" />
@@ -1726,11 +1832,27 @@
           <div class="field-label-row"><span class="field-label">해시태그 (쉼표로 구분)</span><span class="field-counter" id="tagsCounter">${(work.tags || []).length}개</span></div>
           <input class="field-input" id="charTagsInput" value="${escHtml((work.tags || []).join(', '))}" placeholder="예: 학교, 도서관, 판타지" />
         </div>
+        <div class="char-info-section" style="border-bottom:none;">
+          <div class="field-label-row">
+            <span class="field-label">${ICONS.layers}<span>프롬프트 템플릿</span></span>
+            <span class="field-counter" id="tplDefaultLabel"></span>
+          </div>
+          <div class="tpl-box">
+            <div class="tpl-controls-row">
+              <select class="form-select tpl-select" id="tplSelect" aria-label="템플릿 선택"></select>
+              <button class="btn btn-sm btn-primary" id="btnSaveTemplate">${ICONS.save}<span>현재 구조 템플릿 저장</span></button>
+              <button class="btn btn-sm" id="btnApplyTemplate">${ICONS.refresh}<span>템플릿으로 덮어씌우기</span></button>
+              <button class="btn btn-sm" id="btnToggleDefaultTpl"></button>
+              <button class="btn btn-ghost btn-sm" id="btnDeleteTemplate" style="color:var(--danger);">${ICONS.trash}<span>삭제</span></button>
+            </div>
+            <div class="tpl-summary-note" id="tplSummaryNote"></div>
+          </div>
+        </div>
       </div>`;
 
-    if (!cachedThumb && assetPath) {
-      getWorkThumbSrc(work).then(src => { if (src && $('profilePreviewBox')) $('profilePreviewBox').innerHTML = `<img src="${escHtml(src)}" alt="profile" />`; });
-    }
+    getWorkThumbSrc(work).then(src => {
+      if (src && $('profilePreviewBox')) $('profilePreviewBox').innerHTML = `<img src="${escHtml(src)}" alt="profile" />`;
+    });
 
     $('btnUploadProfile').onclick = () => $('profileFileInput').click();
     $('profileFileInput').onchange = async (e) => { if (e.target.files?.[0]) await saveProfileAsset(work, e.target.files[0]); };
@@ -1763,6 +1885,105 @@
       scheduleWorkSave(work); renderSidebar();
     };
 
+    /* Template Section Logic */
+    const syncTemplateUI = () => {
+      const activeDef = getDefaultTemplate();
+      $('tplDefaultLabel').textContent = `새 작품 기본값: ${activeDef ? activeDef.name : '앱 기본 폴더'}`;
+
+      const sel = $('tplSelect');
+      sel.innerHTML = [
+        ...state.templates.map(t => `<option value="${t.id}" ${t.id === state.selectedTemplateId ? 'selected' : ''}>${t.id === state.defaultTemplateId ? '★ ' : ''}${escHtml(t.name)}</option>`),
+        `<option value="${BUILTIN_TPL_ID}" ${state.selectedTemplateId === BUILTIN_TPL_ID ? 'selected' : ''}>앱 기본 폴더 (초기값)</option>`
+      ].join('');
+
+      const cur = resolveTemplateById(state.selectedTemplateId);
+      const isDef = !cur.isBuiltin && cur.id === state.defaultTemplateId;
+      const defBtn = $('btnToggleDefaultTpl');
+      defBtn.classList.toggle('hidden', cur.isBuiltin);
+      defBtn.classList.toggle('btn-accent-soft', isDef);
+      defBtn.innerHTML = `${ICONS.star}<span>${isDef ? '새 작품 기본값 해제' : '새 작품 기본값 지정'}</span>`;
+      $('btnDeleteTemplate').classList.toggle('hidden', cur.isBuiltin);
+
+      const folderList = cur.folders.map(f => `${f.name}(${(f.items || []).length})`).join(' · ');
+      $('tplSummaryNote').innerHTML = `
+        <div><strong>선택 템플릿 구성 (${cur.folders.length}개 폴더):</strong> ${escHtml(folderList || '빈 구조')}</div>
+        <div style="margin-top:3px;color:var(--text-faint);">현재 분기(<strong>${escHtml(branch?.name || '')}</strong>)의 폴더·항목 구조를 템플릿으로 저장하거나 덮어씌울 수 있습니다.</div>`;
+    };
+
+    $('tplSelect').onchange = (e) => { state.selectedTemplateId = e.target.value; syncTemplateUI(); };
+
+    $('btnSaveTemplate').onclick = () => {
+      if (!branch) return;
+      openSimpleFormModal('현재 구조를 템플릿으로 저장', [
+        { id: 'name', label: '템플릿 이름 (같은 이름 입력 시 덮어쓰기)', value: `${work.title || '내 커스텀'} 템플릿`, placeholder: '예: 리루챗 기본 뼈대' },
+        { id: 'mode', label: '저장 방식', type: 'select', value: 'full', options: [
+          { value: 'full', label: '내용 포함 저장 (공통 규칙·상태창 등 유지)' },
+          { value: 'skeleton', label: '구조만 저장 (폴더·항목 제목만, 내용 비움)' }
+        ]},
+        { id: 'setDefault', label: '새 작품 생성 시 기본 템플릿으로 자동 적용', type: 'checkbox', checked: true }
+      ], ({ name, mode, setDefault }) => {
+        const cleanName = name.trim();
+        if (!cleanName) return toast('템플릿 이름을 입력해 주세요.');
+        const folders = cloneFoldersFresh(branch.folders, mode === 'skeleton');
+        const existing = state.templates.find(t => t.name === cleanName);
+        let targetId;
+        if (existing) {
+          existing.folders = folders;
+          existing.updatedAt = Date.now();
+          targetId = existing.id;
+        } else {
+          const nt = { id: uid('tpl'), name: cleanName, folders, updatedAt: Date.now() };
+          state.templates.unshift(nt);
+          targetId = nt.id;
+        }
+        if (setDefault) state.defaultTemplateId = targetId;
+        state.selectedTemplateId = targetId;
+        persistTemplates();
+        syncTemplateUI();
+        toast(`'${cleanName}' 템플릿을 저장했습니다.${setDefault ? ' (새 작품 기본값 지정)' : ''}`);
+      });
+    };
+
+    $('btnApplyTemplate').onclick = async () => {
+      if (!branch) return;
+      const target = resolveTemplateById(state.selectedTemplateId);
+      if (!confirm(`현재 분기('${branch.name}')의 모든 폴더와 항목을\n'${target.name}' 구조로 덮어씌울까요?\n\n(덮어쓰기 전 현재 상태는 로컬 스냅샷에 자동 백업됩니다.)`)) return;
+      await saveLocalSnapshot(work, `템플릿 덮어쓰기 직전 백업 (${branch.name})`);
+      branch.folders = cloneFoldersFresh(target.folders);
+      state.activeFolderId = null;
+      state.activeItemId = null;
+      scheduleWorkSave(work);
+      renderSidebar();
+      renderStatusbar();
+      toast(`'${target.name}' 템플릿을 적용했습니다.`);
+    };
+
+    $('btnToggleDefaultTpl').onclick = () => {
+      const cur = resolveTemplateById(state.selectedTemplateId);
+      if (cur.isBuiltin) return;
+      if (state.defaultTemplateId === cur.id) {
+        state.defaultTemplateId = '';
+        toast('새 작품 기본 템플릿 지정을 해제했습니다.');
+      } else {
+        state.defaultTemplateId = cur.id;
+        toast(`이제 새 작품 생성 시 '${cur.name}' 템플릿으로 시작합니다.`);
+      }
+      persistTemplates();
+      syncTemplateUI();
+    };
+
+    $('btnDeleteTemplate').onclick = () => {
+      const cur = resolveTemplateById(state.selectedTemplateId);
+      if (cur.isBuiltin || !confirm(`'${cur.name}' 템플릿을 삭제할까요?`)) return;
+      state.templates = state.templates.filter(t => t.id !== cur.id);
+      if (state.defaultTemplateId === cur.id) state.defaultTemplateId = '';
+      state.selectedTemplateId = state.defaultTemplateId || state.templates[0]?.id || BUILTIN_TPL_ID;
+      persistTemplates();
+      syncTemplateUI();
+      toast('템플릿을 삭제했습니다.');
+    };
+
+    syncTemplateUI();
     if (work._justCreated) { delete work._justCreated; setTimeout(() => $('charTitleInput')?.focus(), 40); }
   }
 
@@ -1783,12 +2004,11 @@
       </div>
       <div class="cards-scroll"><div class="${isLore ? 'lore-grid' : 'text-stack'}" id="cardsList"></div></div>`;
 
-    const rerender = () => renderCardsView(main, work, folder, isLore);
     $('btnCardAdd').onclick = () => {
       const it = mkItem(`${isLore ? '새 로어북' : '새 항목'} ${folder.items.length + 1}`, isLore ? 'lorebook' : 'text');
       folder.items.push(it);
       state.editingCardIds.add(it.id);
-      scheduleWorkSave(work); renderSidebar(); rerender();
+      scheduleWorkSave(work); renderSidebar(); renderCardsView(main, work, folder, isLore);
     };
     $('btnCardSubAction').onclick = () => {
       if (isLore) exportLorebookCsv(work, folder);
@@ -1804,14 +2024,16 @@
     list.innerHTML = folder.items.map(it => {
       if (state.editingCardIds.has(it.id)) {
         return `
-          <div class="item-card"><div class="card-edit-box">
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
-              <input class="form-input" data-field="title" data-id="${it.id}" value="${escHtml(it.title)}" placeholder="항목 제목" style="flex:1;height:30px;font-weight:600;" />
-              <button class="btn btn-primary btn-xs" data-act="done" data-id="${it.id}">${ICONS.check}<span>완료</span></button>
+          <div class="item-card">
+            <div class="card-edit-box">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+                <input class="form-input" data-field="title" data-id="${it.id}" value="${escHtml(it.title)}" placeholder="항목 제목" style="flex:1;height:30px;font-weight:600;" />
+                <button class="btn btn-primary btn-xs" data-act="done" data-id="${it.id}">${ICONS.check}<span>완료</span></button>
+              </div>
+              ${isLore ? `<input class="form-input" data-field="keywords" data-id="${it.id}" value="${escHtml(it.keywords || '')}" placeholder="키워드 (쉼표 구분)" style="height:29px;font-size:12.5px;" />` : ''}
+              <textarea class="card-edit-textarea" ${isLore ? '' : 'style="min-height:220px;"'} data-field="content" data-id="${it.id}" placeholder="${isLore ? '로어북 내용 (마크다운 강조 지원)' : '프롬프트 내용'}">${escHtml(it.content || '')}</textarea>
             </div>
-            ${isLore ? `<input class="form-input" data-field="keywords" data-id="${it.id}" value="${escHtml(it.keywords || '')}" placeholder="키워드 (쉼표 구분)" style="height:29px;font-size:12.5px;" />` : ''}
-            <textarea class="card-edit-textarea" ${isLore ? '' : 'style="min-height:220px;"'} data-field="content" data-id="${it.id}" placeholder="${isLore ? '로어북 내용 (마크다운 강조 지원)' : '프롬프트 내용'}">${escHtml(it.content || '')}</textarea>
-          </div></div>`;
+          </div>`;
       }
       const kws = isLore ? splitCsv(it.keywords) : [];
       return `
@@ -1819,7 +2041,7 @@
           <div class="card-head">
             <div class="card-head-top">
               <span class="card-title">${escHtml(it.title)}</span>
-              ${isLore ? '' : `<span style="font-size:11.5px;color:var(--text-faint);margin-right:6px;">${fmtNum((it.content || '').length)}자 · ${fmtNum(estimateTokens(it.content))}토큰</span>`}
+              ${isLore ? '' : `<span style="font-size:11.5px;color:var(--text-faint);margin-right:6px;">${fmtMetric(it.content)}</span>`}
               <div class="card-actions">
                 <button class="tree-mini-btn" data-act="copy" data-id="${it.id}" title="복사">${ICONS.copy}</button>
                 <button class="tree-mini-btn" data-act="edit" data-id="${it.id}" title="${isLore ? '카드에서 편집' : '바로 편집'}">${ICONS.edit}</button>
@@ -1833,6 +2055,7 @@
         </div>`;
     }).join('');
 
+    const rerender = () => renderCardsView(main, work, folder, isLore);
     list.onclick = (e) => {
       const btn = e.target.closest('[data-act]');
       if (!btn) return;
@@ -1870,7 +2093,7 @@
           <input class="crumb-title-input" id="editorItemTitle" value="${escHtml(item.title)}" title="클릭하여 항목 이름 수정" />
         </div>
         <div class="main-tools">
-          <span class="item-inline-metric hide-xs" id="editorItemMetric">${fmtNum((item.content || '').length)}자 · ${fmtNum(estimateTokens(item.content))}토큰</span>
+          <span class="item-inline-metric hide-xs" id="editorItemMetric">${fmtMetric(item.content)}</span>
           <select class="form-select" id="editorItemType" style="height:28px;font-size:12px;padding:0 8px;">
             ${[['text', '텍스트'], ['lorebook', '로어북'], ['html', 'HTML'], ['jsx', 'JSX']].map(([v, l]) =>
               `<option value="${v}" ${item.type === v ? 'selected' : ''}>${l}</option>`).join('')}
@@ -1919,7 +2142,7 @@
       item.content = val;
       scheduleWorkSave(work);
       const mEl = $('editorItemMetric');
-      if (mEl) mEl.textContent = `${fmtNum(val.length)}자 · ${fmtNum(estimateTokens(val))}토큰`;
+      if (mEl) mEl.textContent = fmtMetric(val);
       renderStatusbar();
       if (isCode && state.showPreview) { clearTimeout(previewTimer); previewTimer = setTimeout(() => updateCodePreview(item), 380); }
     };
@@ -1959,17 +2182,23 @@
       <style>${baseStyle}${errStyle}</style>
     </head><body><div id="root"></div><script>
       try {
-        const __render = el => ReactDOM.createRoot(document.getElementById("root")).render(el);
-        let src = ${JSON.stringify(code)}.trim().replace(/import\\s+.*?from\\s+['"][^'"]+['"];?/g, '');
-        if (/export\\s+default\\s+/.test(src)) {
+        let src = ${JSON.stringify(code)}.trim();
+        const hasDef = /export\\s+default\\s+/.test(src);
+        src = src.replace(/import\\s+.*?from\\s+['"][^'"]+['"];?/g, '');
+        if (hasDef) {
           src = src.replace(/export\\s+default\\s+function\\s+([A-Za-z0-9_]+)/, 'function $1');
           const m = src.match(/function\\s+([A-Za-z0-9_]+)/);
-          src = src.includes('export default')
-            ? src.replace(/export\\s+default\\s+/, 'const __Def__ = ') + '\\n__render(React.createElement(__Def__));'
-            : src + (m ? '\\n__render(React.createElement(' + m[1] + '));' : '');
-        } else if (src.startsWith('<')) src = '__render(' + src + ');';
-        else src += '\\nif(typeof App!=="undefined") __render(React.createElement(App));';
-        new Function('React', 'ReactDOM', '__render', Babel.transform(src, { presets: ['react'] }).code)(React, ReactDOM, __render);
+          if (src.includes('export default')) {
+            src = src.replace(/export\\s+default\\s+/, 'const __DefaultExport__ = ') + '\\nReactDOM.createRoot(document.getElementById("root")).render(React.createElement(__DefaultExport__));';
+          } else if (m) {
+            src += '\\nReactDOM.createRoot(document.getElementById("root")).render(React.createElement(' + m[1] + '));';
+          }
+        } else if (src.startsWith('<')) {
+          src = 'ReactDOM.createRoot(document.getElementById("root")).render(' + src + ');';
+        } else {
+          src += '\\nif(typeof App!=="undefined") ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));';
+        }
+        new Function('React', 'ReactDOM', Babel.transform(src, { presets: ['react'] }).code)(React, ReactDOM);
       } catch (err) {
         document.getElementById('root').innerHTML = '<div class="err">' + String(err.message || err).replace(/</g, '&lt;') + '</div>';
       }
@@ -1981,7 +2210,7 @@
 
   function renderStatusbar() {
     const bar = $('statusbar'), work = getActiveWork(), branch = getActiveBranch(work);
-    if (isHome() || !work || !branch) { bar.classList.add('hidden'); closeTokenPopover(); return; }
+    if (isHome() || !work || !branch) { bar.classList.add('hidden'); return closeTokenPopover(); }
     bar.classList.remove('hidden');
 
     const stats = calcWorkPromptBreakdown(branch);
@@ -1995,7 +2224,6 @@
     const sumEl = $('tokenSummary');
     sumEl.classList.toggle('over', stats.tokens > state.tokenBudget);
     sumEl.innerHTML = `<strong>${fmtNum(stats.chars)}자</strong><span>입력</span><span class="tok-num">${fmtNum(stats.tokens)} 토큰</span>`;
-
     if (state.showTokenPopover) renderTokenPopover(stats, branch);
   }
 
@@ -2041,39 +2269,39 @@
   }
 
   function adaptItemTypeForFolder(item, targetFolder) {
-    if ((targetFolder.kind === 'lorebook' && item.type === 'text') ||
-        (targetFolder.kind === 'text' && item.type === 'lorebook') ||
-        (targetFolder.kind === 'code' && item.type !== 'html' && item.type !== 'jsx')) {
-      item.type = defaultItemType(targetFolder);
-    }
+    if (targetFolder.kind === 'lorebook' && item.type === 'text') item.type = 'lorebook';
+    else if (targetFolder.kind === 'text' && item.type === 'lorebook') item.type = 'text';
+    else if (targetFolder.kind === 'code' && item.type !== 'html' && item.type !== 'jsx') item.type = defaultItemType(targetFolder);
   }
 
   function moveFolder(branch, fromId, toId, placeAfter) {
     const fromIdx = branch.folders.findIndex(f => f.id === fromId);
-    if (fromIdx < 0 || fromId === toId || !branch.folders.some(f => f.id === toId)) return false;
+    let toIdx = branch.folders.findIndex(f => f.id === toId);
+    if (fromIdx < 0 || toIdx < 0 || fromIdx === toIdx) return false;
     const [moved] = branch.folders.splice(fromIdx, 1);
-    const toIdx = branch.folders.findIndex(f => f.id === toId);
+    toIdx = branch.folders.findIndex(f => f.id === toId);
     branch.folders.splice(placeAfter ? toIdx + 1 : toIdx, 0, moved);
     return true;
   }
 
   function moveItem(branch, fromFid, itemId, toFid, toItemId = null, placeAfter = false) {
-    const src = branch.folders.find(f => f.id === fromFid), dst = branch.folders.find(f => f.id === toFid);
-    if (!src || !dst || (fromFid === toFid && itemId === toItemId)) return false;
-    const fromIdx = src.items.findIndex(i => i.id === itemId);
-    if (fromIdx < 0) return false;
+    const srcFolder = branch.folders.find(f => f.id === fromFid);
+    const dstFolder = branch.folders.find(f => f.id === toFid);
+    if (!srcFolder || !dstFolder) return false;
+    const fromIdx = srcFolder.items.findIndex(i => i.id === itemId);
+    if (fromIdx < 0 || (fromFid === toFid && itemId === toItemId)) return false;
 
-    const [moved] = src.items.splice(fromIdx, 1);
-    if (fromFid !== toFid) adaptItemTypeForFolder(moved, dst);
+    const [moved] = srcFolder.items.splice(fromIdx, 1);
+    if (fromFid !== toFid) adaptItemTypeForFolder(moved, dstFolder);
 
     if (toItemId) {
-      const targetIdx = dst.items.findIndex(i => i.id === toItemId);
-      dst.items.splice(targetIdx < 0 ? dst.items.length : (placeAfter ? targetIdx + 1 : targetIdx), 0, moved);
+      const targetIdx = dstFolder.items.findIndex(i => i.id === toItemId);
+      dstFolder.items.splice(targetIdx < 0 ? dstFolder.items.length : (placeAfter ? targetIdx + 1 : targetIdx), 0, moved);
     } else {
-      dst.items.push(moved);
-      dst.collapsed = false;
+      dstFolder.items.push(moved);
+      dstFolder.collapsed = false;
     }
-    if (state.activeItemId === itemId) state.activeFolderId = dst.id;
+    if (state.activeItemId === itemId) state.activeFolderId = dstFolder.id;
     return true;
   }
 
@@ -2085,10 +2313,13 @@
       if (state.searchQuery.trim()) return e.preventDefault();
       const itemEl = e.target.closest('.tree-item[data-iselect]');
       const folderEl = e.target.closest('.tree-folder-row[data-ftoggle]');
-      if (itemEl) dragState = { kind: 'item', folderId: itemEl.dataset.fid, itemId: itemEl.dataset.iselect };
-      else if (folderEl) dragState = { kind: 'folder', folderId: folderEl.dataset.ftoggle };
-      else return;
-      (itemEl || folderEl).classList.add('dragging');
+      if (itemEl) {
+        dragState = { kind: 'item', folderId: itemEl.dataset.fid, itemId: itemEl.dataset.iselect };
+        itemEl.classList.add('dragging');
+      } else if (folderEl) {
+        dragState = { kind: 'folder', folderId: folderEl.dataset.ftoggle };
+        folderEl.classList.add('dragging');
+      } else return;
       e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setData('text/plain', dragState.itemId || dragState.folderId);
     });
@@ -2119,32 +2350,33 @@
       const work = getActiveWork(), branch = getActiveBranch(work);
       const itemEl = e.target.closest('.tree-item[data-iselect]');
       const folderEl = e.target.closest('.tree-folder-row[data-ftoggle]');
-      let changed = false, crossFolderName = '';
+      let changed = false, dstFid = '';
 
       if (branch) {
         if (dragState.kind === 'folder' && folderEl) {
           changed = moveFolder(branch, dragState.folderId, folderEl.dataset.ftoggle, isAfterMid(folderEl, e.clientY));
         } else if (dragState.kind === 'item' && (itemEl || folderEl)) {
-          const dstFid = itemEl ? itemEl.dataset.fid : folderEl.dataset.ftoggle;
-          changed = moveItem(branch, dragState.folderId, dragState.itemId, dstFid, itemEl?.dataset.iselect || null, itemEl ? isAfterMid(itemEl, e.clientY) : true);
-          if (changed && dstFid !== dragState.folderId) crossFolderName = branch.folders.find(f => f.id === dstFid)?.name || '';
+          dstFid = itemEl ? itemEl.dataset.fid : folderEl.dataset.ftoggle;
+          changed = moveItem(branch, dragState.folderId, dragState.itemId, dstFid, itemEl ? itemEl.dataset.iselect : null, itemEl ? isAfterMid(itemEl, e.clientY) : true);
         }
       }
+      const movedAcross = changed && dragState.kind === 'item' && dstFid && dstFid !== dragState.folderId;
       clearDragVisuals();
       dragState = null;
 
       if (changed && work) {
         scheduleWorkSave(work);
-        renderSidebar(); renderStatusbar();
+        renderSidebar();
+        renderStatusbar();
         if (state.viewMode !== 'charInfo') renderMain();
-        if (crossFolderName) toast(`'${crossFolderName}' 폴더로 이동했습니다.`);
+        if (movedAcross) toast(`'${branch.folders.find(f => f.id === dstFid)?.name}' 폴더로 이동했습니다.`);
       }
     });
 
     tree.addEventListener('dragend', () => { clearDragVisuals(); dragState = null; });
   }
 
-  /* ================= UNIFIED DROPDOWNS & MODALS ================= */
+  /* ================= DROPDOWNS & MODALS ================= */
   const closeDropdown = () => { $('dropdownRoot').innerHTML = ''; };
 
   function showDropdown(anchorEl, html) {
@@ -2158,140 +2390,133 @@
     return menu;
   }
 
-  function openMenu(anchor, rawEntries) {
-    const entries = rawEntries.filter(Boolean);
-    const menu = showDropdown(anchor, entries.map((e, i) => {
-      if (e === 'sep') return '<div class="dd-sep"></div>';
-      if (e.header) return `<div class="dd-label">${escHtml(e.header)}</div>`;
-      return `<button class="dd-item ${e.active ? 'active' : ''} ${e.cls || ''}" data-mi="${i}">
-        <span class="ellipsis">${escHtml(e.label)}</span>${e.icon || ''}
-      </button>`;
-    }).join(''));
-    menu.onclick = (ev) => {
-      const btn = ev.target.closest('[data-mi]');
-      if (!btn) return;
-      const entry = entries[Number(btn.dataset.mi)];
-      closeDropdown();
-      entry?.onClick?.();
-    };
-  }
-
-  function openGalleryQuickMenu(anchor, workId) {
-    const work = state.works.find(w => w.id === workId);
-    if (!work) return;
-    openMenu(anchor, [
-      { label: work.pinned ? '상단 고정 해제' : '상단 고정', icon: ICONS.pin, onClick: async () => {
-        work.pinned = !work.pinned; await idb('works', 'put', work); renderMain();
-        toast(work.pinned ? '작품을 상단에 고정했습니다.' : '상단 고정을 해제했습니다.');
-      }},
-      { label: '작품 복제', icon: ICONS.copy, onClick: () => duplicateWork(work) },
-      'sep',
-      { header: '즉시 내보내기' },
-      { label: '전체 TXT 내보내기', icon: ICONS.download, onClick: () => exportWorkTxt(work) },
-      { label: '로어북 CSV 내보내기', icon: ICONS.table, onClick: () => exportLorebookCsv(work) },
-      'sep',
-      { label: 'GitHub 단독 푸시', icon: ICONS.cloud, cls: 'dd-accent', onClick: async () => {
-        try { toast(`'${work.title || '제목 없음'}' GitHub 푸시 중...`); await pushWorkToGitHub(work); toast('GitHub 단독 푸시 완료!'); }
-        catch (e) { toast(e.message); }
-      }},
-      { label: '작품 삭제', icon: ICONS.trash, cls: 'dd-danger', onClick: () => deleteWorkById(work.id) }
-    ]);
-  }
-
   function openWorkMenu(anchor) {
     const sorted = [...state.works].sort((a, b) => (!!b.pinned - !!a.pinned) || ((b.updatedAt || 0) - (a.updatedAt || 0)));
-    openMenu(anchor, [
-      { header: `내 작품 목록 (${state.works.length})` },
-      ...sorted.map(w => ({
-        label: `${w.pinned ? '📌 ' : ''}${w.title || '제목 없음'}`,
-        icon: w.encrypted ? ICONS.lock : '',
-        active: w.id === state.activeWorkId,
-        onClick: () => enterWork(w.id, 'charInfo')
-      })),
-      'sep',
-      { label: '홈 갤러리 보기', icon: ICONS.home, onClick: () => { state.viewMode = 'home'; renderAll(); } },
-      { label: '새 작품 만들기', icon: ICONS.plus, cls: 'dd-accent', onClick: createAndOpenNewWork },
-      { label: '현재 작품 삭제', icon: ICONS.trash, cls: 'dd-danger', onClick: () => { const w = getActiveWork(); if (w) deleteWorkById(w.id); } }
-    ]);
+    const menu = showDropdown(anchor, `
+      <div class="dd-label">내 작품 목록 (${state.works.length})</div>
+      ${sorted.map(w => `
+        <button class="dd-item ${w.id === state.activeWorkId ? 'active' : ''}" data-pick-work="${w.id}">
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${w.pinned ? '📌 ' : ''}${escHtml(w.title || '제목 없음')}</span>
+          ${w.encrypted ? ICONS.lock : ''}
+        </button>`).join('')}
+      <div class="dd-sep"></div>
+      <button class="dd-item" id="ddGoHome"><span>홈 갤러리 보기</span>${ICONS.home}</button>
+      <button class="dd-item" id="ddNewWork" style="color:var(--accent);font-weight:600;"><span>새 작품 만들기</span>${ICONS.plus}</button>
+      <button class="dd-item" id="ddDeleteWork" style="color:var(--danger);"><span>현재 작품 삭제</span>${ICONS.trash}</button>`);
+
+    menu.querySelectorAll('[data-pick-work]').forEach(b => { b.onclick = () => enterWork(b.dataset.pickWork, 'charInfo'); });
+    menu.querySelector('#ddGoHome').onclick = () => { closeDropdown(); state.viewMode = 'home'; renderAll(); };
+    menu.querySelector('#ddNewWork').onclick = async () => { closeDropdown(); await createAndOpenNewWork(); };
+    menu.querySelector('#ddDeleteWork').onclick = async () => { closeDropdown(); const w = getActiveWork(); if (w) await deleteWorkById(w.id); };
   }
 
   function openBranchMenu(anchor) {
     const work = getActiveWork();
     if (!work) return;
-    openMenu(anchor, [
-      { header: '플랫폼별 버전 분기' },
-      ...work.branches.map(b => ({
-        label: b.name, active: b.id === work.activeBranchId, icon: b.id === work.activeBranchId ? ICONS.check : '',
-        onClick: () => { work.activeBranchId = b.id; state.viewMode = 'charInfo'; scheduleWorkSave(work); renderAll(); }
-      })),
-      'sep',
-      { label: '현재 분기 복제하여 추가', icon: ICONS.plus, cls: 'dd-accent', onClick: () => {
-        openSimpleFormModal('새 플랫폼 분기 추가', [{ id: 'name', label: '플랫폼/버전 이름', placeholder: '예: 리루챗, 티팟, 커스텀' }], ({ name }) => {
-          if (!name.trim()) return;
-          const nb = { id: uid('br'), name: name.trim(), folders: clone(getActiveBranch(work).folders) };
-          work.branches.push(nb); work.activeBranchId = nb.id;
-          scheduleWorkSave(work); renderAll(); toast(`'${nb.name}' 분기를 생성했습니다.`);
-        });
-      }},
-      { label: '현재 분기 이름 변경', icon: ICONS.edit, onClick: () => {
-        const cur = getActiveBranch(work);
-        openSimpleFormModal('분기 이름 변경', [{ id: 'name', label: '새 이름', value: cur.name }], ({ name }) => {
-          if (!name.trim()) return;
-          cur.name = name.trim(); scheduleWorkSave(work); renderTopbar(); renderStatusbar();
-        });
-      }},
-      work.branches.length > 1 && { label: '현재 분기 삭제', icon: ICONS.trash, cls: 'dd-danger', onClick: () => {
-        const cur = getActiveBranch(work);
-        if (!confirm(`'${cur.name}' 분기를 삭제할까요?`)) return;
-        work.branches = work.branches.filter(b => b.id !== cur.id);
-        work.activeBranchId = work.branches[0].id; state.viewMode = 'charInfo';
+    const menu = showDropdown(anchor, `
+      <div class="dd-label">플랫폼별 버전 분기</div>
+      ${work.branches.map(b => `
+        <button class="dd-item ${b.id === work.activeBranchId ? 'active' : ''}" data-pick-br="${b.id}">
+          <span>${escHtml(b.name)}</span>${b.id === work.activeBranchId ? ICONS.check : ''}
+        </button>`).join('')}
+      <div class="dd-sep"></div>
+      <button class="dd-item" id="ddAddBranch" style="color:var(--accent);font-weight:600;"><span>현재 분기 복제하여 추가</span>${ICONS.plus}</button>
+      <button class="dd-item" id="ddRenameBranch"><span>현재 분기 이름 변경</span>${ICONS.edit}</button>
+      ${work.branches.length > 1 ? `<button class="dd-item" id="ddDelBranch" style="color:var(--danger);"><span>현재 분기 삭제</span>${ICONS.trash}</button>` : ''}`);
+
+    menu.querySelectorAll('[data-pick-br]').forEach(b => {
+      b.onclick = () => { work.activeBranchId = b.dataset.pickBr; state.viewMode = 'charInfo'; scheduleWorkSave(work); closeDropdown(); renderAll(); };
+    });
+    menu.querySelector('#ddAddBranch').onclick = () => {
+      closeDropdown();
+      openSimpleFormModal('새 플랫폼 분기 추가', [{ id: 'name', label: '플랫폼/버전 이름', placeholder: '예: 리루챗, 티팟, 커스텀' }], ({ name }) => {
+        if (!name.trim()) return;
+        const nb = { id: uid('br'), name: name.trim(), folders: clone(getActiveBranch(work).folders) };
+        work.branches.push(nb); work.activeBranchId = nb.id;
         scheduleWorkSave(work); renderAll();
-      }}
-    ]);
+        toast(`'${nb.name}' 분기를 생성했습니다.`);
+      });
+    };
+    menu.querySelector('#ddRenameBranch').onclick = () => {
+      closeDropdown();
+      const cur = getActiveBranch(work);
+      openSimpleFormModal('분기 이름 변경', [{ id: 'name', label: '새 이름', value: cur.name }], ({ name }) => {
+        if (!name.trim()) return;
+        cur.name = name.trim(); scheduleWorkSave(work); renderTopbar(); renderStatusbar();
+        if (state.viewMode === 'charInfo') renderMain();
+      });
+    };
+    const delBtn = menu.querySelector('#ddDelBranch');
+    if (delBtn) delBtn.onclick = () => {
+      closeDropdown();
+      const cur = getActiveBranch(work);
+      if (!confirm(`'${cur.name}' 분기를 삭제할까요?`)) return;
+      work.branches = work.branches.filter(b => b.id !== cur.id);
+      work.activeBranchId = work.branches[0].id;
+      state.viewMode = 'charInfo';
+      scheduleWorkSave(work); renderAll();
+    };
   }
 
   function openFolderMenu(anchor, folder) {
     const work = getActiveWork(), branch = getActiveBranch(work);
     const idx = branch.folders.findIndex(f => f.id === folder.id);
-    const shift = (d) => () => { shiftArrayItem(branch.folders, idx, d); scheduleWorkSave(work); renderSidebar(); renderStatusbar(); };
-    openMenu(anchor, [
-      { label: '폴더 이름/유형 변경', icon: ICONS.edit, onClick: () => {
-        openSimpleFormModal('폴더 설정', [
-          { id: 'name', label: '폴더 이름', value: folder.name },
-          { id: 'kind', label: '폴더 유형', type: 'select', value: folder.kind, options: FOLDER_KINDS }
-        ], ({ name, kind }) => {
-          if (!name.trim()) return;
-          folder.name = name.trim(); folder.kind = kind;
-          scheduleWorkSave(work); renderAll();
-        });
-      }},
-      idx > 0 && { label: '위로 이동', icon: ICONS.arrowUp, onClick: shift(-1) },
-      idx < branch.folders.length - 1 && { label: '아래로 이동', icon: ICONS.chevDown, onClick: shift(1) },
-      'sep',
-      { label: '폴더 삭제', icon: ICONS.trash, cls: 'dd-danger', onClick: () => {
-        if (!confirm(`'${folder.name}' 폴더와 하위 항목을 모두 삭제할까요?`)) return;
-        branch.folders = branch.folders.filter(f => f.id !== folder.id);
-        if (state.activeFolderId === folder.id) state.viewMode = 'charInfo';
+    const menu = showDropdown(anchor, `
+      <button class="dd-item" id="ddRenameF"><span>폴더 이름/유형 변경</span>${ICONS.edit}</button>
+      ${idx > 0 ? `<button class="dd-item" id="ddMoveFUp"><span>위로 이동</span>${ICONS.arrowUp}</button>` : ''}
+      ${idx < branch.folders.length - 1 ? `<button class="dd-item" id="ddMoveFDown"><span>아래로 이동</span>${ICONS.arrowDown}</button>` : ''}
+      <div class="dd-sep"></div>
+      <button class="dd-item" id="ddDelF" style="color:var(--danger);"><span>폴더 삭제</span>${ICONS.trash}</button>`);
+
+    menu.querySelector('#ddRenameF').onclick = () => {
+      closeDropdown();
+      openSimpleFormModal('폴더 설정', [
+        { id: 'name', label: '폴더 이름', value: folder.name },
+        { id: 'kind', label: '폴더 유형', type: 'select', value: folder.kind, options: FOLDER_KINDS }
+      ], ({ name, kind }) => {
+        if (!name.trim()) return;
+        folder.name = name.trim(); folder.kind = kind;
         scheduleWorkSave(work); renderAll();
-      }}
-    ]);
+      });
+    };
+    const shift = (d) => () => { closeDropdown(); shiftArray(branch.folders, idx, d); scheduleWorkSave(work); renderSidebar(); renderStatusbar(); };
+    if (menu.querySelector('#ddMoveFUp')) menu.querySelector('#ddMoveFUp').onclick = shift(-1);
+    if (menu.querySelector('#ddMoveFDown')) menu.querySelector('#ddMoveFDown').onclick = shift(1);
+    menu.querySelector('#ddDelF').onclick = () => {
+      closeDropdown();
+      if (!confirm(`'${folder.name}' 폴더와 하위 항목을 모두 삭제할까요?`)) return;
+      branch.folders = branch.folders.filter(f => f.id !== folder.id);
+      if (state.activeFolderId === folder.id) state.viewMode = 'charInfo';
+      scheduleWorkSave(work); renderAll();
+    };
   }
 
   function openItemMenu(anchor, folder, item) {
     const work = getActiveWork(), branch = getActiveBranch(work);
     const idx = folder.items.findIndex(i => i.id === item.id);
     const otherFolders = branch.folders.filter(f => f.id !== folder.id);
-    const shift = (d) => () => { shiftArrayItem(folder.items, idx, d); scheduleWorkSave(work); renderSidebar(); };
-    openMenu(anchor, [
-      { label: '항목 복제', icon: ICONS.copy, onClick: () => {
-        folder.items.push({ ...clone(item), id: uid('itm'), title: `${item.title} (사본)` });
-        scheduleWorkSave(work); renderSidebar(); renderStatusbar();
-      }},
-      idx > 0 && { label: '위로 이동', icon: ICONS.arrowUp, onClick: shift(-1) },
-      idx < folder.items.length - 1 && { label: '아래로 이동', icon: ICONS.chevDown, onClick: shift(1) },
-      otherFolders.length > 0 && { label: '다른 폴더로 이동', icon: ICONS.move, onClick: () => {
+    const menu = showDropdown(anchor, `
+      <button class="dd-item" id="ddDupI"><span>항목 복제</span>${ICONS.copy}</button>
+      ${idx > 0 ? `<button class="dd-item" id="ddMoveIUp"><span>위로 이동</span>${ICONS.arrowUp}</button>` : ''}
+      ${idx < folder.items.length - 1 ? `<button class="dd-item" id="ddMoveIDown"><span>아래로 이동</span>${ICONS.arrowDown}</button>` : ''}
+      ${otherFolders.length ? `<button class="dd-item" id="ddMoveIFolder"><span>다른 폴더로 이동</span>${ICONS.move}</button>` : ''}
+      <div class="dd-sep"></div>
+      <button class="dd-item" id="ddDelI" style="color:var(--danger);"><span>항목 삭제</span>${ICONS.trash}</button>`);
+
+    menu.querySelector('#ddDupI').onclick = () => {
+      closeDropdown();
+      folder.items.push({ ...clone(item), id: uid('itm'), title: `${item.title} (사본)` });
+      scheduleWorkSave(work); renderSidebar(); renderStatusbar();
+    };
+    const shift = (d) => () => { closeDropdown(); shiftArray(folder.items, idx, d); scheduleWorkSave(work); renderSidebar(); };
+    if (menu.querySelector('#ddMoveIUp')) menu.querySelector('#ddMoveIUp').onclick = shift(-1);
+    if (menu.querySelector('#ddMoveIDown')) menu.querySelector('#ddMoveIDown').onclick = shift(1);
+    if (menu.querySelector('#ddMoveIFolder')) {
+      menu.querySelector('#ddMoveIFolder').onclick = () => {
+        closeDropdown();
         openSimpleFormModal('다른 폴더로 이동', [{
-          id: 'target', label: '이동할 폴더 선택', type: 'select', value: otherFolders[0].id,
+          id: 'target', label: '이동할 폴더 선택', type: 'select',
+          value: otherFolders[0].id,
           options: otherFolders.map(f => ({ value: f.id, label: f.name }))
         }], ({ target }) => {
           if (moveItem(branch, folder.id, item.id, target)) {
@@ -2299,15 +2524,15 @@
             toast(`'${branch.folders.find(f => f.id === target)?.name}' 폴더로 이동했습니다.`);
           }
         });
-      }},
-      'sep',
-      { label: '항목 삭제', icon: ICONS.trash, cls: 'dd-danger', onClick: () => {
-        if (!confirm(`'${item.title}' 항목을 삭제할까요?`)) return;
-        folder.items = folder.items.filter(x => x.id !== item.id);
-        if (state.activeItemId === item.id) state.viewMode = 'charInfo';
-        scheduleWorkSave(work); renderAll();
-      }}
-    ]);
+      };
+    }
+    menu.querySelector('#ddDelI').onclick = () => {
+      closeDropdown();
+      if (!confirm(`'${item.title}' 항목을 삭제할까요?`)) return;
+      folder.items = folder.items.filter(x => x.id !== item.id);
+      if (state.activeItemId === item.id) state.viewMode = 'charInfo';
+      scheduleWorkSave(work); renderAll();
+    };
   }
 
   function openAccentMenu(anchor) {
@@ -2320,7 +2545,7 @@
         </div>
         <div class="accent-custom-row">
           <input type="color" id="accentColorInput" class="accent-native-picker" value="${cur}" title="직접 색상 선택" />
-          <input type="text" id="accentHexInput" class="form-input" value="${cur}" maxlength="7" />
+          <input type="text" id="accentHexInput" class="form-input" value="${cur}" maxlength="7" style="height:28px;font-family:var(--font-mono);font-size:12px;flex:1;" />
           <button type="button" class="btn btn-xs" id="btnResetAccent">초기화</button>
         </div>
       </div>`);
@@ -2339,21 +2564,42 @@
 
   function openSimpleFormModal(title, fields, onSubmit) {
     $('formModalTitle').textContent = title;
-    $('formModalBody').innerHTML = fields.map(f => `<div class="form-row"><label>${escHtml(f.label)}</label>${
-      f.type === 'select'
-        ? `<select class="form-select" id="fm_${f.id}">${f.options.map(o => `<option value="${o.value}" ${o.value === f.value ? 'selected' : ''}>${escHtml(o.label)}</option>`).join('')}</select>`
-        : `<input class="form-input" id="fm_${f.id}" value="${escHtml(f.value || '')}" placeholder="${escHtml(f.placeholder || '')}" />`
-    }</div>`).join('');
-    $('modalForm').classList.add('open');
+    $('formModalBody').innerHTML = fields.map(f => f.type === 'checkbox'
+      ? `<label class="form-check"><input type="checkbox" id="fm_${f.id}" ${f.checked ? 'checked' : ''} /><span>${escHtml(f.label)}</span></label>`
+      : `<div class="form-row"><label>${escHtml(f.label)}</label>${
+          f.type === 'select'
+            ? `<select class="form-select" id="fm_${f.id}">${f.options.map(o => `<option value="${o.value}" ${o.value === f.value ? 'selected' : ''}>${escHtml(o.label)}</option>`).join('')}</select>`
+            : `<input class="form-input" id="fm_${f.id}" value="${escHtml(f.value || '')}" placeholder="${escHtml(f.placeholder || '')}" />`
+        }</div>`
+    ).join('');
+    toggleModal('modalForm', true);
     $('formModalSubmit').onclick = () => {
-      const vals = Object.fromEntries(fields.map(f => [f.id, $(`fm_${f.id}`).value]));
-      closeModal('modalForm');
+      const vals = Object.fromEntries(fields.map(f => {
+        const el = $(`fm_${f.id}`);
+        return [f.id, f.type === 'checkbox' ? el.checked : el.value];
+      }));
+      toggleModal('modalForm', false);
       onSubmit(vals);
     };
   }
 
-  /* ================= EXPORT & TEXT SERIALIZATION ================= */
+  /* ================= EXPORT & TEXT SERIALIZER ================= */
   const csvCell = (v = '') => `"${String(v).replace(/"/g, '""')}"`;
+
+  function serializeWorkText(work, isExport = false) {
+    const br = getActiveBranch(work);
+    const out = [`제목: ${work.title || ''}`, `소개: ${work.summary || ''}`, `태그: ${(work.tags || []).join(', ')}`];
+    if (isExport) out.push(`분기: ${br?.name || ''}`, '========================================');
+    for (const f of (br?.folders || [])) {
+      out.push(isExport ? `\n## [${f.name}]` : `\n[${f.name}]`);
+      for (const it of f.items) {
+        out.push(isExport ? `\n### ${it.title}` : `--- ${it.title} ---`);
+        if (it.keywords) out.push(`키워드: ${it.keywords}`);
+        out.push(it.content || '');
+      }
+    }
+    return out.join('\n');
+  }
 
   function exportLorebookCsv(work, specificFolder = null) {
     const folders = specificFolder ? [specificFolder] : getActiveBranch(work).folders.filter(f => f.kind === 'lorebook');
@@ -2364,24 +2610,8 @@
     toast('로어북 CSV를 내보냈습니다.');
   }
 
-  function serializeWorkText(work, forExport = false) {
-    const br = getActiveBranch(work);
-    const out = [`제목: ${work.title || ''}`, `소개: ${work.summary || ''}`, `태그: ${(work.tags || []).join(', ')}`];
-    if (forExport) out.push(`분기: ${br?.name || ''}`, '========================================');
-    for (const f of (br?.folders || [])) {
-      out.push(forExport ? `\n## [${f.name}]` : `\n[${f.name}]`);
-      for (const it of f.items) {
-        out.push(forExport ? `\n### ${it.title}` : `--- ${it.title} ---`);
-        if (it.keywords) out.push(`키워드: ${it.keywords}`);
-        out.push(it.content || '');
-      }
-    }
-    return out.join('\n');
-  }
-
   function exportWorkTxt(work) {
-    const br = getActiveBranch(work);
-    downloadFile(`${work.title || 'work'}_${br.name}.txt`, serializeWorkText(work, true));
+    downloadFile(`${work.title || 'work'}_${getActiveBranch(work).name}.txt`, serializeWorkText(work, true));
     toast('작품 전체 TXT를 내보냈습니다.');
   }
 
@@ -2421,7 +2651,7 @@
   }
 
   async function pullAllFromGitHub() {
-    const branch = state.config.branch || 'main';
+    const branch = ghBranch();
     const list = await ghGetFile('works', branch);
     if (!Array.isArray(list)) return toast('원격 레포에 works/ 폴더가 아직 없습니다.');
     let loaded = 0;
@@ -2461,13 +2691,13 @@
     $('btnRestoreVersion').disabled = true;
     $('diffTitle').textContent = '버전을 선택하세요';
     $('diffOutput').textContent = '로컬 스냅샷과 GitHub 커밋 이력을 불러오는 중...';
-    $('modalHistory').classList.add('open');
+    toggleModal('modalHistory', true);
 
     const entries = (await idb('snapshots', 'getAll'))
       .filter(s => s.workId === work.id).sort((a, b) => b.createdAt - a.createdAt)
       .map(s => ({ source: '로컬', label: s.note, date: new Date(s.createdAt).toLocaleString('ko-KR'), data: s.data }));
 
-    if (isGhConnected()) {
+    if (isGhReady()) {
       try {
         const commits = await ghRequest(`commits?path=works/${work.id}.json&per_page=15`);
         commits.forEach(c => entries.push({ source: 'GitHub', label: c.commit.message, date: new Date(c.commit.author.date).toLocaleString('ko-KR'), sha: c.sha }));
@@ -2506,11 +2736,7 @@
   }
 
   /* ================= RENDER ALL & GLOBAL EVENTS ================= */
-  function renderAll() {
-    renderTopbar();
-    renderSidebar();
-    renderMain();
-  }
+  function renderAll() { renderTopbar(); renderSidebar(); renderMain(); }
 
   function bindGlobalEvents() {
     $('btnToggleSidebar').onclick = () => { state.sidebarCollapsed = !state.sidebarCollapsed; renderSidebar(); };
@@ -2547,26 +2773,19 @@
     };
 
     $('btnSettings').onclick = () => {
-      $('cfgOwner').value = state.config.owner || '';
-      $('cfgRepo').value = state.config.repo || '';
-      $('cfgBranch').value = state.config.branch || 'main';
-      $('cfgToken').value = state.config.token || '';
+      CFG_TEXT_MAP.forEach(([id, k]) => { $(id).value = state.config[k] || ''; });
       $('cfgPass').value = state.masterPass || '';
       $('cfgRememberPass').checked = !!state.config.rememberPass;
-      $('modalSettings').classList.add('open');
+      toggleModal('modalSettings', true);
     };
 
     $('btnSaveSettings').onclick = () => {
-      Object.assign(state.config, {
-        owner: $('cfgOwner').value.trim(),
-        repo: $('cfgRepo').value.trim(),
-        branch: $('cfgBranch').value.trim() || 'main',
-        token: $('cfgToken').value.trim(),
-        rememberPass: $('cfgRememberPass').checked
-      });
+      CFG_TEXT_MAP.forEach(([id, k]) => { state.config[k] = $(id).value.trim(); });
+      if (!state.config.branch) state.config.branch = 'main';
+      state.config.rememberPass = $('cfgRememberPass').checked;
       state.masterPass = $('cfgPass').value;
       persistConfig();
-      closeModal('modalSettings');
+      toggleModal('modalSettings', false);
       renderTopbar();
       toast('연동 설정을 저장했습니다.');
     };
@@ -2592,7 +2811,7 @@
     };
 
     $('btnPullAll').onclick = async () => {
-      try { await pullAllFromGitHub(); closeModal('modalSettings'); }
+      try { await pullAllFromGitHub(); toggleModal('modalSettings', false); }
       catch (e) { toast(e.message); }
     };
 
@@ -2600,10 +2819,10 @@
       if (!selectedHistoryPayload || !confirm('선택한 과거 버전으로 현재 작품을 덮어쓸까요?')) return;
       const idx = state.works.findIndex(w => w.id === selectedHistoryPayload.id);
       if (idx < 0) return;
-      const restored = Object.assign(clone(selectedHistoryPayload), { dirty: true });
+      const restored = { ...clone(selectedHistoryPayload), dirty: true };
       state.works[idx] = restored;
       await idb('works', 'put', restored);
-      closeModal('modalHistory');
+      toggleModal('modalHistory', false);
       state.viewMode = 'charInfo';
       renderAll();
       toast('선택한 버전으로 복구했습니다.');
@@ -2676,7 +2895,7 @@
     bindSidebarDragAndDrop();
 
     // Modals, Dropdowns & Shortcuts
-    document.querySelectorAll('[data-close-modal]').forEach(b => { b.onclick = () => closeModal(b.dataset.closeModal); });
+    document.querySelectorAll('[data-close-modal]').forEach(b => { b.onclick = () => toggleModal(b.dataset.closeModal, false); });
     document.querySelectorAll('.modal-backdrop').forEach(mb => { mb.onclick = (e) => { if (e.target === mb) mb.classList.remove('open'); }; });
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.dropdown-menu')) closeDropdown();
@@ -2701,11 +2920,7 @@
 
   /* ================= BOOTSTRAP ================= */
   async function init() {
-    loadConfig();
-    initStaticUI();
-    applyTheme();
-    bindGlobalEvents();
-
+    loadConfig(); initStaticUI(); applyTheme(); bindGlobalEvents();
     const works = await idb('works', 'getAll');
     if (works.length) {
       state.works = works.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
