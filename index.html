@@ -1027,23 +1027,22 @@
 
   function createDefaultFolders(sample = false) {
     return [
-      mkFolder('공용 프롬프트', 'text', false, [
-        mkItem('기본 정보', 'text', sample ? `# 역할 및 응답 지침\n- 당신은 세계(GM)의 역할을 맡아 플레이어({{user}})의 행동에 따른 결과와 주변 인물의 반응을 서술합니다.\n\n## [필수 규칙] 명령어 시스템\n1. **명령어 ON:** {{user}}가 \`!(명령어)\`를 입력하면 상태를 활성화하고 **지속적으로** 수행한다.\n2. **명령어 OFF:** *종료 선언* 시 즉시 중단한다.\n\n---\n\n# 시스템 메시지 출력 규칙\n- **발생 조건:** 이벤트 발생 시 본문 하단에 출력한다.\n<System ms={[시스템]: {{user}}의 새로운 기록이 갱신되었습니다!}>` : ''),
-        mkItem('세계관', 'text', sample ? `## 엘레멘시아 아카데미\n신성제국 중앙에 위치한 대륙 최대규모 마법학원.\n- 마법적성과 강화적성을 나누어 수업을 진행한다.\n- 룸메이트는 **동성 배정**을 원칙으로 한다.` : ''),
-        mkItem('비밀'), mkItem('출력 형식'), mkItem('추천 답변 프롬프트')
+      mkFolder('시작 상황', 'text', true, [mkItem('첫 메시지', 'text', sample ? `*폴더 우측 + 옆의 버튼으로 카드뷰 모아보기가 가능합니다.*` : '')]), 
+      mkFolder('메인 프롬프트', 'text', false, [
+        mkItem('시스템 지침', 'text', sample ? `# 역할 및 응답 지침` : ''),
+        mkItem('세계관', 'text', sample ? `# 세계관` : ''),
+        mkItem('기본 정보', 'text', sample ? `` : ''),
+        mkItem('비밀'), mkItem('출력 형식')
       ]),
-      mkFolder('예시대화', 'text', true, [mkItem('예시대화 1')]),
       mkFolder('로어북', 'lorebook', false, sample ? [
-        mkItem('엘레멘시아 아카데미', 'lorebook', `## 학원 구조\n- **동관:** 마법적성 전공동\n- **서관:** 강화적성 전공동\n\n---\n{{user}}는 신입생으로 입학하며, *야간 통금*은 밤 11시다.`, '엘레멘시아, 마법학원, 기숙사'),
-        mkItem('호감도 단계', 'lorebook', `1. **0~30:** 경계 및 탐색\n2. **31~70:** 신뢰 형성\n3. **71~100:** 깊은 유대 ({{char}}의 태도 변화)`, '호감도, 관계, 성향')
+        mkItem('HUD', 'lorebook', `# HUD 출력 규칙`, 'HUD, 상태창')
       ] : [mkItem('로어북 1', 'lorebook')]),
       mkFolder('JSX', 'code', true, [
-        mkItem('상태창 JSX', 'jsx', sample ? `export default function StatusHUD() {\n  const [hp, setHp] = React.useState(88);\n  return (\n    <div style={{ fontFamily: 'Pretendard, sans-serif', padding: 14, borderRadius: 12, border: '1px solid #e5e7eb', background: '#f7f8fa', maxWidth: 320 }}>\n      <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, marginBottom: 8, color: '#1f2937' }}>\n        <span>엘레멘시아 상태창</span>\n        <span style={{ color: '#1f8a4c' }}>HP {hp}%</span>\n      </div>\n      <div style={{ height: 8, background: '#e5e7eb', borderRadius: 99, overflow: 'hidden', marginBottom: 10 }}>\n        <div style={{ width: hp + '%', height: '100%', background: '#1f8a4c', transition: 'width .2s' }} />\n      </div>\n      <button onClick={() => setHp(v => Math.max(0, v - 10))} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #d1d5db', background: '#fff', cursor: 'pointer', fontSize: 12 }}>테스트 감소</button>\n    </div>\n  );\n}` : '')
+        mkItem('상태창 JSX', 'jsx', sample ? `export default function StatusHUD() {\n  const [hp, setHp] = React.useState(88);\n  return (\n    <div style={{ fontFamily: 'Pretendard, sans-serif', padding: 14, borderRadius: 12, border: '1px solid #e5e7eb', background: '#f7f8fa', maxWidth: 320 }}>\n      <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, marginBottom: 8, color: '#1f2937' }}>\n        <span>상태창</span>\n        <span style={{ color: '#1f8a4c' }}>HP {hp}%</span>\n      </div>\n      <div style={{ height: 8, background: '#e5e7eb', borderRadius: 99, overflow: 'hidden', marginBottom: 10 }}>\n        <div style={{ width: hp + '%', height: '100%', background: '#1f8a4c', transition: 'width .2s' }} />\n      </div>\n      <button onClick={() => setHp(v => Math.max(0, v - 10))} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #d1d5db', background: '#fff', cursor: 'pointer', fontSize: 12 }}>테스트 감소</button>\n    </div>\n  );\n}` : '')
       ]),
-      mkFolder('UI', 'code', true, [
-        mkItem('상태창 UI (HTML)', 'html', sample ? `<div style="font-family:Pretendard,sans-serif;border:1px solid #e5e7eb;border-radius:10px;padding:12px;max-width:300px;background:#ffffff;color:#1f2937;">\n  <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">DAY 1 · 오전</div>\n  <div style="font-weight:700;font-size:15px;">엘레멘시아 중앙광장</div>\n</div>` : '')
-      ]),
-      mkFolder('시작 상황', 'text', true, [mkItem('첫 메시지')])
+      mkFolder('HTML', 'code', true, [
+        mkItem('상태창 UI (HTML)', 'html', sample ? `<div style="font-family:Pretendard,sans-serif;border:1px solid #e5e7eb;border-radius:10px;padding:12px;max-width:300px;background:#ffffff;color:#1f2937;">\n  <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">DAY 1 · 오전</div>\n  <div style="font-weight:700;font-size:15px;">프롬프트 스튜디오</div>\n</div>` : '')
+      ])
     ];
   }
 
@@ -1689,7 +1688,7 @@
                 <div class="gallery-title">${escHtml(w.title || '제목 없음')}</div>
                 <button type="button" class="tree-mini-btn" data-gmenu="${w.id}" title="작품 메뉴">${ICONS.moreV}</button>
               </div>
-              <div class="gallery-summary">${escHtml(w.summary || '한 줄 소개가 비어 있습니다.')}</div>
+              <div class="gallery-summary">${escHtml(w.summary || ' ')}</div>
               ${tags.length ? `<div class="gallery-tags">${shownTags.map(t => `<span class="gallery-tag-link" data-pick-tag="${escHtml(t)}">#${escHtml(t)}</span>`).join('')}${extraTags > 0 ? `<span>+${extraTags}</span>` : ''}</div>` : ''}
               <div class="gallery-foot-sub">
                 <span>${fmtShort(stats.tokens)} 토큰</span><span>·</span>
@@ -1840,8 +1839,8 @@
           <div class="tpl-box">
             <div class="tpl-controls-row">
               <select class="form-select tpl-select" id="tplSelect" aria-label="템플릿 선택"></select>
-              <button class="btn btn-sm btn-primary" id="btnSaveTemplate">${ICONS.save}<span>현재 구조 템플릿 저장</span></button>
-              <button class="btn btn-sm" id="btnApplyTemplate">${ICONS.refresh}<span>템플릿으로 덮어씌우기</span></button>
+              <button class="btn btn-sm btn-primary" id="btnSaveTemplate">${ICONS.save}<span>템플릿 저장</span></button>
+              <button class="btn btn-sm" id="btnApplyTemplate">${ICONS.refresh}<span>템플릿 불러오기</span></button>
               <button class="btn btn-sm" id="btnToggleDefaultTpl"></button>
               <button class="btn btn-ghost btn-sm" id="btnDeleteTemplate" style="color:var(--danger);">${ICONS.trash}<span>삭제</span></button>
             </div>
@@ -2106,7 +2105,7 @@
       ${isLore ? `
         <div class="lore-bar">
           <label>${ICONS.tag}<span>트리거 키워드 (쉼표 구분)</span></label>
-          <input class="lore-input" id="loreKeywordsInput" value="${escHtml(item.keywords || '')}" placeholder="예: 엘레멘시아, 마법학원, 룸메이트" />
+          <input class="lore-input" id="loreKeywordsInput" value="${escHtml(item.keywords || '')}" placeholder="예: 학원, 친구, 룸메이트" />
           <span class="lore-count" id="loreKwCount">${splitCsv(item.keywords).length}개</span>
         </div>` : ''}
       <div class="editor-stage">
@@ -2925,7 +2924,7 @@
     if (works.length) {
       state.works = works.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
     } else {
-      const sample = createWorkObject({ title: '엘레멘시아 아카데미', summary: '두근두근 마법학원 시뮬레이션', tags: ['판타지', '학원물', 'GM'], withSample: true });
+      const sample = createWorkObject({ title: '기본 템플릿', summary: '예시 작품입니다.', tags: ['테스트', '태그'], withSample: true });
       state.works = [sample];
       await idb('works', 'put', sample);
     }
