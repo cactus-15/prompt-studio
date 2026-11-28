@@ -115,6 +115,10 @@
       display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14.5px;
       color: var(--text-main); padding: 0 6px; white-space: nowrap;
     }
+    .topbar-work-name { max-width: 140px; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+    .topbar-branch-name { max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
+    .mobile-more-btn { display: none; position: relative; }
+    .mobile-more-dot { position: absolute; top: 5px; right: 5px; }
 
     /* Buttons & Controls */
     .btn {
@@ -701,6 +705,14 @@
     }
     @media (max-width: 680px) {
       .hide-xs { display: none !important; }
+      .topbar.in-work { padding: 0 6px; gap: 4px; }
+      .topbar.in-work .topbar-left, .topbar.in-work .topbar-right { gap: 4px; }
+      .topbar.in-work .btn { padding: 0 6px; gap: 4px; font-size: 12.5px; }
+      .topbar.in-work .btn-icon { width: 30px; height: 30px; padding: 0; }
+      .topbar.in-work .mobile-overflow-item { display: none !important; }
+      .topbar.in-work .mobile-more-btn { display: inline-flex; }
+      .topbar-work-name { max-width: 58px; }
+      .topbar-branch-name { max-width: 50px; }
       .main-tools .btn-sm { padding: 0 7px; }
       .crumb-folder { padding: 3px 6px; }
       .home-wrap { padding: 14px 12px 44px; gap: 12px; }
@@ -715,7 +727,7 @@
 </head>
 <body>
 <div class="app" id="app">
-  <header class="topbar">
+  <header class="topbar" id="topbar">
     <div class="topbar-left">
       <button class="btn btn-ghost btn-icon" id="btnToggleSidebar" title="사이드바 접기/열기" aria-label="사이드바 토글"></button>
       <button class="btn btn-ghost btn-icon" id="btnGoHome" title="작품 홈 갤러리로 이동" aria-label="홈"></button>
@@ -725,10 +737,11 @@
       <button class="btn btn-ghost" id="btnHistory" title="GitHub 커밋 및 로컬 스냅샷 비교"></button>
     </div>
     <div class="topbar-right">
-      <button class="btn" id="btnEncryptToggle" title="작품 단위 암호화 저장 토글"></button>
-      <button class="btn btn-ghost" id="btnSettings" title="GitHub 비공개 레포 연동 설정"></button>
-      <button class="btn btn-ghost btn-icon" id="btnAccentPicker" title="액센트 컬러 변경" aria-label="액센트 컬러 변경"></button>
-      <button class="btn btn-ghost btn-icon" id="btnTheme" title="라이트/다크 모드 전환" aria-label="테마 전환"></button>
+      <button class="btn mobile-overflow-item" id="btnEncryptToggle" title="작품 단위 암호화 저장 토글"></button>
+      <button class="btn btn-ghost mobile-overflow-item" id="btnSettings" title="GitHub 비공개 레포 연동 설정"></button>
+      <button class="btn btn-ghost btn-icon mobile-overflow-item" id="btnAccentPicker" title="액센트 컬러 변경" aria-label="액센트 컬러 변경"></button>
+      <button class="btn btn-ghost btn-icon mobile-overflow-item" id="btnTheme" title="라이트/다크 모드 전환" aria-label="테마 전환"></button>
+      <button class="btn btn-ghost btn-icon mobile-more-btn" id="btnMobileMore" title="더보기 (암호화·연동·액센트·테마)" aria-label="더보기"></button>
       <button class="btn btn-primary" id="btnGitSave" title="GitHub에 커밋 저장"></button>
     </div>
   </header>
@@ -1543,10 +1556,12 @@
     const anyDirty = state.deletedQueue.length > 0 || (isHome() ? state.works.some(w => w.dirty) : !!getActiveWork()?.dirty);
     const dotCls = anyDirty ? 'dirty' : (connected ? 'connected' : '');
     $('btnSettings').innerHTML = `<span class="pill-dot ${dotCls}"></span>${ICONS.cloud}<span class="hide-xs">${escHtml(connected ? state.config.repo : '연동 설정')}</span>`;
+    $('btnMobileMore').innerHTML = `${ICONS.moreV}<span class="pill-dot mobile-more-dot ${dotCls}"></span>`;
   }
 
   async function renderTopbar() {
     const home = isHome();
+    $('topbar').classList.toggle('in-work', !home);
     WORK_TOPBAR_IDS.forEach(id => $(id).classList.toggle('hidden', home));
     $('homeBrandTitle').classList.toggle('hidden', !home);
     $('btnTheme').innerHTML = state.theme === 'dark' ? ICONS.sun : ICONS.moon;
@@ -1556,8 +1571,8 @@
     const work = getActiveWork(), branch = getActiveBranch(work);
     $('btnWorkMenu').innerHTML = `
       <span class="work-thumb-mini" id="topWorkThumb">${ICONS.user}</span>
-      <span style="max-width:140px;overflow:hidden;text-overflow:ellipsis;font-weight:600;">${escHtml(work?.title || '제목 없음')}</span>
-      <span style="opacity:0.6;display:inline-flex;">${ICONS.chevDown}</span>`;
+      <span class="topbar-work-name">${escHtml(work?.title || '제목 없음')}</span>
+      <span class="hide-xs" style="opacity:0.6;display:inline-flex;">${ICONS.chevDown}</span>`;
 
     if (work) {
       const src = await getWorkThumbSrc(work);
@@ -1565,7 +1580,7 @@
       if (src && thumb) thumb.innerHTML = `<img src="${escHtml(src)}" style="object-position:${getProfilePos(work)};" alt="" />`;
     }
 
-    $('btnBranchMenu').innerHTML = `<span style="opacity:0.75;display:inline-flex;">${ICONS.branch}</span><span style="max-width:110px;overflow:hidden;text-overflow:ellipsis;">${escHtml(branch?.name || '기본 (공통)')}</span><span style="opacity:0.6;display:inline-flex;">${ICONS.chevDown}</span>`;
+    $('btnBranchMenu').innerHTML = `<span style="opacity:0.75;display:inline-flex;">${ICONS.branch}</span><span class="topbar-branch-name">${escHtml(branch?.name || '기본 (공통)')}</span><span class="hide-xs" style="opacity:0.6;display:inline-flex;">${ICONS.chevDown}</span>`;
 
     const encBtn = $('btnEncryptToggle'), isEnc = !!work?.encrypted;
     encBtn.classList.toggle('btn-encrypt-on', isEnc);
@@ -3078,6 +3093,37 @@
     menu.querySelector('#btnResetAccent').onclick = () => sync('#2563eb');
   }
 
+  function openMobileMoreMenu(anchor) {
+    const work = getActiveWork(), isEnc = !!work?.encrypted;
+    const connected = isGhReady();
+    const anyDirty = state.deletedQueue.length > 0 || !!work?.dirty;
+    const dotCls = anyDirty ? 'dirty' : (connected ? 'connected' : '');
+    const isDark = state.theme === 'dark';
+    const menu = showDropdown(anchor, `
+      <button class="dd-item" id="mmEnc" ${isEnc ? 'style="color:var(--nsfw-red);font-weight:600;"' : ''}>
+        <span>${isEnc ? '암호화 저장 ON' : '평문 저장 (암호화 OFF)'}</span>
+        ${isEnc ? ICONS.lock : ICONS.unlock}
+      </button>
+      <button class="dd-item" id="mmSettings">
+        <span style="display:inline-flex;align-items:center;gap:6px;"><span class="pill-dot ${dotCls}"></span><span>${escHtml(connected ? state.config.repo : 'GitHub 연동 설정')}</span></span>
+        ${ICONS.cloud}
+      </button>
+      <div class="dd-sep"></div>
+      <button class="dd-item" id="mmAccent">
+        <span>액센트 컬러 변경</span>
+        <span class="accent-dot-preview"></span>
+      </button>
+      <button class="dd-item" id="mmTheme">
+        <span>${isDark ? '라이트 모드로 전환' : '다크 모드로 전환'}</span>
+        ${isDark ? ICONS.sun : ICONS.moon}
+      </button>`);
+
+    menu.querySelector('#mmEnc').onclick = () => { closeDropdown(); $('btnEncryptToggle').click(); };
+    menu.querySelector('#mmSettings').onclick = () => { closeDropdown(); $('btnSettings').click(); };
+    menu.querySelector('#mmAccent').onclick = (e) => { e.stopPropagation(); openAccentMenu(anchor); };
+    menu.querySelector('#mmTheme').onclick = () => { closeDropdown(); $('btnTheme').click(); };
+  }
+
   function openSimpleFormModal(title, fields, onSubmit) {
     $('formModalTitle').textContent = title;
     $('formModalBody').innerHTML = fields.map(f => f.type === 'checkbox'
@@ -3262,6 +3308,7 @@
     $('btnWorkMenu').onclick = (e) => { e.stopPropagation(); openWorkMenu(e.currentTarget); };
     $('btnBranchMenu').onclick = (e) => { e.stopPropagation(); openBranchMenu(e.currentTarget); };
     $('btnAccentPicker').onclick = (e) => { e.stopPropagation(); openAccentMenu(e.currentTarget); };
+    $('btnMobileMore').onclick = (e) => { e.stopPropagation(); openMobileMoreMenu(e.currentTarget); };
     $('btnHistory').onclick = openHistoryModal;
     $('btnQuickCharInfo').onclick = () => { state.viewMode = 'charInfo'; closeSidebarOnMobile(); renderAll(); };
 
