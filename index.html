@@ -327,7 +327,7 @@
 
     .gallery-grid {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-      gap: 12px 25px; align-items: start;
+      gap: 20px 16px; align-items: start;
     }
     .gallery-card { display: flex; flex-direction: column; gap: 7px; cursor: pointer; }
     .gallery-card:hover .gallery-thumb .gallery-img-main { transform: scale(1.03); }
@@ -1868,7 +1868,7 @@
                 <div class="gallery-title">${escHtml(w.title || '제목 없음')}</div>
                 <button type="button" class="tree-mini-btn" data-gmenu="${w.id}" title="작품 메뉴">${ICONS.moreV}</button>
               </div>
-              <div class="gallery-summary">${escHtml(w.summary || ' ')}</div>
+              <div class="gallery-summary">${escHtml(w.summary || '.')}</div>
               <div class="gallery-tags">${shownTags.map(t => `<span class="gallery-tag-link" data-pick-tag="${escHtml(t)}">#${escHtml(t)}</span>`).join('')}${extraTags > 0 ? `<span>+${extraTags}</span>` : ''}</div>
               <div class="gallery-foot-sub">
                 <span>${fmtShort(stats.tokens)} 토큰</span><span>·</span>
@@ -2042,7 +2042,7 @@
         </div>
         <div class="char-info-section">
           <div class="field-label-row"><span class="field-label">한 줄 소개</span><span class="field-counter ${sumLen > 80 ? 'over' : ''}" id="summaryCounter">${sumLen} / 80자</span></div>
-          <textarea class="field-input" id="charSummaryInput" rows="2" placeholder="작품을 소개해 주세요 (Enter로 줄바꿈)">${escHtml(work.summary || '.')}</textarea>
+          <textarea class="field-input" id="charSummaryInput" rows="2" placeholder="작품을 소개해 주세요 (Enter로 줄바꿈)">${escHtml(work.summary || '')}</textarea>
         </div>
         <div class="char-info-section">
           <div class="field-label-row"><span class="field-label">해시태그 (쉼표로 구분)</span><span class="field-counter" id="tagsCounter">${(work.tags || []).length}개</span></div>
