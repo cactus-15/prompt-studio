@@ -117,8 +117,10 @@
     }
     .topbar-work-name { max-width: 140px; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
     .topbar-branch-name { max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
-    .mobile-more-btn { display: none; position: relative; }
-    .mobile-more-dot { position: absolute; top: 5px; right: 5px; }
+    .top-menu-btn { position: relative; }
+    .top-menu-dot { position: absolute; top: 5px; right: 5px; }
+    .dd-pill { font-size: 10.5px; font-weight: 600; padding: 1px 6px; border-radius: 999px; background: var(--bg-subtle); color: var(--text-faint); }
+    .dd-pill.on { background: var(--accent-soft); color: var(--accent-text); }
 
     /* Buttons & Controls */
     .btn {
@@ -138,8 +140,6 @@
     .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: #ffffff; }
     .btn-accent-soft { background: var(--accent-soft); border-color: var(--accent-border); color: var(--accent-text); }
     .btn-accent-soft:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-text); }
-    .btn-encrypt-on { background: rgba(229, 57, 53, 0.12); border-color: rgba(229, 57, 53, 0.35); color: var(--nsfw-red); }
-    .btn-encrypt-on:hover { background: rgba(229, 57, 53, 0.18); border-color: var(--nsfw-red); }
     .btn-sm { height: 28px; padding: 0 8px; font-size: 12px; border-radius: 6px; }
     .btn-xs { height: 24px; padding: 0 6px; font-size: 11.5px; border-radius: 5px; }
 
@@ -709,10 +709,8 @@
       .topbar.in-work .topbar-left, .topbar.in-work .topbar-right { gap: 4px; }
       .topbar.in-work .btn { padding: 0 6px; gap: 4px; font-size: 12.5px; }
       .topbar.in-work .btn-icon { width: 30px; height: 30px; padding: 0; }
-      .topbar.in-work .mobile-overflow-item { display: none !important; }
-      .topbar.in-work .mobile-more-btn { display: inline-flex; }
-      .topbar-work-name { max-width: 58px; }
-      .topbar-branch-name { max-width: 50px; }
+      .topbar.in-work .topbar-work-name { max-width: 62px; }
+      .topbar-branch-name { max-width: 54px; }
       .main-tools .btn-sm { padding: 0 7px; }
       .crumb-folder { padding: 3px 6px; }
       .home-wrap { padding: 14px 12px 44px; gap: 12px; }
@@ -737,11 +735,7 @@
       <button class="btn btn-ghost" id="btnHistory" title="GitHub 커밋 및 로컬 스냅샷 비교"></button>
     </div>
     <div class="topbar-right">
-      <button class="btn mobile-overflow-item" id="btnEncryptToggle" title="작품 단위 암호화 저장 토글"></button>
-      <button class="btn btn-ghost mobile-overflow-item" id="btnSettings" title="GitHub 비공개 레포 연동 설정"></button>
-      <button class="btn btn-ghost btn-icon mobile-overflow-item" id="btnAccentPicker" title="액센트 컬러 변경" aria-label="액센트 컬러 변경"></button>
-      <button class="btn btn-ghost btn-icon mobile-overflow-item" id="btnTheme" title="라이트/다크 모드 전환" aria-label="테마 전환"></button>
-      <button class="btn btn-ghost btn-icon mobile-more-btn" id="btnMobileMore" title="더보기 (암호화·연동·액센트·테마)" aria-label="더보기"></button>
+      <button class="btn btn-ghost btn-icon top-menu-btn" id="btnTopMenu" title="설정 및 메뉴" aria-label="설정 및 메뉴"></button>
       <button class="btn btn-primary" id="btnGitSave" title="GitHub에 커밋 저장"></button>
     </div>
   </header>
@@ -916,7 +910,7 @@
   ];
 
   const TOKEN_SEG_COLORS = ['var(--seg-0)', '#fb923c', '#a855f7', '#3b82f6', '#10b981', '#ec4899', '#eab308', '#14b8a6'];
-  const WORK_TOPBAR_IDS = ['btnToggleSidebar', 'btnGoHome', 'wrapWorkMenu', 'wrapBranchMenu', 'btnHistory', 'btnEncryptToggle', 'btnGitSave'];
+  const WORK_TOPBAR_IDS = ['btnToggleSidebar', 'btnGoHome', 'wrapWorkMenu', 'wrapBranchMenu', 'btnHistory', 'btnGitSave'];
   const CFG_TEXT_MAP = [['cfgOwner', 'owner'], ['cfgRepo', 'repo'], ['cfgBranch', 'branch'], ['cfgToken', 'token']];
   const BUILTIN_TPL_ID = '__builtin__';
 
@@ -930,6 +924,7 @@
   const clone = (o) => JSON.parse(JSON.stringify(o));
   const splitCsv = (s = '') => s.split(',').map(x => x.trim()).filter(Boolean);
   const isMobile = () => window.innerWidth <= 900;
+  const isTouchDevice = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || !!window.matchMedia?.('(pointer: coarse)').matches;
   const closeSidebarOnMobile = () => { if (isMobile()) state.sidebarCollapsed = true; };
   const toggleModal = (id, open = false) => $(id).classList.toggle('open', open);
   const readJsonLS = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key) || 'null') ?? fallback; } catch { return fallback; } };
@@ -1197,6 +1192,8 @@
     homeQuery: '', homeFilter: 'all', homeTag: '', homeSort: 'updated',
     sidebarCollapsed: isMobile(), showPreview: true, showTokenPopover: false, isSyncing: false,
     showEditorFind: false, showEditorReplace: false, editorFindQuery: '', editorReplaceText: '',
+    showLineNumbers: localStorage.getItem('ps_line_numbers') !== '0',
+    mdEmphasis: localStorage.getItem('ps_md_emphasis') !== '0',
     previewWidth: Math.min(78, Math.max(20, Number(localStorage.getItem('ps_preview_w')) || 46)),
     previewHeight: Math.min(75, Math.max(20, Number(localStorage.getItem('ps_preview_h')) || 45)),
     tokenBudget: Math.max(500, Number(localStorage.getItem('ps_token_budget')) || 10000),
@@ -1218,6 +1215,7 @@
   const getActiveWork = () => state.works.find(w => w.id === state.activeWorkId) || state.works[0] || null;
   const getActiveBranch = (w = getActiveWork()) => w ? (w.branches.find(b => b.id === w.activeBranchId) || w.branches[0] || null) : null;
   const isCodeItem = (f, it) => f?.kind === 'code' || it?.type === 'html' || it?.type === 'jsx';
+  const getEditorMode = (it) => it?.type === 'html' ? 'htmlmixed' : it?.type === 'jsx' ? 'jsx' : (state.mdEmphasis ? 'prompt-markdown' : 'null');
   const defaultItemType = (f) => f.kind === 'lorebook' ? 'lorebook' : f.kind === 'code' ? (f.name.toLowerCase().includes('jsx') ? 'jsx' : 'html') : 'text';
   const getProfilePos = (w) => {
     const p = w?.profile?.pos;
@@ -1537,7 +1535,6 @@
       btnToggleSidebar: ICONS.sidebar,
       btnGoHome: ICONS.home,
       btnHistory: `${ICONS.history}<span class="hide-xs">이전 작업내역</span>`,
-      btnAccentPicker: '<span class="accent-dot-preview"></span>',
       btnGitSave: `${ICONS.save}<span class="hide-xs">저장</span>`,
       searchIconSlot: ICONS.search,
       btnClearSearch: ICONS.close,
@@ -1555,8 +1552,7 @@
     const connected = isGhReady();
     const anyDirty = state.deletedQueue.length > 0 || (isHome() ? state.works.some(w => w.dirty) : !!getActiveWork()?.dirty);
     const dotCls = anyDirty ? 'dirty' : (connected ? 'connected' : '');
-    $('btnSettings').innerHTML = `<span class="pill-dot ${dotCls}"></span>${ICONS.cloud}<span class="hide-xs">${escHtml(connected ? state.config.repo : '연동 설정')}</span>`;
-    $('btnMobileMore').innerHTML = `${ICONS.moreV}<span class="pill-dot mobile-more-dot ${dotCls}"></span>`;
+    $('btnTopMenu').innerHTML = `${ICONS.moreV}<span class="pill-dot top-menu-dot ${dotCls}"></span>`;
   }
 
   async function renderTopbar() {
@@ -1564,7 +1560,6 @@
     $('topbar').classList.toggle('in-work', !home);
     WORK_TOPBAR_IDS.forEach(id => $(id).classList.toggle('hidden', home));
     $('homeBrandTitle').classList.toggle('hidden', !home);
-    $('btnTheme').innerHTML = state.theme === 'dark' ? ICONS.sun : ICONS.moon;
     updateTopbarStatusDot();
     if (home) return;
 
@@ -1572,6 +1567,7 @@
     $('btnWorkMenu').innerHTML = `
       <span class="work-thumb-mini" id="topWorkThumb">${ICONS.user}</span>
       <span class="topbar-work-name">${escHtml(work?.title || '제목 없음')}</span>
+      ${work?.encrypted ? `<span style="color:var(--nsfw-red);display:inline-flex;" title="암호화 저장 ON">${ICONS.lock}</span>` : ''}
       <span class="hide-xs" style="opacity:0.6;display:inline-flex;">${ICONS.chevDown}</span>`;
 
     if (work) {
@@ -1581,10 +1577,6 @@
     }
 
     $('btnBranchMenu').innerHTML = `<span style="opacity:0.75;display:inline-flex;">${ICONS.branch}</span><span class="topbar-branch-name">${escHtml(branch?.name || '기본 (공통)')}</span><span class="hide-xs" style="opacity:0.6;display:inline-flex;">${ICONS.chevDown}</span>`;
-
-    const encBtn = $('btnEncryptToggle'), isEnc = !!work?.encrypted;
-    encBtn.classList.toggle('btn-encrypt-on', isEnc);
-    encBtn.innerHTML = isEnc ? `${ICONS.lock}<span class="hide-xs">암호화 ON</span>` : `${ICONS.unlock}<span class="hide-xs">평문 저장</span>`;
   }
 
   function renderSidebar() {
@@ -2538,8 +2530,10 @@
     if (window.CodeMirror) {
       cmEditor = CodeMirror(mount, {
         value: item.content || '',
-        mode: item.type === 'html' ? 'htmlmixed' : item.type === 'jsx' ? 'jsx' : 'prompt-markdown',
-        lineNumbers: true, lineWrapping: true, tabSize: 2, inputStyle: 'textarea'
+        mode: getEditorMode(item),
+        lineNumbers: state.showLineNumbers,
+        lineWrapping: true, tabSize: 2,
+        inputStyle: isTouchDevice() ? 'contenteditable' : 'textarea'
       });
       if (isCode) cmEditor.getWrapperElement().classList.add('cm-code-mode');
       cmEditor.on('change', () => onContentChange(cmEditor.getValue()));
@@ -3093,35 +3087,89 @@
     menu.querySelector('#btnResetAccent').onclick = () => sync('#2563eb');
   }
 
-  function openMobileMoreMenu(anchor) {
-    const work = getActiveWork(), isEnc = !!work?.encrypted;
+  function openSettingsModal() {
+    CFG_TEXT_MAP.forEach(([id, k]) => { $(id).value = state.config[k] || ''; });
+    $('cfgPass').value = state.masterPass || '';
+    $('cfgRememberPass').checked = !!state.config.rememberPass;
+    toggleModal('modalSettings', true);
+  }
+
+  function openTopMenu(anchor) {
+    const home = isHome(), work = getActiveWork(), isEnc = !!work?.encrypted;
     const connected = isGhReady();
-    const anyDirty = state.deletedQueue.length > 0 || !!work?.dirty;
+    const anyDirty = state.deletedQueue.length > 0 || (home ? state.works.some(w => w.dirty) : !!work?.dirty);
     const dotCls = anyDirty ? 'dirty' : (connected ? 'connected' : '');
     const isDark = state.theme === 'dark';
+
     const menu = showDropdown(anchor, `
-      <button class="dd-item" id="mmEnc" ${isEnc ? 'style="color:var(--nsfw-red);font-weight:600;"' : ''}>
-        <span>${isEnc ? '암호화 저장 ON' : '평문 저장 (암호화 OFF)'}</span>
-        ${isEnc ? ICONS.lock : ICONS.unlock}
-      </button>
-      <button class="dd-item" id="mmSettings">
+      ${!home && work ? `
+        <button class="dd-item" id="tmEnc" ${isEnc ? 'style="color:var(--nsfw-red);font-weight:600;"' : ''}>
+          <span>${isEnc ? '암호화 저장 ON' : '평문 저장 (암호화 OFF)'}</span>
+          ${isEnc ? ICONS.lock : ICONS.unlock}
+        </button>` : ''}
+      <button class="dd-item" id="tmSettings">
         <span style="display:inline-flex;align-items:center;gap:6px;"><span class="pill-dot ${dotCls}"></span><span>${escHtml(connected ? state.config.repo : 'GitHub 연동 설정')}</span></span>
         ${ICONS.cloud}
       </button>
       <div class="dd-sep"></div>
-      <button class="dd-item" id="mmAccent">
+      <div class="dd-label">테마 & 편집기</div>
+      <button class="dd-item" id="tmAccent">
         <span>액센트 컬러 변경</span>
         <span class="accent-dot-preview"></span>
       </button>
-      <button class="dd-item" id="mmTheme">
+      <button class="dd-item" id="tmTheme">
         <span>${isDark ? '라이트 모드로 전환' : '다크 모드로 전환'}</span>
         ${isDark ? ICONS.sun : ICONS.moon}
+      </button>
+      <button class="dd-item" id="tmLineNum">
+        <span>편집기 라인 번호</span>
+        <span class="dd-pill ${state.showLineNumbers ? 'on' : ''}">${state.showLineNumbers ? 'ON' : 'OFF'}</span>
+      </button>
+      <button class="dd-item" id="tmMdEmph">
+        <span>마크다운 강조</span>
+        <span class="dd-pill ${state.mdEmphasis ? 'on' : ''}">${state.mdEmphasis ? 'ON' : 'OFF'}</span>
       </button>`);
 
-    menu.querySelector('#mmEnc').onclick = () => { closeDropdown(); $('btnEncryptToggle').click(); };
-    menu.querySelector('#mmSettings').onclick = () => { closeDropdown(); $('btnSettings').click(); };
-    menu.querySelector('#mmAccent').onclick = (e) => { e.stopPropagation(); openAccentMenu(anchor); };
-    menu.querySelector('#mmTheme').onclick = () => { closeDropdown(); $('btnTheme').click(); };
+    const encEl = menu.querySelector('#tmEnc');
+    if (encEl) {
+      encEl.onclick = (e) => {
+        e.stopPropagation();
+        work.encrypted = !work.encrypted;
+        scheduleWorkSave(work); renderTopbar();
+        toast(work.encrypted ? '이 작품은 GitHub에 암호화되어 저장됩니다.' : '이 작품은 평문 JSON으로 저장됩니다.');
+        openTopMenu(anchor);
+      };
+    }
+    menu.querySelector('#tmSettings').onclick = () => { closeDropdown(); openSettingsModal(); };
+    menu.querySelector('#tmAccent').onclick = (e) => { e.stopPropagation(); openAccentMenu(anchor); };
+    menu.querySelector('#tmTheme').onclick = (e) => {
+      e.stopPropagation();
+      state.theme = state.theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('ps_theme', state.theme);
+      applyTheme(); renderTopbar();
+      if (state.viewMode === 'editor' && state.showPreview) {
+        const { item } = findFolderAndItem(getActiveBranch(), state.activeItemId);
+        if (item && (item.type === 'html' || item.type === 'jsx')) updateCodePreview(item);
+      }
+      openTopMenu(anchor);
+    };
+    menu.querySelector('#tmLineNum').onclick = (e) => {
+      e.stopPropagation();
+      state.showLineNumbers = !state.showLineNumbers;
+      localStorage.setItem('ps_line_numbers', state.showLineNumbers ? '1' : '0');
+      if (cmEditor) cmEditor.setOption('lineNumbers', state.showLineNumbers);
+      openTopMenu(anchor);
+    };
+    menu.querySelector('#tmMdEmph').onclick = (e) => {
+      e.stopPropagation();
+      state.mdEmphasis = !state.mdEmphasis;
+      localStorage.setItem('ps_md_emphasis', state.mdEmphasis ? '1' : '0');
+      if (cmEditor) {
+        const { item } = findFolderAndItem(getActiveBranch(), state.activeItemId);
+        if (item) cmEditor.setOption('mode', getEditorMode(item));
+      }
+      openTopMenu(anchor);
+    };
   }
 
   function openSimpleFormModal(title, fields, onSubmit) {
@@ -3307,8 +3355,7 @@
     $('sidebarBackdrop').onclick = () => { state.sidebarCollapsed = true; renderSidebar(); };
     $('btnWorkMenu').onclick = (e) => { e.stopPropagation(); openWorkMenu(e.currentTarget); };
     $('btnBranchMenu').onclick = (e) => { e.stopPropagation(); openBranchMenu(e.currentTarget); };
-    $('btnAccentPicker').onclick = (e) => { e.stopPropagation(); openAccentMenu(e.currentTarget); };
-    $('btnMobileMore').onclick = (e) => { e.stopPropagation(); openMobileMoreMenu(e.currentTarget); };
+    $('btnTopMenu').onclick = (e) => { e.stopPropagation(); openTopMenu(e.currentTarget); };
     $('btnHistory').onclick = openHistoryModal;
     $('btnQuickCharInfo').onclick = () => { state.viewMode = 'charInfo'; closeSidebarOnMobile(); renderAll(); };
 
@@ -3316,31 +3363,6 @@
       e.stopPropagation();
       state.showTokenPopover = !state.showTokenPopover;
       if (state.showTokenPopover) renderStatusbar(); else closeTokenPopover();
-    };
-
-    $('btnEncryptToggle').onclick = () => {
-      const w = getActiveWork();
-      if (!w) return;
-      w.encrypted = !w.encrypted;
-      scheduleWorkSave(w); renderTopbar();
-      toast(w.encrypted ? '이 작품은 GitHub에 암호화되어 저장됩니다.' : '이 작품은 평문 JSON으로 저장됩니다.');
-    };
-
-    $('btnTheme').onclick = () => {
-      state.theme = state.theme === 'dark' ? 'light' : 'dark';
-      localStorage.setItem('ps_theme', state.theme);
-      applyTheme(); renderTopbar();
-      if (state.viewMode === 'editor' && state.showPreview) {
-        const { item } = findFolderAndItem(getActiveBranch(), state.activeItemId);
-        if (item && (item.type === 'html' || item.type === 'jsx')) updateCodePreview(item);
-      }
-    };
-
-    $('btnSettings').onclick = () => {
-      CFG_TEXT_MAP.forEach(([id, k]) => { $(id).value = state.config[k] || ''; });
-      $('cfgPass').value = state.masterPass || '';
-      $('cfgRememberPass').checked = !!state.config.rememberPass;
-      toggleModal('modalSettings', true);
     };
 
     $('btnSaveSettings').onclick = () => {
