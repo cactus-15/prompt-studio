@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>프롬프트 아카이브 스튜디오</title>
+  <meta name="theme-color" id="metaThemeColor" content="#2563eb" />
+  <link id="appFavicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%232563eb'/%3E%3Cstop offset='100%25' stop-color='%231d4ed8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M21 16h14.5c7.2 0 12 4.3 12 10.8 0 6.6-4.8 11-12 11H28v10.2h-7V16zm7 6v9.8h6.8c3.6 0 5.7-1.8 5.7-4.9s-2.1-4.9-5.7-4.9H28z' fill='%23fff'/%3E%3C/svg%3E" />
+  <link id="appAppleIcon" rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%232563eb'/%3E%3Cstop offset='100%25' stop-color='%231d4ed8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M21 16h14.5c7.2 0 12 4.3 12 10.8 0 6.6-4.8 11-12 11H28v10.2h-7V16zm7 6v9.8h6.8c3.6 0 5.7-1.8 5.7-4.9s-2.1-4.9-5.7-4.9H28z' fill='%23fff'/%3E%3C/svg%3E" />
 
   <!-- CodeMirror 5 for Markdown Emphasis + HTML/JSX Highlighting -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css" />
@@ -193,8 +196,12 @@
       padding: 7px 10px; border-bottom: 1px solid var(--border); background: var(--bg-app);
       display: flex; align-items: center; justify-content: space-between; gap: 6px;
     }
-    .sidebar-tags { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; min-width: 0; flex: 1; }
-    .tag-chip { font-size: 11px; padding: 2px 6px; border-radius: 5px; background: var(--bg-subtle); color: var(--text-muted); }
+    .sidebar-tags {
+      display: flex; flex-wrap: nowrap; gap: 4px; align-items: center; min-width: 0; flex: 1;
+      overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    }
+    .sidebar-tags::-webkit-scrollbar { display: none; }
+    .tag-chip { font-size: 11px; padding: 2px 6px; border-radius: 5px; background: var(--bg-subtle); color: var(--text-muted); white-space: nowrap; flex-shrink: 0; }
 
     .sidebar-actions {
       display: flex; align-items: center; justify-content: space-between;
@@ -338,11 +345,9 @@
     }
     .gallery-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.25s ease; }
     .gallery-thumb-empty {
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-      color: var(--text-faint); width: 100%; height: 100%;
+      width: 100%; height: 100%;
       background: linear-gradient(145deg, var(--bg-sidebar), var(--bg-subtle));
     }
-    .gallery-thumb-letter { font-size: 38px; font-weight: 800; color: var(--border-strong); line-height: 1; user-select: none; }
 
     /* Gallery Overlay Badges */
     .g-badge-tl { position: absolute; top: 9px; left: 9px; display: flex; align-items: center; gap: 4px; z-index: 2; }
@@ -352,8 +357,8 @@
     .g-badge {
       display: inline-flex; align-items: center; gap: 4px;
       height: 22px; padding: 4px 8px; border-radius: 7px; font-size: 11.5px; font-weight: 700; line-height: 1.1;
-      letter-spacing: -0.01em; color: #ffffff; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22); user-select: none;
+      letter-spacing: -0.01em; color: #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18); user-select: none;
     }
     .g-badge-pin { background: rgba(10, 12, 16, 0.84); }
     .g-badge-enc { background: rgba(246, 80, 78, 0.7); }
@@ -772,6 +777,621 @@
       .lore-grid { grid-template-columns: 1fr; }
       .statusbar { padding: 0 10px; gap: 8px; }
     }
+
+
+    /* ==========================================================
+       HOME GALLERY — Contemporary UI refresh
+       Scoped to the home gallery so editor/work screens stay intact.
+       ========================================================== */
+    :root {
+      --home-canvas: #f6f7fb;
+      --home-panel: #ffffff;
+      --home-line: rgba(25, 35, 55, 0.075);
+      --home-shadow: 0 12px 34px rgba(24, 39, 75, 0.055);
+    }
+    [data-theme="dark"] {
+      --home-canvas: #15181d;
+      --home-panel: #1c2027;
+      --home-line: rgba(255, 255, 255, 0.075);
+      --home-shadow: 0 14px 36px rgba(0, 0, 0, 0.22);
+    }
+
+    .topbar:not(.in-work) {
+      height: 62px;
+      min-height: 62px;
+      padding: 0 clamp(16px, 3.2vw, 48px);
+      background: var(--bg-app);
+      border-bottom: 1px solid var(--home-line);
+      box-shadow: 0 3px 18px rgba(20, 32, 58, 0.025);
+    }
+    .topbar:not(.in-work) .topbar-left { gap: 0; }
+    .topbar:not(.in-work) .brand-title {
+      position: relative;
+      gap: 11px;
+      padding: 0;
+      font-size: 15px;
+      font-weight: 760;
+      letter-spacing: -0.045em;
+    }
+    .topbar:not(.in-work) .brand-title::before {
+      content: "P";
+      width: 34px;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 11px;
+      color: #fff;
+      font-size: 17px;
+      font-weight: 850;
+      letter-spacing: -0.06em;
+      background: linear-gradient(145deg, var(--accent), var(--accent-hover));
+      box-shadow: 0 5px 12px var(--accent-ring);
+    }
+    .topbar:not(.in-work) .topbar-right { gap: 8px; }
+    .topbar:not(.in-work) #btnTopMenu {
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
+      transition: background .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
+    }
+    .topbar:not(.in-work) #btnTopMenu:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent-border);
+      color: var(--accent-text);
+      transform: translateY(-1px);
+    }
+    .topbar:not(.in-work) .top-menu-dot { top: 5px; right: 5px; border: 1.5px solid var(--bg-app); }
+
+    .home-scroll { background: var(--home-canvas); }
+    .home-wrap {
+      width: min(100%, 1440px);
+      max-width: 1440px;
+      padding: 38px clamp(20px, 4.2vw, 58px) 76px;
+      gap: 24px;
+    }
+    .home-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 5px 1px 1px;
+    }
+    .home-heading-copy { min-width: 0; }
+    .home-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 9px;
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .15em;
+    }
+    .home-eyebrow-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+    .home-heading h1 {
+      color: var(--text-main);
+      font-size: clamp(25px, 2.7vw, 32px);
+      line-height: 1.2;
+      font-weight: 780;
+      letter-spacing: -.055em;
+    }
+    .home-heading p {
+      margin-top: 8px;
+      color: var(--text-muted);
+      font-size: 13px;
+      letter-spacing: -.015em;
+    }
+    .home-heading-mark {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 1px;
+      flex-shrink: 0;
+      padding: 0 2px 3px 16px;
+    }
+    .home-heading-mark-label {
+      color: var(--text-faint);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .13em;
+    }
+    .home-heading-mark strong {
+      color: var(--text-main);
+      font-size: 27px;
+      font-weight: 760;
+      line-height: 1.1;
+      letter-spacing: -.055em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .home-summary-bar {
+      min-height: 42px;
+      padding: 0 1px;
+      gap: 14px;
+    }
+    .home-stats {
+      gap: 11px;
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -.02em;
+    }
+    .home-stats > span:first-child { font-size: 13.5px; font-weight: 760; }
+    .home-stats-sep { color: var(--border-strong); }
+    .home-stats-sub {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 550;
+    }
+    .home-stat-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .home-stat-dot.synced { background: #22b879; }
+    .home-stat-dot.wip { background: #e6a23c; }
+    .home-controls { gap: 9px; }
+    .home-sort-wrap {
+      height: 39px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: var(--home-panel);
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 650;
+      white-space: nowrap;
+      transition: border-color .16s ease, box-shadow .16s ease;
+    }
+    .home-sort-wrap:focus-within {
+      border-color: var(--accent-border);
+      box-shadow: 0 0 0 3px var(--accent-ring);
+    }
+    .home-sort-select {
+      height: 35px;
+      min-width: 76px;
+      padding: 0 17px 0 0;
+      border: 0;
+      border-radius: 0;
+      outline: none;
+      background-color: transparent;
+      color: var(--text-main);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .home-new-work-btn {
+      height: 40px;
+      padding: 0 15px;
+      border-radius: 11px;
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      box-shadow: 0 5px 12px var(--accent-ring);
+      transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+    }
+    .home-new-work-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 17px var(--accent-ring);
+    }
+    .home-delete-sync {
+      height: 38px;
+      border-radius: 10px;
+      border-color: var(--danger-soft);
+      background: var(--danger-soft);
+      color: var(--danger);
+      font-weight: 650;
+    }
+
+    .home-filter-bar {
+      gap: 13px;
+      padding: 14px 15px;
+      border: 1px solid var(--home-line);
+      border-radius: 16px;
+      background: var(--home-panel);
+      box-shadow: var(--home-shadow);
+    }
+    .home-filter-row { gap: 12px; }
+    .home-search-wrap { flex: 1 1 300px; min-width: 220px; }
+    .home-search-wrap .search-icon-slot { left: 14px; color: var(--text-faint); }
+    .home-search-wrap .search-input {
+      height: 42px;
+      padding: 0 42px 0 42px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: var(--home-canvas);
+      color: var(--text-main);
+      font-size: 12.5px;
+      font-weight: 500;
+      letter-spacing: -.015em;
+      transition: border-color .16s ease, background .16s ease, box-shadow .16s ease;
+    }
+    .home-search-wrap .search-input::placeholder { color: var(--text-faint); }
+    .home-search-wrap .search-input:focus {
+      border-color: var(--accent);
+      background: var(--home-panel);
+      box-shadow: 0 0 0 3px var(--accent-ring);
+    }
+    .home-search-wrap .search-clear-btn {
+      right: 8px;
+      width: 27px;
+      height: 27px;
+      border-radius: 8px;
+      color: var(--text-muted);
+    }
+    .home-search-wrap .search-clear-btn:hover { background: var(--bg-hover); color: var(--text-main); }
+    .home-filter-bar .filter-pills { gap: 5px; }
+    .home-filter-bar .filter-pill {
+      height: 34px;
+      padding: 0 12px;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 11.5px;
+      font-weight: 650;
+      letter-spacing: -.025em;
+    }
+    .home-filter-bar .filter-pill:hover {
+      background: var(--bg-subtle);
+      color: var(--text-main);
+    }
+    .home-filter-bar .filter-pill.active {
+      border-color: var(--accent-border);
+      background: var(--accent-soft);
+      color: var(--accent-text);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+    }
+    .home-tags-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      flex-wrap: nowrap;
+      padding-top: 1px;
+      min-width: 0;
+    }
+    .home-tags-row.is-expanded {
+      align-items: flex-start;
+    }
+    .home-tags-label {
+      color: var(--text-faint);
+      font-size: 10.5px;
+      font-weight: 750;
+      letter-spacing: -.01em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .home-tags-row.is-expanded .home-tags-label {
+      padding-top: 6px;
+    }
+    .home-tags-row .filter-pills#homeTagPills {
+      flex: 1 1 auto;
+      min-width: 0;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding: 1px 14px 1px 0;
+      -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 18px), transparent);
+      mask-image: linear-gradient(to right, #000 calc(100% - 18px), transparent);
+    }
+    .home-tags-row .filter-pills#homeTagPills::-webkit-scrollbar { display: none; }
+    .home-tags-row.is-expanded .filter-pills#homeTagPills {
+      flex-wrap: wrap;
+      overflow-x: visible;
+      padding-right: 0;
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+    .home-tags-toggle {
+      height: 27px;
+      padding: 0 9px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--home-panel);
+      color: var(--text-muted);
+      font-size: 10.5px;
+      font-weight: 650;
+      white-space: nowrap;
+      flex-shrink: 0;
+      gap: 3px;
+      transition: background .14s ease, border-color .14s ease, color .14s ease;
+    }
+    .home-tags-toggle:hover {
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      border-color: var(--border-strong);
+    }
+    .home-tags-toggle svg {
+      transition: transform .18s ease;
+    }
+    .home-tags-row.is-expanded .home-tags-toggle svg {
+      transform: rotate(180deg);
+    }
+    .home-filter-bar .filter-tag-pill {
+      height: 27px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--home-canvas);
+      color: var(--text-muted);
+      font-size: 10.5px;
+      font-weight: 600;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background .15s ease, border-color .15s ease, color .15s ease, transform .15s ease;
+    }
+    .home-filter-bar .filter-tag-pill:hover {
+      border-color: var(--accent-border);
+      background: var(--accent-soft);
+      color: var(--accent-text);
+      transform: translateY(-1px);
+    }
+    .home-filter-bar .filter-tag-pill.active {
+      border-color: var(--accent-border);
+      background: var(--accent-soft);
+      color: var(--accent-text);
+      font-weight: 750;
+    }
+
+    .gallery-grid {
+      grid-template-columns: repeat(auto-fill, minmax(212px, 1fr));
+      gap: 26px 19px;
+    }
+    .gallery-card {
+      min-width: 0;
+      gap: 9px;
+      padding: 0;
+      border-radius: 15px;
+      transition: transform .2s ease;
+    }
+    .gallery-card:hover { transform: translateY(-3px); }
+    .gallery-thumb {
+      border: 1px solid var(--home-line);
+      border-radius: 16px;
+      box-shadow: 0 3px 10px rgba(20, 32, 58, .035);
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    .gallery-card:hover .gallery-thumb {
+      border-color: var(--accent-border);
+      box-shadow: 0 9px 22px rgba(20, 32, 58, .10);
+    }
+    .gallery-card:hover .gallery-thumb .gallery-img-main { transform: scale(1.045); }
+    .gallery-meta { gap: 5px; padding: 0 2px; }
+    .gallery-title-row { gap: 7px; }
+    .gallery-title {
+      font-size: 14px;
+      font-weight: 760;
+      letter-spacing: -.035em;
+      line-height: 1.4;
+    }
+    .gallery-title-row .tree-mini-btn {
+      width: 27px;
+      height: 27px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      color: var(--text-muted);
+      opacity: 0;
+      transition: opacity .15s ease, background .15s ease, border-color .15s ease;
+    }
+    .gallery-card:hover .gallery-title-row .tree-mini-btn,
+    .gallery-title-row .tree-mini-btn:focus-visible { opacity: 1; }
+    .gallery-title-row .tree-mini-btn:hover {
+      border-color: var(--border);
+      background: var(--home-panel);
+      color: var(--text-main);
+    }
+    .gallery-summary {
+      height: 2.9em;
+      color: var(--text-muted);
+      font-size: 11.5px;
+      line-height: 1.48;
+      letter-spacing: -.015em;
+    }
+    .gallery-tags { gap: 5px; margin-top: 1px; }
+    .gallery-tag-link {
+      padding: 2px 7px;
+      border: 1px solid var(--home-line);
+      border-radius: 6px;
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+      font-size: 10px;
+      line-height: 1.4;
+      cursor: pointer;
+      transition: background .14s ease, border-color .14s ease, color .14s ease;
+    }
+    .gallery-tag-link:hover {
+      border-color: var(--accent-border);
+      background: var(--accent-soft);
+      color: var(--accent-text);
+    }
+    .gallery-foot-sub {
+      margin-top: 3px;
+      color: var(--text-faint);
+      font-size: 10.5px;
+      gap: 7px;
+    }
+    .g-badge {
+      height: 25px;
+      padding: 0 9px;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(0,0,0,.18);
+    }
+    .g-badge-pin, .g-badge-status, .g-badge-branch { background: rgba(18, 22, 30, .84); }
+    .g-badge-enc { background: rgba(211, 66, 77, .90); }
+    .g-badge-status { font-size: 10px; }
+    .gallery-grid.is-vertical { gap: 23px 15px; }
+    .gallery-grid.is-vertical .gallery-card {
+      border: 1px solid var(--home-line);
+      border-radius: 17px;
+      box-shadow: 0 4px 12px rgba(20,32,58,.055);
+    }
+    .gallery-grid.is-vertical .gallery-card:hover {
+      border-color: var(--accent-border);
+      box-shadow: 0 11px 26px rgba(20,32,58,.14);
+    }
+    .gallery-grid.is-vertical .gallery-thumb { border: 0; border-radius: 0; box-shadow: none; }
+    .gallery-grid.is-vertical .gallery-title { font-size: 16px; }
+    .gallery-grid.is-vertical .gallery-summary { font-size: 11.5px; }
+    .gallery-grid.is-vertical .gallery-tags { gap: 5px; }
+    .gallery-grid.is-vertical .gallery-tag-link {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: rgba(255,255,255,.72);
+      font-size: 10px;
+    }
+    .gallery-grid.is-vertical .gallery-foot-sub { display: none; }
+
+    .gallery-empty-state {
+      grid-column: 1 / -1;
+      min-height: 250px;
+      padding: 42px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      border: 1px dashed var(--border-strong);
+      border-radius: 18px;
+      background: var(--home-panel);
+      text-align: center;
+    }
+    .gallery-empty-icon {
+      width: 43px;
+      height: 43px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4px;
+      border-radius: 14px;
+      background: var(--accent-soft);
+      color: var(--accent-text);
+    }
+    .gallery-empty-state strong {
+      color: var(--text-main);
+      font-size: 14px;
+      font-weight: 750;
+      letter-spacing: -.025em;
+    }
+    .gallery-empty-state > span:not(.gallery-empty-icon) {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+    .gallery-empty-state .btn { margin-top: 8px; border-radius: 9px; }
+
+    /* Refined dropdowns used by the global menu button */
+    .dropdown-menu {
+      min-width: 224px;
+      padding: 7px;
+      border: 1px solid var(--home-line);
+      border-radius: 14px;
+      box-shadow: 0 18px 48px rgba(15, 23, 42, .16);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+    .dd-label {
+      padding: 7px 10px 5px;
+      font-size: 9.5px;
+      font-weight: 800;
+      letter-spacing: .09em;
+    }
+    .dd-item {
+      min-height: 36px;
+      padding: 8px 10px;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 550;
+      letter-spacing: -.015em;
+    }
+    .dd-item:hover { background: var(--bg-subtle); }
+    .dd-item.active { background: var(--accent-soft); }
+    .dd-sep { margin: 6px 4px; background: var(--home-line); }
+
+    @media (max-width: 900px) {
+      .home-wrap { padding-left: 24px; padding-right: 24px; }
+      .home-filter-row { flex-wrap: wrap; }
+      .home-search-wrap { flex-basis: 100%; }
+    }
+    @media (max-width: 680px) {
+      .topbar:not(.in-work) { height: 56px; min-height: 56px; padding: 0 16px; }
+      .topbar:not(.in-work) .brand-title { font-size: 13.5px; gap: 9px; }
+      .topbar:not(.in-work) .brand-title::before { width: 31px; height: 31px; border-radius: 10px; }
+      .topbar:not(.in-work) #btnTopMenu { width: 35px; height: 35px; }
+      .home-wrap { padding: 25px 15px 54px; gap: 18px; }
+      .home-heading { align-items: flex-start; }
+      .home-heading h1 { font-size: 25px; }
+      .home-heading p { max-width: 260px; font-size: 11.5px; }
+      .home-heading-mark { padding: 2px 0 0 4px; }
+      .home-heading-mark-label { font-size: 8px; }
+      .home-heading-mark strong { font-size: 23px; }
+      .home-summary-bar { align-items: flex-start; gap: 12px; }
+      .home-stats { gap: 7px; row-gap: 5px; font-size: 11.5px; }
+      .home-stats > span:first-child { font-size: 12px; }
+      .home-stats-sub { font-size: 10.5px; }
+      .home-controls { width: 100%; justify-content: flex-end; }
+      .home-sort-wrap { height: 36px; }
+      .home-sort-select { height: 32px; }
+      .home-new-work-btn { height: 37px; padding: 0 12px; font-size: 11.5px; }
+      .home-filter-bar { padding: 11px; border-radius: 14px; }
+      .home-filter-row { gap: 9px; }
+      .home-search-wrap { min-width: 0; }
+      .home-search-wrap .search-input { height: 40px; }
+      .home-filter-bar .filter-pills#homeFilterPills {
+        width: 100%;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+      }
+      .home-filter-bar .filter-pills#homeFilterPills::-webkit-scrollbar { display: none; }
+      .home-filter-bar .filter-pill { flex: 0 0 auto; height: 32px; padding: 0 10px; }
+      .home-tags-row { gap: 7px; }
+      .home-tags-row .filter-pills { flex: 1; }
+      .home-filter-bar .filter-tag-pill { height: 25px; padding: 0 8px; }
+      .home-tags-toggle { height: 25px; padding: 0 8px; font-size: 10px; }
+      .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 19px 11px; }
+      .gallery-thumb { border-radius: 13px; }
+      .gallery-title { font-size: 13px; }
+      .gallery-summary { font-size: 10.5px; }
+      .gallery-tags { gap: 4px; }
+      .gallery-tag-link { padding: 2px 5px; font-size: 9px; }
+      .gallery-title-row .tree-mini-btn { opacity: 1; width: 24px; height: 24px; }
+      .gallery-grid.is-vertical { gap: 17px 8px; }
+      .gallery-grid.is-vertical .gallery-card { border-radius: 14px; }
+      .gallery-grid.is-vertical .gallery-meta { padding: 30px 9px 9px; }
+      .gallery-grid.is-vertical .gallery-title { font-size: 15px; }
+      .gallery-grid.is-vertical .gallery-summary { font-size: 10.5px; }
+      .gallery-empty-state { min-height: 220px; padding: 30px 14px; }
+    }
+    @media (max-width: 380px) {
+      .home-heading-mark { display: none; }
+      .home-controls { gap: 6px; }
+      .home-sort-wrap { padding: 0 8px; }
+      .home-new-work-btn { padding: 0 9px; }
+      .home-new-work-btn span { font-size: 10.5px; }
+    }
+
   </style>
 </head>
 <body>
@@ -1241,7 +1861,7 @@
     viewMode: 'home', // 'home' | 'charInfo' | 'editor' | 'loreCards' | 'textCards'
     activeFolderId: null, activeItemId: null,
     searchQuery: '', searchScope: 'current',
-    homeQuery: '', homeFilter: 'all', homeTag: '', homeSort: 'updated',
+    homeQuery: '', homeFilter: 'all', homeTag: '', homeSort: 'updated', homeTagsExpanded: false,
     galleryView: localStorage.getItem('ps_gallery_view') === 'vertical' ? 'vertical' : 'default',
     sidebarCollapsed: isMobile(), showPreview: true, showTokenPopover: false, isSyncing: false,
     showEditorFind: false, showEditorReplace: false, editorFindQuery: '', editorReplaceText: '',
@@ -1253,7 +1873,7 @@
     templates: readJsonLS('ps_templates', []),
     defaultTemplateId: localStorage.getItem('ps_default_tpl_id') || '',
     selectedTemplateId: '',
-    editingCardIds: new Set(), assetCache: new Map(), imgSquareCache: new Map(), jsxPropsMap: new Map(),
+    editingCardIds: new Set(), assetCache: new Map(), assetBlobUrlCache: new Map(), imgSquareCache: new Map(), jsxPropsMap: new Map(),
     deletedQueue: readJsonLS('ps_deleted_queue', []),
     config: { owner: '', repo: '', branch: 'main', token: '', rememberPass: true },
     masterPass: '',
@@ -1410,7 +2030,7 @@
       saveDeletedQueue();
     }
     await idb('works', 'delete', w.id);
-    if (w.profile?.assetPath) { state.assetCache.delete(w.profile.assetPath); await idb('assets', 'delete', w.profile.assetPath); }
+    if (w.profile?.assetPath) { revokeAssetBlobUrl(w.profile.assetPath); state.assetCache.delete(w.profile.assetPath); await idb('assets', 'delete', w.profile.assetPath); }
     state.works = state.works.filter(x => x.id !== w.id);
     if (state.activeWorkId === w.id) state.activeWorkId = state.works[0]?.id || null;
     if (!state.works.length || (!isHome() && !state.activeWorkId)) state.viewMode = 'home';
@@ -1443,22 +2063,45 @@
     return `#${ch(r)}${ch(g)}${ch(b)}`;
   };
 
+  function updateAppFavicon(c1, c2) {
+    const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#g)"/><path d="M21 16h14.5c7.2 0 12 4.3 12 10.8 0 6.6-4.8 11-12 11H28v10.2h-7V16zm7 6v9.8h6.8c3.6 0 5.7-1.8 5.7-4.9s-2.1-4.9-5.7-4.9H28z" fill="#fff"/></svg>`;
+    const svgUri = `data:image/svg+xml,${encodeURIComponent(svgStr)}`;
+    const fav = $('appFavicon');
+    if (fav) fav.href = svgUri;
+    const meta = $('metaThemeColor');
+    if (meta) meta.setAttribute('content', c1);
+    const apple = $('appAppleIcon');
+    if (apple) {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const cv = Object.assign(document.createElement('canvas'), { width: 180, height: 180 });
+          cv.getContext('2d').drawImage(img, 0, 0, 180, 180);
+          apple.href = cv.toDataURL('image/png');
+        } catch {}
+      };
+      img.src = svgUri;
+    }
+  }
+
   function applyAccentColor(hex = state.accentColor) {
     const base = normalizeHex(hex), isDark = state.theme === 'dark';
     state.accentColor = base;
     localStorage.setItem('ps_accent', base);
     const main = isDark && getLum(base) < 0.45 ? shadeHex(base, 0.34) : base;
+    const hover = shadeHex(main, isDark ? -0.12 : -0.14);
     const { r, g, b } = hexToRgb(main);
     const rgba = (a) => `rgba(${r},${g},${b},${a})`;
     const rootStyle = document.documentElement.style;
     Object.entries({
       '--accent': main,
-      '--accent-hover': shadeHex(main, isDark ? -0.12 : -0.14),
+      '--accent-hover': hover,
       '--accent-soft': rgba(isDark ? 0.18 : 0.10),
       '--accent-text': isDark ? shadeHex(main, 0.26) : shadeHex(main, getLum(main) > 0.65 ? -0.45 : -0.12),
       '--accent-border': rgba(isDark ? 0.36 : 0.28),
       '--accent-ring': rgba(isDark ? 0.22 : 0.16)
     }).forEach(([k, v]) => rootStyle.setProperty(k, v));
+    updateAppFavicon(base, shadeHex(base, -0.14));
   }
 
   function applyTheme() {
@@ -1568,13 +2211,43 @@
     return '';
   }
 
+  function revokeAssetBlobUrl(assetPath) {
+    if (!assetPath) return;
+    const prev = state.assetBlobUrlCache.get(assetPath);
+    if (prev) {
+      URL.revokeObjectURL(prev);
+      state.assetBlobUrlCache.delete(assetPath);
+      state.imgSquareCache.delete(prev);
+    }
+  }
+
+  function dataUrlToBlobUrl(dataUrl) {
+    const m = /^data:([^;,]+);base64,(.+)$/.exec(dataUrl || '');
+    if (!m) return dataUrl || '';
+    const bin = atob(m[2]);
+    const arr = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return URL.createObjectURL(new Blob([arr], { type: m[1] }));
+  }
+
+  async function getAssetRenderUrl(assetPath) {
+    if (!assetPath) return '';
+    if (state.assetBlobUrlCache.has(assetPath)) return state.assetBlobUrlCache.get(assetPath);
+    const dataUrl = await getAssetDataUrl(assetPath);
+    if (!dataUrl) return '';
+    const blobUrl = dataUrlToBlobUrl(dataUrl);
+    state.assetBlobUrlCache.set(assetPath, blobUrl);
+    return blobUrl;
+  }
+
   const getWorkThumbSrc = (work) => !work?.profile ? Promise.resolve('')
-    : (work.profile.assetPath ? getAssetDataUrl(work.profile.assetPath) : Promise.resolve(work.profile.externalUrl || ''));
+    : (work.profile.assetPath ? getAssetRenderUrl(work.profile.assetPath) : Promise.resolve(work.profile.externalUrl || ''));
 
   async function saveProfileAsset(work, file) {
     const dataUrl = await compressImageFile(file);
     const assetPath = `assets/${work.id}_profile.webp`;
     await idb('assets', 'put', { path: assetPath, dataUrl, dirty: true, updatedAt: Date.now() });
+    revokeAssetBlobUrl(assetPath);
     state.assetCache.set(assetPath, dataUrl);
     work.profile = { assetPath, externalUrl: '' };
     scheduleWorkSave(work);
@@ -1792,36 +2465,52 @@
     }
 
     const totalWorks = state.works.length;
-    const topTags = [...tagMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 14).map(([t]) => t);
+    const topTags = [...tagMap.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t);
     if (state.homeTag && !tagMap.has(state.homeTag)) state.homeTag = '';
 
     main.innerHTML = `
       <div class="home-scroll">
         <div class="home-wrap">
+          <section class="home-heading" aria-label="작품 라이브러리 소개">
+            <div class="home-heading-copy">
+              <div class="home-eyebrow"><span class="home-eyebrow-dot"></span> YOUR CREATIVE SPACE</div>
+              <h1>작품 라이브러리</h1>
+              <p>프롬프트와 세계관, 작업 버전을 한곳에서 관리하세요.</p>
+            </div>
+            <div class="home-heading-mark" aria-hidden="true">
+              <span class="home-heading-mark-label">TOTAL WORKS</span>
+              <strong>${totalWorks.toLocaleString('ko-KR')}</strong>
+            </div>
+          </section>
+
           <div class="home-summary-bar">
             <div class="home-stats">
               <span>전체 작품 ${totalWorks}개</span>
-              <span class="home-stats-sep">|</span>
-              <span class="home-stats-sub">배포 완료 ${syncedCount} · 제작중 ${totalWorks - syncedCount}</span>
-              <span class="home-stats-sep hide-xs">|</span>
+              <span class="home-stats-sep">·</span>
+              <span class="home-stats-sub"><span class="home-stat-dot synced"></span>배포 완료 ${syncedCount}</span>
+              <span class="home-stats-sub"><span class="home-stat-dot wip"></span>제작중 ${totalWorks - syncedCount}</span>
+              <span class="home-stats-sep hide-xs">·</span>
               <span class="home-stats-sub hide-xs">누적 ${fmtShort(totalTokensAll)} 토큰</span>
             </div>
             <div class="home-controls">
-              ${state.deletedQueue.length ? `<button class="btn btn-sm" id="btnHomeSyncDel" style="color:var(--danger);border-color:var(--danger-soft);background:var(--danger-soft);">${ICONS.cloud}<span>삭제 반영 (${state.deletedQueue.length})</span></button>` : ''}
-              <select class="home-sort-select" id="homeSortSelect" aria-label="정렬">
-                ${[['updated', '최신순'], ['oldest', '오래된 순'], ['title', '제목순'], ['tokens', '토큰순'], ['branches', '분기순']].map(([v, l]) =>
-                  `<option value="${v}" ${state.homeSort === v ? 'selected' : ''}>${l}</option>`).join('')}
-              </select>
-              <button class="btn btn-primary" id="btnHomeNewWork">${ICONS.plus}<span>새 작품</span></button>
+              ${state.deletedQueue.length ? `<button class="btn btn-sm home-delete-sync" id="btnHomeSyncDel">${ICONS.cloud}<span>삭제 반영 (${state.deletedQueue.length})</span></button>` : ''}
+              <label class="home-sort-wrap" aria-label="작품 정렬">
+                <span>정렬</span>
+                <select class="home-sort-select" id="homeSortSelect" aria-label="정렬">
+                  ${[['updated', '최신순'], ['oldest', '오래된 순'], ['title', '제목순'], ['tokens', '토큰순'], ['branches', '분기순']].map(([v, l]) =>
+                    `<option value="${v}" ${state.homeSort === v ? 'selected' : ''}>${l}</option>`).join('')}
+                </select>
+              </label>
+              <button class="btn btn-primary home-new-work-btn" id="btnHomeNewWork">${ICONS.plus}<span>새 작품 만들기</span></button>
             </div>
           </div>
 
-          <div class="home-filter-bar">
+          <section class="home-filter-bar" aria-label="작품 검색 및 필터">
             <div class="home-filter-row">
               <div class="home-search-wrap">
                 <span class="search-icon-slot">${ICONS.search}</span>
-                <input type="text" class="search-input" id="homeSearchInput" value="${escHtml(state.homeQuery)}" placeholder="작품 제목, 소개, 태그 검색..." />
-                <button type="button" class="search-clear-btn ${state.homeQuery ? '' : 'hidden'}" id="btnClearHomeSearch">${ICONS.close}</button>
+                <input type="text" class="search-input" id="homeSearchInput" value="${escHtml(state.homeQuery)}" placeholder="작품명, 소개, 태그로 검색" aria-label="작품 검색" />
+                <button type="button" class="search-clear-btn ${state.homeQuery ? '' : 'hidden'}" id="btnClearHomeSearch" aria-label="검색어 지우기">${ICONS.close}</button>
               </div>
               <div class="filter-pills" id="homeFilterPills">
                 ${[['all', '전체'], ['pinned', '고정됨'], ['wip', '제작중'], ['synced', '배포 완료'], ['encrypted', '암호화']].map(([v, l]) =>
@@ -1829,10 +2518,14 @@
               </div>
             </div>
             ${topTags.length ? `
-              <div class="filter-pills" id="homeTagPills">
-                ${topTags.map(t => `<button type="button" class="filter-tag-pill ${state.homeTag === t ? 'active' : ''}" data-htag="${escHtml(t)}">#${escHtml(t)}</button>`).join('')}
+              <div class="home-tags-row ${state.homeTagsExpanded ? 'is-expanded' : ''}" id="homeTagsRow">
+                <span class="home-tags-label">태그</span>
+                <div class="filter-pills" id="homeTagPills">
+                  ${topTags.map(t => `<button type="button" class="filter-tag-pill ${state.homeTag === t ? 'active' : ''}" data-htag="${escHtml(t)}">#${escHtml(t)}</button>`).join('')}
+                </div>
+                ${topTags.length > 4 ? `<button type="button" class="home-tags-toggle" id="btnToggleHomeTags" aria-expanded="${state.homeTagsExpanded ? 'true' : 'false'}"><span>${state.homeTagsExpanded ? '접기' : '펼치기'}</span>${ICONS.chevDown}</button>` : ''}
               </div>` : ''}
-          </div>
+          </section>
 
           <div class="gallery-grid" id="galleryGrid"></div>
         </div>
@@ -1849,11 +2542,10 @@
       grid.classList.toggle('is-vertical', isVertical);
       grid.innerHTML = items.length ? items.map(({ work: w, stats }) => {
         const tags = w.tags || [], shownTags = tags.slice(0, 3), extraTags = tags.length - shownTags.length;
-        const initial = (w.title || 'W').trim().charAt(0).toUpperCase();
         return `
           <article class="gallery-card" data-open-work="${w.id}">
             <div class="gallery-thumb" data-thumb-slot="${w.id}">
-              <div class="gallery-thumb-empty"><span class="gallery-thumb-letter">${escHtml(initial)}</span></div>
+              <div class="gallery-thumb-empty"></div>
               ${w.pinned ? `<div class="g-badge-tl"><span class="g-badge g-badge-pin" title="고정됨">${ICONS.pin}<span>고정됨</span></span></div>` : ''}
               <div class="g-badge-tr">
                 ${w.encrypted ? `<span class="g-badge g-badge-enc" title="암호화">${ICONS.lock}<span>암호화</span></span>` : ''}
@@ -1877,9 +2569,13 @@
             </div>
           </article>`;
       }).join('') : `
-        <div style="grid-column:1/-1;padding:64px 20px;text-align:center;color:var(--text-faint);display:flex;flex-direction:column;align-items:center;gap:12px;">
-          <div>${state.works.length ? '조건에 맞는 작품이 없습니다.' : '등록된 작품이 없습니다. 새 작품을 만들어 보세요.'}</div>
-          ${state.works.length ? '<button class="btn btn-sm" id="btnResetHomeFilter">필터 초기화</button>' : ''}
+        <div class="gallery-empty-state">
+          <span class="gallery-empty-icon">${ICONS.search}</span>
+          <strong>${state.works.length ? '조건에 맞는 작품이 없습니다.' : '아직 등록된 작품이 없습니다.'}</strong>
+          <span>${state.works.length ? '검색어나 필터를 조정해 다시 찾아보세요.' : '첫 번째 작품을 만들어 나만의 아카이브를 시작해 보세요.'}</span>
+          ${state.works.length
+            ? '<button class="btn btn-sm" id="btnResetHomeFilter">필터 초기화</button>'
+            : '<button class="btn btn-primary btn-sm" id="btnEmptyCreateWork">새 작품 만들기</button>'}
         </div>`;
 
       const applySquareFit = (slot, img, pos) => {
@@ -1898,7 +2594,7 @@
         if (!empty) return;
         const pos = getProfilePos(w);
         const img = Object.assign(document.createElement('img'), {
-          className: 'gallery-img-main', src, alt: w.title || '', loading: 'lazy'
+          className: 'gallery-img-main', src, alt: w.title || '', loading: 'lazy', decoding: 'async'
         });
         img.style.objectPosition = pos;
         empty.replaceWith(img);
@@ -1945,7 +2641,21 @@
         if (btn) { state.homeTag = state.homeTag === btn.dataset.htag ? '' : btn.dataset.htag; renderGrid(); }
       };
     }
+    if ($('btnToggleHomeTags')) {
+      $('btnToggleHomeTags').onclick = () => {
+        state.homeTagsExpanded = !state.homeTagsExpanded;
+        const row = $('homeTagsRow');
+        const btn = $('btnToggleHomeTags');
+        if (row) row.classList.toggle('is-expanded', state.homeTagsExpanded);
+        if (btn) {
+          btn.setAttribute('aria-expanded', state.homeTagsExpanded ? 'true' : 'false');
+          const sp = btn.querySelector('span');
+          if (sp) sp.textContent = state.homeTagsExpanded ? '접기' : '펼치기';
+        }
+      };
+    }
     $('galleryGrid').onclick = (e) => {
+      if (e.target.closest('#btnEmptyCreateWork')) return createAndOpenNewWork();
       if (e.target.closest('#btnResetHomeFilter')) {
         state.homeQuery = $('homeSearchInput').value = '';
         state.homeFilter = 'all'; state.homeTag = '';
@@ -2132,7 +2842,7 @@
     $('btnUploadProfile').onclick = () => $('profileFileInput').click();
     $('profileFileInput').onchange = async (e) => { if (e.target.files?.[0]) await saveProfileAsset(work, e.target.files[0]); };
     $('btnRemoveProfile').onclick = async () => {
-      if (work.profile?.assetPath) { state.assetCache.delete(work.profile.assetPath); await idb('assets', 'delete', work.profile.assetPath); }
+      if (work.profile?.assetPath) { revokeAssetBlobUrl(work.profile.assetPath); state.assetCache.delete(work.profile.assetPath); await idb('assets', 'delete', work.profile.assetPath); }
       work.profile = { assetPath: '', externalUrl: '' };
       scheduleWorkSave(work); renderTopbar(); renderMain();
       toast('프로필 이미지를 제거했습니다.');
