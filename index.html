@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>프롬프트 아카이브 스튜디오</title>
-  <meta name="theme-color" id="metaThemeColor" content="#2563eb" />
+  <meta name="theme-color" id="metaThemeColor" content="#ffffff" />
   <link id="appFavicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%232563eb'/%3E%3Cstop offset='100%25' stop-color='%231d4ed8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M21 16h14.5c7.2 0 12 4.3 12 10.8 0 6.6-4.8 11-12 11H28v10.2h-7V16zm7 6v9.8h6.8c3.6 0 5.7-1.8 5.7-4.9s-2.1-4.9-5.7-4.9H28z' fill='%23fff'/%3E%3C/svg%3E" />
   <link id="appAppleIcon" rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%232563eb'/%3E%3Cstop offset='100%25' stop-color='%231d4ed8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M21 16h14.5c7.2 0 12 4.3 12 10.8 0 6.6-4.8 11-12 11H28v10.2h-7V16zm7 6v9.8h6.8c3.6 0 5.7-1.8 5.7-4.9s-2.1-4.9-5.7-4.9H28z' fill='%23fff'/%3E%3C/svg%3E" />
 
@@ -322,15 +322,17 @@
       border: 1px solid var(--border); background: var(--bg-app); color: var(--text-secondary);
       transition: all 0.14s ease;
     }
-    .filter-pill:hover { background: var(--bg-hover); color: var(--text-main); }
     .filter-pill.active { background: var(--accent); border-color: var(--accent); color: #ffffff; }
     .filter-tag-pill {
       height: 25px; padding: 0 9px; border-radius: 6px; font-size: 11.5px; font-weight: 500;
       background: var(--bg-subtle); color: var(--text-muted); border: 1px solid transparent;
       transition: all 0.12s ease;
     }
-    .filter-tag-pill:hover { background: var(--bg-hover); color: var(--text-main); }
     .filter-tag-pill.active { background: var(--accent-soft); color: var(--accent-text); border-color: var(--accent-border); }
+    @media (hover: hover) {
+      .filter-pill:hover { background: var(--bg-hover); color: var(--text-main); }
+      .filter-tag-pill:hover { background: var(--bg-hover); color: var(--text-main); }
+    }
 
     .gallery-grid {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
@@ -350,25 +352,25 @@
     }
 
     /* Gallery Overlay Badges */
-    .g-badge-tl { position: absolute; top: 9px; left: 9px; display: flex; align-items: center; gap: 4px; z-index: 2; }
-    .g-badge-tr { position: absolute; top: 9px; right: 9px; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; z-index: 2; }
-    .g-badge-br { position: absolute; bottom: 9px; right: 9px; z-index: 2; }
+    .g-badge-tl { position: absolute; top: 7px; left: 7px; display: flex; align-items: center; gap: 4px; z-index: 2; }
+    .g-badge-tr { position: absolute; top: 7px; right: 7px; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; z-index: 2; }
+    .g-badge-br { position: absolute; bottom: 7px; right: 7px; z-index: 2; }
 
     .g-badge {
-      display: inline-flex; align-items: center; gap: 4px;
-      height: 22px; padding: 4px 8px; border-radius: 7px; font-size: 11.5px; font-weight: 700; line-height: 1.1;
+      display: inline-flex; align-items: center; gap: 3px;
+      height: 20px; padding: 0 6px; border-radius: 6px; font-size: 10px; font-weight: 600; line-height: 1;
       letter-spacing: -0.01em; color: #ffffff;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18); user-select: none;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18); user-select: none;
     }
-    .g-badge-pin { background: rgba(10, 12, 16, 0.84); }
-    .g-badge-enc { background: rgba(246, 80, 78, 0.7); }
-    .g-badge-status { background: rgba(15, 18, 24, 0.78); font-weight: 600; font-size: 11px; }
-    .g-badge-status .s-dot { width: 6px; height: 6px; border-radius: 999px; flex-shrink: 0; }
+    .g-badge svg { width: 11px; height: 11px; flex-shrink: 0; }
+    .g-badge-pin { background: rgba(16, 20, 28, 0.76); }
+    .g-badge-enc { background: rgba(220, 68, 78, 0.88); font-weight: 700; }
+    .g-badge-status { background: rgba(16, 20, 28, 0.74); font-weight: 600; }
+    .g-badge-status .s-dot { width: 5px; height: 5px; border-radius: 999px; flex-shrink: 0; }
     .g-badge-status.wip .s-dot { background: #fbbf24; }
     .g-badge-status.synced .s-dot { background: #34d399; }
     .g-badge-branch {
-      background: rgba(15, 18, 24, 0.76); padding: 4px 9px; border-radius: 8px;
-      font-size: 11.5px; font-weight: 600; font-variant-numeric: tabular-nums;
+      background: rgba(16, 20, 28, 0.74); font-weight: 600; font-variant-numeric: tabular-nums;
     }
 
     .gallery-meta { display: flex; flex-direction: column; gap: 3px; padding: 0 2px; min-width: 0; }
@@ -381,7 +383,6 @@
     }
     .gallery-tags { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; font-size: 12px; color: var(--text-muted); margin-top: 1px; }
     .gallery-tag-link { color: var(--text-muted); transition: color 0.12s ease; }
-    .gallery-tag-link:hover { color: var(--accent-text); }
     .gallery-foot-sub {
       font-size: 11.5px; color: var(--text-faint); font-variant-numeric: tabular-nums;
       display: flex; align-items: center; gap: 6px; margin-top: 1px;
@@ -1049,15 +1050,17 @@
       font-weight: 650;
       letter-spacing: -.025em;
     }
-    .home-filter-bar .filter-pill:hover {
-      background: var(--bg-subtle);
-      color: var(--text-main);
-    }
     .home-filter-bar .filter-pill.active {
       border-color: var(--accent-border);
       background: var(--accent-soft);
       color: var(--accent-text);
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+    }
+    @media (hover: hover) {
+      .home-filter-bar .filter-pill:hover:not(.active) {
+        background: var(--bg-subtle);
+        color: var(--text-main);
+      }
     }
     .home-tags-row {
       display: flex;
@@ -1114,11 +1117,6 @@
       gap: 3px;
       transition: background .14s ease, border-color .14s ease, color .14s ease;
     }
-    .home-tags-toggle:hover {
-      background: var(--bg-subtle);
-      color: var(--text-main);
-      border-color: var(--border-strong);
-    }
     .home-tags-toggle svg {
       transition: transform .18s ease;
     }
@@ -1138,17 +1136,24 @@
       flex-shrink: 0;
       transition: background .15s ease, border-color .15s ease, color .15s ease, transform .15s ease;
     }
-    .home-filter-bar .filter-tag-pill:hover {
-      border-color: var(--accent-border);
-      background: var(--accent-soft);
-      color: var(--accent-text);
-      transform: translateY(-1px);
-    }
     .home-filter-bar .filter-tag-pill.active {
       border-color: var(--accent-border);
       background: var(--accent-soft);
       color: var(--accent-text);
       font-weight: 750;
+    }
+    @media (hover: hover) {
+      .home-tags-toggle:hover {
+        background: var(--bg-subtle);
+        color: var(--text-main);
+        border-color: var(--border-strong);
+      }
+      .home-filter-bar .filter-tag-pill:hover:not(.active) {
+        border-color: var(--border-strong);
+        background: var(--bg-hover);
+        color: var(--text-main);
+        transform: translateY(-1px);
+      }
     }
 
     .gallery-grid {
@@ -1217,10 +1222,18 @@
       cursor: pointer;
       transition: background .14s ease, border-color .14s ease, color .14s ease;
     }
-    .gallery-tag-link:hover {
+    .gallery-tag-link.active {
       border-color: var(--accent-border);
       background: var(--accent-soft);
       color: var(--accent-text);
+      font-weight: 650;
+    }
+    @media (hover: hover) {
+      .gallery-tag-link:hover:not(.active) {
+        border-color: var(--border-strong);
+        background: var(--bg-hover);
+        color: var(--text-main);
+      }
     }
     .gallery-foot-sub {
       margin-top: 3px;
@@ -1229,17 +1242,17 @@
       gap: 7px;
     }
     .g-badge {
-      height: 25px;
-      padding: 0 9px;
-      border: 1px solid rgba(255,255,255,.14);
-      border-radius: 999px;
+      height: 20px;
+      padding: 0 6px;
+      border: none;
+      border-radius: 6px;
       font-size: 10px;
-      font-weight: 700;
-      box-shadow: 0 2px 8px rgba(0,0,0,.18);
+      font-weight: 650;
+      gap: 3px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.18);
     }
-    .g-badge-pin, .g-badge-status, .g-badge-branch { background: rgba(18, 22, 30, .84); }
-    .g-badge-enc { background: rgba(211, 66, 77, .90); }
-    .g-badge-status { font-size: 10px; }
+    .g-badge-pin, .g-badge-status, .g-badge-branch { background: rgba(16, 20, 28, .76); }
+    .g-badge-enc { background: rgba(220, 68, 78, .88); font-weight: 700; }
     .gallery-grid.is-vertical { gap: 23px 15px; }
     .gallery-grid.is-vertical .gallery-card {
       border: 1px solid var(--home-line);
@@ -1372,6 +1385,14 @@
       .home-tags-toggle { height: 25px; padding: 0 8px; font-size: 10px; }
       .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 19px 11px; }
       .gallery-thumb { border-radius: 13px; }
+      .g-badge-tl { top: 6px; left: 6px; gap: 3px; }
+      .g-badge-tr { top: 6px; right: 6px; gap: 3px; }
+      .g-badge-br { bottom: 6px; right: 6px; }
+      .g-badge, .g-badge-branch { height: 17.5px; padding: 0 5px; border-radius: 5px; font-size: 9px; gap: 2.5px; }
+      .g-badge svg { width: 9.5px; height: 9.5px; }
+      .g-badge-status .s-dot { width: 4.5px; height: 4.5px; }
+      .gallery-grid.is-vertical .g-badge-pin,
+      .gallery-grid.is-vertical .g-badge-enc { width: 22px; height: 22px; padding: 0; border-radius: 6px; }
       .gallery-title { font-size: 13px; }
       .gallery-summary { font-size: 10.5px; }
       .gallery-tags { gap: 4px; }
@@ -2062,6 +2083,11 @@
     const ch = (c) => Math.max(0, Math.min(255, Math.round(amt < 0 ? c * (1 + amt) : c + (255 - c) * amt))).toString(16).padStart(2, '0');
     return `#${ch(r)}${ch(g)}${ch(b)}`;
   };
+  const mixHex = (hex1, hex2, ratio) => {
+    const a = hexToRgb(hex1), b = hexToRgb(hex2);
+    const ch = (x, y) => Math.max(0, Math.min(255, Math.round(x + (y - x) * ratio))).toString(16).padStart(2, '0');
+    return `#${ch(a.r, b.r)}${ch(a.g, b.g)}${ch(a.b, b.b)}`;
+  };
 
   function updateAppFavicon(c1, c2) {
     const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#g)"/><path d="M21 16h14.5c7.2 0 12 4.3 12 10.8 0 6.6-4.8 11-12 11H28v10.2h-7V16zm7 6v9.8h6.8c3.6 0 5.7-1.8 5.7-4.9s-2.1-4.9-5.7-4.9H28z" fill="#fff"/></svg>`;
@@ -2069,7 +2095,10 @@
     const fav = $('appFavicon');
     if (fav) fav.href = svgUri;
     const meta = $('metaThemeColor');
-    if (meta) meta.setAttribute('content', c1);
+    if (meta) {
+      const chromeBg = mixHex(state.theme === 'dark' ? '#131518' : '#ffffff', c1, 0.06);
+      meta.setAttribute('content', chromeBg);
+    }
     const apple = $('appAppleIcon');
     if (apple) {
       const img = new Image();
@@ -2561,7 +2590,7 @@
                 <button type="button" class="tree-mini-btn" data-gmenu="${w.id}" title="작품 메뉴">${ICONS.moreV}</button>
               </div>
               <div class="gallery-summary">${escHtml(w.summary || '.')}</div>
-              <div class="gallery-tags">${shownTags.map(t => `<span class="gallery-tag-link" data-pick-tag="${escHtml(t)}">#${escHtml(t)}</span>`).join('')}${extraTags > 0 ? `<span>+${extraTags}</span>` : ''}</div>
+              <div class="gallery-tags">${shownTags.map(t => `<span class="gallery-tag-link ${state.homeTag === t ? 'active' : ''}" data-pick-tag="${escHtml(t)}">#${escHtml(t)}</span>`).join('')}${extraTags > 0 ? `<span>+${extraTags}</span>` : ''}</div>
               <div class="gallery-foot-sub">
                 <span>${fmtShort(stats.tokens)} 토큰</span><span>·</span>
                 <span title="생성일">${new Date(getWorkCreatedAt(w) || Date.now()).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}</span>
@@ -2638,7 +2667,11 @@
     if ($('homeTagPills')) {
       $('homeTagPills').onclick = (e) => {
         const btn = e.target.closest('[data-htag]');
-        if (btn) { state.homeTag = state.homeTag === btn.dataset.htag ? '' : btn.dataset.htag; renderGrid(); }
+        if (btn) {
+          state.homeTag = state.homeTag === btn.dataset.htag ? '' : btn.dataset.htag;
+          btn.blur();
+          renderGrid();
+        }
       };
     }
     if ($('btnToggleHomeTags')) {
