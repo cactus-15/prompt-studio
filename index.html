@@ -416,9 +416,8 @@
     .gallery-grid.is-vertical .gallery-meta .tree-mini-btn { color: rgba(255, 255, 255, 0.75); }
     .gallery-grid.is-vertical .gallery-meta .tree-mini-btn:hover { background: rgba(255, 255, 255, 0.16); color: #ffffff; }
     .gallery-grid.is-vertical .gallery-summary { color: rgba(255, 255, 255, 0.88);line-height: 1.3; }
-    .gallery-grid.is-vertical .gallery-tags{ font-size:10px; },
+    .gallery-grid.is-vertical .gallery-tags { font-size: 10px; min-height: 1.45em; flex-wrap: nowrap; overflow: hidden; }
     .gallery-grid.is-vertical .gallery-tag-link { color: rgba(255, 255, 255, 0.68); }
-    .gallery-grid.is-vertical .gallery-tags { min-height: 1.45em; flex-wrap: nowrap; overflow: hidden; }
     .gallery-grid.is-vertical .gallery-tags > * { white-space: nowrap; flex-shrink: 0; }
     .gallery-grid.is-vertical .gallery-tag-link:hover { color: #d0d0d0; }
 
@@ -1586,6 +1585,7 @@
       btnToggleSidebar: ICONS.sidebar,
       btnGoHome: ICONS.home,
       btnHistory: `${ICONS.history}<span class="hide-xs">이전 작업내역</span>`,
+      btnTopMenu: `${ICONS.settings}<span class="pill-dot top-menu-dot" id="topMenuDot"></span>`,
       btnGitSave: `${ICONS.save}<span class="hide-xs">저장</span>`,
       searchIconSlot: ICONS.search,
       btnClearSearch: ICONS.close,
@@ -1599,11 +1599,16 @@
     }).forEach(([id, html]) => { $(id).innerHTML = html; });
   }
 
-  function updateTopbarStatusDot() {
-    const connected = isGhReady();
+  const getSyncDotClass = () => {
     const anyDirty = state.deletedQueue.length > 0 || (isHome() ? state.works.some(w => w.dirty) : !!getActiveWork()?.dirty);
-    const dotCls = anyDirty ? 'dirty' : (connected ? 'connected' : '');
-    $('btnTopMenu').innerHTML = `${ICONS.settings}<span class="pill-dot top-menu-dot ${dotCls}"></span>`;
+    return anyDirty ? 'dirty' : (isGhReady() ? 'connected' : '');
+  };
+
+  function updateTopbarStatusDot() {
+    const dot = $('topMenuDot');
+    if (!dot) return;
+    const next = `pill-dot top-menu-dot ${getSyncDotClass()}`;
+    if (dot.className !== next) dot.className = next;
   }
 
   async function renderTopbar() {
@@ -1986,8 +1991,11 @@
     menu.querySelector('#gqCsv').onclick = () => { closeDropdown(); exportLorebookCsv(work); };
     menu.querySelector('#gqPush').onclick = async () => {
       closeDropdown();
+      if (state.isSyncing) return;
+      state.isSyncing = true;
       try { toast(`'${work.title || '제목 없음'}' GitHub 푸시 중...`); await pushWorkToGitHub(work); toast('GitHub 단독 푸시 완료!'); }
       catch (e) { toast(e.message); }
+      finally { state.isSyncing = false; updateTopbarStatusDot(); }
     };
     menu.querySelector('#gqDel').onclick = async () => { closeDropdown(); await deleteWorkById(work.id); };
   }
@@ -2341,7 +2349,7 @@
       if (!it) return;
       it[field] = e.target.value;
       scheduleWorkSave(work);
-      if (field === 'content') renderStatusbar();
+      if (field === 'content') scheduleStatusbarRender();
     };
   }
 
@@ -2517,7 +2525,7 @@
       scheduleWorkSave(work);
       const mEl = $('editorItemMetric');
       if (mEl) mEl.textContent = fmtMetric(val);
-      renderStatusbar();
+      scheduleStatusbarRender();
       if (state.showEditorFind && !suppressFindSync) { clearTimeout(findSyncTimer); findSyncTimer = setTimeout(() => runFind(true, false), 150); }
       if (isCode && state.showPreview) { clearTimeout(previewTimer); previewTimer = setTimeout(() => updateCodePreview(item), 380); }
     };
@@ -2804,7 +2812,14 @@
   /* ================= TOKEN MINI-BAR STATUSBAR & POPOVER ================= */
   const closeTokenPopover = () => { state.showTokenPopover = false; $('tokenPopoverRoot').innerHTML = ''; };
 
+  let statusbarTimer = null;
+  function scheduleStatusbarRender() {
+    clearTimeout(statusbarTimer);
+    statusbarTimer = setTimeout(renderStatusbar, 150);
+  }
+
   function renderStatusbar() {
+    clearTimeout(statusbarTimer);
     const bar = $('statusbar'), work = getActiveWork(), branch = getActiveBranch(work);
     if (isHome() || !work || !branch) { bar.classList.add('hidden'); return closeTokenPopover(); }
     bar.classList.remove('hidden');
@@ -3182,8 +3197,7 @@
   function openTopMenu(anchor) {
     const home = isHome(), work = getActiveWork(), isEnc = !!work?.encrypted;
     const connected = isGhReady();
-    const anyDirty = state.deletedQueue.length > 0 || (home ? state.works.some(w => w.dirty) : !!work?.dirty);
-    const dotCls = anyDirty ? 'dirty' : (connected ? 'connected' : '');
+    const dotCls = getSyncDotClass();
     const isDark = state.theme === 'dark';
 
     const menu = showDropdown(anchor, `
@@ -3522,8 +3536,13 @@
     };
 
     $('btnPullAll').onclick = async () => {
+      if (state.isSyncing) return;
+      const btn = $('btnPullAll');
+      state.isSyncing = true;
+      btn.disabled = true;
       try { await pullAllFromGitHub(); toggleModal('modalSettings', false); }
       catch (e) { toast(e.message); }
+      finally { state.isSyncing = false; btn.disabled = false; updateTopbarStatusDot(); }
     };
 
     $('btnRestoreVersion').onclick = async () => {
