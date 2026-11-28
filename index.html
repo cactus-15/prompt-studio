@@ -327,7 +327,7 @@
 
     .gallery-grid {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-      gap: 18px 12px; align-items: start;
+      gap: 18px 14px; align-items: start;
     }
     .gallery-card { display: flex; flex-direction: column; gap: 7px; cursor: pointer; }
     .gallery-card:hover .gallery-thumb .gallery-img-main { transform: scale(1.03); }
@@ -384,7 +384,7 @@
 
     /* Vertical Gallery View (1:1.6) */
     .gallery-grid:not(.is-vertical) .gallery-tags:empty { display: none; }
-    .gallery-grid.is-vertical { gap: 26px 8px; }
+    .gallery-grid.is-vertical { gap: 24px 10px; }
     .gallery-grid.is-vertical .gallery-card {
       position: relative; aspect-ratio: 1 / 1.6; border-radius: 8px; overflow: hidden;
       border: 1px solid var(--border); background: var(--bg-subtle); gap: 0;
@@ -2042,7 +2042,7 @@
         </div>
         <div class="char-info-section">
           <div class="field-label-row"><span class="field-label">한 줄 소개</span><span class="field-counter ${sumLen > 80 ? 'over' : ''}" id="summaryCounter">${sumLen} / 80자</span></div>
-          <textarea class="field-input" id="charSummaryInput" rows="2" placeholder="작품을 소개해 주세요 (Enter로 줄바꿈)">${escHtml(work.summary || '')}</textarea>
+          <textarea class="field-input" id="charSummaryInput" rows="2" placeholder="작품을 소개해 주세요 (Enter로 줄바꿈)">${escHtml(work.summary || '.')}</textarea>
         </div>
         <div class="char-info-section">
           <div class="field-label-row"><span class="field-label">해시태그 (쉼표로 구분)</span><span class="field-counter" id="tagsCounter">${(work.tags || []).length}개</span></div>
