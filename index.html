@@ -1846,7 +1846,7 @@
           <article class="gallery-card" data-open-work="${w.id}">
             <div class="gallery-thumb" data-thumb-slot="${w.id}">
               <div class="gallery-thumb-empty"><span class="gallery-thumb-letter">${escHtml(initial)}</span></div>
-              ${w.pinned ? `<div class="g-badge-tl"><span class="g-badge g-badge-pin" title="고정됨"><span>고정됨</span>${ICONS.pin}</span></div>` : ''}
+              ${w.pinned ? `<div class="g-badge-tl"><span class="g-badge g-badge-pin" title="고정됨">${ICONS.pin}<span>고정됨</span></span></div>` : ''}
               <div class="g-badge-tr">
                 ${w.encrypted ? `<span class="g-badge g-badge-enc" title="암호화">${ICONS.lock}<span>암호화</span></span>` : ''}
                 <span class="g-badge g-badge-status ${w.dirty ? 'wip' : 'synced'}"><span class="s-dot"></span><span>${w.dirty ? '제작중' : '배포 완료'}</span></span>
