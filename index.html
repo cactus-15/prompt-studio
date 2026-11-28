@@ -330,7 +330,7 @@
       gap: 18px 12px; align-items: start;
     }
     .gallery-card { display: flex; flex-direction: column; gap: 7px; cursor: pointer; }
-    .gallery-card:hover .gallery-thumb img { transform: scale(1.03); }
+    .gallery-card:hover .gallery-thumb .gallery-img-main { transform: scale(1.03); }
     .gallery-thumb {
       position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 14px; overflow: hidden;
       background: var(--bg-subtle); border: 1px solid var(--border);
@@ -381,6 +381,46 @@
       font-size: 11.5px; color: var(--text-faint); font-variant-numeric: tabular-nums;
       display: flex; align-items: center; gap: 6px; margin-top: 1px;
     }
+
+    /* Vertical Gallery View (1:1.6) */
+    .gallery-grid:not(.is-vertical) .gallery-tags:empty { display: none; }
+    .gallery-grid.is-vertical { gap: 14px 12px; }
+    .gallery-grid.is-vertical .gallery-card {
+      position: relative; aspect-ratio: 1 / 1.6; border-radius: 14px; overflow: hidden;
+      border: 1px solid var(--border); background: var(--bg-subtle); gap: 0;
+    }
+    .gallery-grid.is-vertical .gallery-thumb {
+      position: absolute; inset: 0; height: 100%; aspect-ratio: auto; border: none; border-radius: 0;
+    }
+    .gallery-grid.is-vertical .gallery-thumb.is-square-fit .gallery-img-blur {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+      filter: blur(18px) saturate(1.15) brightness(0.92); transform: scale(1.22); z-index: 0; pointer-events: none;
+    }
+    .gallery-grid.is-vertical .gallery-thumb.is-square-fit .gallery-img-main {
+      position: relative; z-index: 1; width: 100%; height: 62.5%;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.28);
+    }
+    .gallery-grid.is-vertical .g-badge-pin span,
+    .gallery-grid.is-vertical .g-badge-enc span,
+    .gallery-grid.is-vertical .g-badge-status,
+    .gallery-grid.is-vertical .g-badge-br,
+    .gallery-grid.is-vertical .gallery-foot-sub { display: none; }
+    .gallery-grid.is-vertical .g-badge-pin,
+    .gallery-grid.is-vertical .g-badge-enc { width: 26px; height: 26px; padding: 0; border-radius: 8px; justify-content: center; }
+    .gallery-grid.is-vertical .gallery-meta {
+      position: absolute; inset: auto 0 0 0; z-index: 3; padding: 38px 12px 11px; gap: 3px;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.72) 56%, rgba(0, 0, 0, 0.28) 84%, transparent 100%);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+    }
+    .gallery-grid.is-vertical .gallery-title { color: #ffffff; }
+    .gallery-grid.is-vertical .gallery-meta .tree-mini-btn { color: rgba(255, 255, 255, 0.75); }
+    .gallery-grid.is-vertical .gallery-meta .tree-mini-btn:hover { background: rgba(255, 255, 255, 0.16); color: #ffffff; }
+    .gallery-grid.is-vertical .gallery-summary { color: rgba(255, 255, 255, 0.88); }
+    .gallery-grid.is-vertical .gallery-tags,
+    .gallery-grid.is-vertical .gallery-tag-link { color: rgba(255, 255, 255, 0.68); }
+    .gallery-grid.is-vertical .gallery-tags { min-height: 1.45em; flex-wrap: nowrap; overflow: hidden; }
+    .gallery-grid.is-vertical .gallery-tags > * { white-space: nowrap; flex-shrink: 0; }
+    .gallery-grid.is-vertical .gallery-tag-link:hover { color: #ffffff; }
 
     /* Lorebook Keyword Bar */
     .lore-bar {
@@ -611,6 +651,10 @@
     .dd-item { width: 100%; padding: 7px 9px; border-radius: 6px; justify-content: space-between; text-align: left; font-size: 13px; color: var(--text-main); }
     .dd-item:hover { background: var(--bg-hover); }
     .dd-item.active { background: var(--accent-soft); color: var(--accent-text); font-weight: 600; }
+    .dd-item.dd-row { display: flex; align-items: center; cursor: default; }
+    .dd-item.dd-row:hover { background: transparent; }
+    .dd-seg { width: 96px; flex-shrink: 0; }
+    .dd-seg .seg-btn { height: 22px; font-size: 11px; }
     .dd-sep { height: 1px; background: var(--border); margin: 4px 0; }
     .dd-label { font-size: 11px; color: var(--text-faint); padding: 4px 9px; font-weight: 600; }
 
@@ -715,6 +759,11 @@
       .crumb-folder { padding: 3px 6px; }
       .home-wrap { padding: 14px 12px 44px; gap: 12px; }
       .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 8px; }
+      .gallery-grid.is-vertical { gap: 10px 8px; }
+      .gallery-grid.is-vertical .gallery-meta { padding: 30px 9px 9px; }
+      .gallery-grid.is-vertical .gallery-title { font-size: 14px; }
+      .gallery-grid.is-vertical .gallery-summary { font-size: 12px; }
+      .gallery-grid.is-vertical .gallery-tags { font-size: 11px; }
       .g-badge { padding: 3px 6px; font-size: 10.5px; }
       .char-info-top, .char-info-section { padding: 14px 16px; }
       .cards-scroll { padding: 12px; }
@@ -1191,6 +1240,7 @@
     activeFolderId: null, activeItemId: null,
     searchQuery: '', searchScope: 'current',
     homeQuery: '', homeFilter: 'all', homeTag: '', homeSort: 'updated',
+    galleryView: localStorage.getItem('ps_gallery_view') === 'vertical' ? 'vertical' : 'default',
     sidebarCollapsed: isMobile(), showPreview: true, showTokenPopover: false, isSyncing: false,
     showEditorFind: false, showEditorReplace: false, editorFindQuery: '', editorReplaceText: '',
     showLineNumbers: localStorage.getItem('ps_line_numbers') !== '0',
@@ -1201,7 +1251,7 @@
     templates: readJsonLS('ps_templates', []),
     defaultTemplateId: localStorage.getItem('ps_default_tpl_id') || '',
     selectedTemplateId: '',
-    editingCardIds: new Set(), assetCache: new Map(), jsxPropsMap: new Map(),
+    editingCardIds: new Set(), assetCache: new Map(), imgSquareCache: new Map(), jsxPropsMap: new Map(),
     deletedQueue: readJsonLS('ps_deleted_queue', []),
     config: { owner: '', repo: '', branch: 'main', token: '', rememberPass: true },
     masterPass: '',
@@ -1786,7 +1836,9 @@
       main.querySelectorAll('[data-htag]').forEach(b => b.classList.toggle('active', b.dataset.htag === state.homeTag));
 
       const items = getFilteredHomeWorks(statsMap);
+      const isVertical = state.galleryView === 'vertical';
       const grid = $('galleryGrid');
+      grid.classList.toggle('is-vertical', isVertical);
       grid.innerHTML = items.length ? items.map(({ work: w, stats }) => {
         const tags = w.tags || [], shownTags = tags.slice(0, 3), extraTags = tags.length - shownTags.length;
         const initial = (w.title || 'W').trim().charAt(0).toUpperCase();
@@ -1794,9 +1846,9 @@
           <article class="gallery-card" data-open-work="${w.id}">
             <div class="gallery-thumb" data-thumb-slot="${w.id}">
               <div class="gallery-thumb-empty"><span class="gallery-thumb-letter">${escHtml(initial)}</span></div>
-              ${w.pinned ? `<div class="g-badge-tl"><span class="g-badge g-badge-pin">${ICONS.pin}<span>고정됨</span></span></div>` : ''}
+              ${w.pinned ? `<div class="g-badge-tl"><span class="g-badge g-badge-pin" title="고정됨">${ICONS.pin}<span>고정됨</span></span></div>` : ''}
               <div class="g-badge-tr">
-                ${w.encrypted ? `<span class="g-badge g-badge-enc">${ICONS.lock}<span>암호화</span></span>` : ''}
+                ${w.encrypted ? `<span class="g-badge g-badge-enc" title="암호화">${ICONS.lock}<span>암호화</span></span>` : ''}
                 <span class="g-badge g-badge-status ${w.dirty ? 'wip' : 'synced'}"><span class="s-dot"></span><span>${w.dirty ? '제작중' : '배포 완료'}</span></span>
               </div>
               <div class="g-badge-br">
@@ -1809,7 +1861,7 @@
                 <button type="button" class="tree-mini-btn" data-gmenu="${w.id}" title="작품 메뉴">${ICONS.moreV}</button>
               </div>
               <div class="gallery-summary">${escHtml(w.summary || ' ')}</div>
-              ${tags.length ? `<div class="gallery-tags">${shownTags.map(t => `<span class="gallery-tag-link" data-pick-tag="${escHtml(t)}">#${escHtml(t)}</span>`).join('')}${extraTags > 0 ? `<span>+${extraTags}</span>` : ''}</div>` : ''}
+              <div class="gallery-tags">${shownTags.map(t => `<span class="gallery-tag-link" data-pick-tag="${escHtml(t)}">#${escHtml(t)}</span>`).join('')}${extraTags > 0 ? `<span>+${extraTags}</span>` : ''}</div>
               <div class="gallery-foot-sub">
                 <span>${fmtShort(stats.tokens)} 토큰</span><span>·</span>
                 <span title="생성일">${new Date(getWorkCreatedAt(w) || Date.now()).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}</span>
@@ -1822,13 +1874,39 @@
           ${state.works.length ? '<button class="btn btn-sm" id="btnResetHomeFilter">필터 초기화</button>' : ''}
         </div>`;
 
+      const applySquareFit = (slot, img, pos) => {
+        if (!slot.isConnected || slot.classList.contains('is-square-fit')) return;
+        slot.classList.add('is-square-fit');
+        const blur = Object.assign(document.createElement('img'), { className: 'gallery-img-blur', src: img.src, alt: '' });
+        blur.setAttribute('aria-hidden', 'true');
+        blur.style.objectPosition = pos;
+        slot.insertBefore(blur, img);
+      };
+
       items.forEach(async ({ work: w }) => {
         const src = await getWorkThumbSrc(w);
-        const empty = src && grid.querySelector(`[data-thumb-slot="${w.id}"] .gallery-thumb-empty`);
-        if (empty) {
-          const img = Object.assign(document.createElement('img'), { src, alt: w.title || '', loading: 'lazy' });
-          img.style.objectPosition = getProfilePos(w);
-          empty.replaceWith(img);
+        const slot = src && grid.querySelector(`[data-thumb-slot="${w.id}"]`);
+        const empty = slot?.querySelector('.gallery-thumb-empty');
+        if (!empty) return;
+        const pos = getProfilePos(w);
+        const img = Object.assign(document.createElement('img'), {
+          className: 'gallery-img-main', src, alt: w.title || '', loading: 'lazy'
+        });
+        img.style.objectPosition = pos;
+        empty.replaceWith(img);
+        if (!isVertical) return;
+        const cached = state.imgSquareCache.get(src);
+        if (cached === true) {
+          applySquareFit(slot, img, pos);
+        } else if (cached === undefined) {
+          const checkFit = () => {
+            if (!img.naturalWidth || !img.naturalHeight) return;
+            const sq = img.naturalHeight <= img.naturalWidth * 1.05;
+            state.imgSquareCache.set(src, sq);
+            if (sq) applySquareFit(slot, img, pos);
+          };
+          if (img.complete && img.naturalWidth) checkFit();
+          else img.onload = checkFit;
         }
       });
     };
@@ -3119,7 +3197,14 @@
         ${ICONS.cloud}
       </button>
       <div class="dd-sep"></div>
-      <div class="dd-label">테마 & 편집기</div>
+      <div class="dd-label">화면 & 편집기</div>
+      <div class="dd-item dd-row">
+        <span>홈 갤러리 보기</span>
+        <div class="seg-control dd-seg">
+          <button type="button" class="seg-btn ${state.galleryView === 'default' ? 'active' : ''}" data-gview="default">기본</button>
+          <button type="button" class="seg-btn ${state.galleryView === 'vertical' ? 'active' : ''}" data-gview="vertical">세로형</button>
+        </div>
+      </div>
       <button class="dd-item" id="tmAccent">
         <span>액센트 컬러 변경</span>
         <span class="accent-dot-preview"></span>
@@ -3148,6 +3233,17 @@
       };
     }
     menu.querySelector('#tmSettings').onclick = () => { closeDropdown(); openSettingsModal(); };
+    menu.querySelectorAll('[data-gview]').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const next = btn.dataset.gview;
+        if (state.galleryView === next) return;
+        state.galleryView = next;
+        localStorage.setItem('ps_gallery_view', next);
+        if (isHome()) renderMain();
+        openTopMenu(anchor);
+      };
+    });
     menu.querySelector('#tmAccent').onclick = (e) => { e.stopPropagation(); openAccentMenu(anchor); };
     menu.querySelector('#tmTheme').onclick = (e) => {
       e.stopPropagation();
